@@ -3,8 +3,8 @@
 #include <string.h>
 #define CMD_LEN 256
 
-//FUNZIONI PASTICCERIA
-// aggiungi ricetta (nome_ricetta, nome_ingrediente1 , qta1, nome_ingrediente2 , qta2, ....)
+// FUNZIONI PASTICCERIA
+//  aggiungi ricetta (nome_ricetta, nome_ingrediente1 , qta1, nome_ingrediente2 , qta2, ....)
 
 // rimuovi ricetta (nome_ricetta)
 
@@ -12,8 +12,7 @@
 
 // ordine (nome_ricetta, numero_elementi_ordinati)
 
-//FUNZIONI ACCESSORIE
-
+// FUNZIONI ACCESSORIE
 
 int main()
 {
@@ -26,9 +25,9 @@ int main()
     // inizio a processare comandi in ingresso, termino quando non ci sono piu comandi <--> scanf vuoto <--> lunghezza input =0
     char comando[CMD_LEN];
     int n = 1; // numero di caretteri letti da input
-    char temp; //variabile accessoria per pulire buffer da ENTER
+    char temp; // variabile accessoria per pulire buffer da ENTER
 
-    //COMANDI POSSIBILI
+    // COMANDI POSSIBILI
     char cmd1[] = "aggiungi_ricetta";
     char cmd2[] = "rimuovi_ricetta";
     char cmd3[] = "ordine";
@@ -37,8 +36,8 @@ int main()
     int len_cmd2 = strlen(cmd2);
     int len_cmd3 = strlen(cmd3);
     int len_cmd4 = strlen(cmd4);
-    
-    int clock = 0; //istanti di tempo della simulazione
+
+    int clock = 0; // istanti di tempo della simulazione
 
     while (n > 0)
     {
@@ -49,7 +48,7 @@ int main()
             printf("corriere\n");
         }
 
-        //GESTISCO COMANDO
+        // GESTISCO COMANDO
         scanf("%c", &temp); // pulisco il buffer di input perche da ora in poi considero solo  ENTER come separatore
         scanf("%[^\n]s", comando);
         n = strlen(comando);
