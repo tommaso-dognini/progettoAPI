@@ -190,8 +190,8 @@ void inorder(struct node* trav)
 // driver code
 int main()
 {
-	int n = 7;
-	int a[7] = { 7, 6, 5, 4, 3, 2, 1 };
+	int n = 12;
+	int a[12] = { 7, 6, 5, 4, 3, 2, 1,10,20,26,14,18 };
 
 	for (int i = 0; i < n; i++) {
 
