@@ -11,9 +11,9 @@ struct node
 {
 	int d;			// data
 	int c;			// 1-red, 0-black
-	struct node *p; // parent
-	struct node *r; // right-child
-	struct node *l; // left child
+	struct node *p; // p
+	struct node *r; // r-child
+	struct node *l; // l child
 };
 
 // global root for the entire tree
@@ -44,138 +44,138 @@ struct node *bst(struct node *trav,
 	return trav;
 }
 
-// Function performing right rotation
+// Function performing r rotation
 // of the passed node
-void rightrotate(struct node *temp)
+void rightRotate(struct node *temp)
 {
-	struct node *left = temp->l;
-	temp->l = left->r;
+	struct node *l = temp->l;
+	temp->l = l->r;
 	if (temp->l)
 		temp->l->p = temp;
-	left->p = temp->p;
+	l->p = temp->p;
 	if (!temp->p)
-		root = left;
+		root = l;
 	else if (temp == temp->p->l)
-		temp->p->l = left;
+		temp->p->l = l;
 	else
-		temp->p->r = left;
-	left->r = temp;
-	temp->p = left;
+		temp->p->r = l;
+	l->r = temp;
+	temp->p = l;
 }
 
-// Function performing left rotation
+// Function performing l rotation
 // of the passed node
-void leftrotate(struct node *temp)
+void leftRotate(struct node *temp)
 {
-	struct node *right = temp->r;
-	temp->r = right->l;
+	struct node *r = temp->r;
+	temp->r = r->l;
 	if (temp->r)
 		temp->r->p = temp;
-	right->p = temp->p;
+	r->p = temp->p;
 	if (!temp->p)
-		root = right;
+		root = r;
 	else if (temp == temp->p->l)
-		temp->p->l = right;
+		temp->p->l = r;
 	else
-		temp->p->r = right;
-	right->l = temp;
-	temp->p = right;
+		temp->p->r = r;
+	r->l = temp;
+	temp->p = r;
 }
 
 // This function fixes violations
 // caused by BST insertion
 void fixup(struct node *root, struct node *pt)
 {
-	struct node *parent_pt = NULL;
-	struct node *grand_parent_pt = NULL;
+	struct node *p_pt = NULL;
+	struct node *grand_p_pt = NULL;
 
 	while ((pt != root) && (pt->c != 0) && (pt->p->c == 1))
 	{
-		parent_pt = pt->p;
-		grand_parent_pt = pt->p->p;
+		p_pt = pt->p;
+		grand_p_pt = pt->p->p;
 
 		/* Case : A
-			Parent of pt is left child
-			of Grand-parent of
+			p of pt is l child
+			of Grand-p of
 		pt */
-		if (parent_pt == grand_parent_pt->l)
+		if (p_pt == grand_p_pt->l)
 		{
 
-			struct node *uncle_pt = grand_parent_pt->r;
+			struct node *uncle_pt = grand_p_pt->r;
 
 			/* Case : 1
 				The uncle of pt is also red
-				Only Recoloring required */
+				Only Recing required */
 			if (uncle_pt != NULL && uncle_pt->c == 1)
 			{
-				grand_parent_pt->c = 1;
-				parent_pt->c = 0;
+				grand_p_pt->c = 1;
+				p_pt->c = 0;
 				uncle_pt->c = 0;
-				pt = grand_parent_pt;
+				pt = grand_p_pt;
 			}
 
 			else
 			{
 
 				/* Case : 2
-					pt is right child of its parent
-					Left-rotation required */
-				if (pt == parent_pt->r)
+					pt is r child of its p
+					l-rotation required */
+				if (pt == p_pt->r)
 				{
-					leftrotate(parent_pt);
-					pt = parent_pt;
-					parent_pt = pt->p;
+					leftRotate(p_pt);
+					pt = p_pt;
+					p_pt = pt->p;
 				}
 
 				/* Case : 3
-					pt is left child of its parent
-					Right-rotation required */
-				rightrotate(grand_parent_pt);
-				int t = parent_pt->c;
-				parent_pt->c = grand_parent_pt->c;
-				grand_parent_pt->c = t;
-				pt = parent_pt;
+					pt is l child of its p
+					r-rotation required */
+				rightRotate(grand_p_pt);
+				int t = p_pt->c;
+				p_pt->c = grand_p_pt->c;
+				grand_p_pt->c = t;
+				pt = p_pt;
 			}
 		}
 
 		/* Case : B
-			Parent of pt is right
-			child of Grand-parent of
+			p of pt is r
+			child of Grand-p of
 		pt */
 		else
 		{
-			struct node *uncle_pt = grand_parent_pt->l;
+			struct node *uncle_pt = grand_p_pt->l;
 
 			/* Case : 1
 				The uncle of pt is also red
-				Only Recoloring required */
+				Only Recing required */
 			if ((uncle_pt != NULL) && (uncle_pt->c == 1))
 			{
-				grand_parent_pt->c = 1;
-				parent_pt->c = 0;
+				grand_p_pt->c = 1;
+				p_pt->c = 0;
 				uncle_pt->c = 0;
-				pt = grand_parent_pt;
+				pt = grand_p_pt;
 			}
 			else
 			{
 				/* Case : 2
-				pt is left child of its parent
-				Right-rotation required */
-				if (pt == parent_pt->l)
+				pt is l child of its p
+				r-rotation required */
+				if (pt == p_pt->l)
 				{
-					rightrotate(parent_pt);
-					pt = parent_pt;
-					parent_pt = pt->p;
+					rightRotate(p_pt);
+					pt = p_pt;
+					p_pt = pt->p;
 				}
 
 				/* Case : 3
-					pt is right child of its parent
-					Left-rotation required */
-				leftrotate(grand_parent_pt);
-				int t = parent_pt->c;
-				parent_pt->c = grand_parent_pt->c;
-				grand_parent_pt->c = t;
-				pt = parent_pt;
+					pt is r child of its p
+					l-rotation required */
+				leftRotate(grand_p_pt);
+				int t = p_pt->c;
+				p_pt->c = grand_p_pt->c;
+				grand_p_pt->c = t;
+				pt = p_pt;
 			}
 		}
 	}
@@ -203,7 +203,7 @@ void print2DUtil(struct node *root, int space)
 	// Increase distance between levels
 	space += COUNT;
 
-	// Process right child first
+	// Process r child first
 	print2DUtil(root->r, space);
 
 	// Print current node after space
@@ -213,7 +213,7 @@ void print2DUtil(struct node *root, int space)
 		printf(" ");
 	printf("%d\n", root->d);
 
-	// Process left child
+	// Process l child
 	print2DUtil(root->l, space);
 }
 
@@ -222,6 +222,177 @@ void print2D(struct node *root)
 {
 	// Pass initial space count as 0
 	print2DUtil(root, 0);
+}
+
+// For balancing the tree after deletion
+void deleteFix(struct node *x)
+{
+	struct node *s;
+	while (x != root && x->c == 0)
+	{
+		if (x == x->p->l)
+		{
+			s = x->p->r;
+			if (s->c == 1)
+			{
+				s->c = 0;
+				x->p->c = 1;
+				leftRotate(x->p);
+				s = x->p->r;
+			}
+
+			if (s->l->c == 0 && s->r->c == 0)
+			{
+				s->c = 1;
+				x = x->p;
+			}
+			else
+			{
+				if (s->r->c == 0)
+				{
+					s->l->c = 0;
+					s->c = 1;
+					rightRotate(s);
+					s = x->p->r;
+				}
+
+				s->c = x->p->c;
+				x->p->c = 0;
+				s->r->c = 0;
+				leftRotate(x->p);
+				x = root;
+			}
+		}
+		else
+		{
+			s = x->p->l;
+			if (s->c == 1)
+			{
+				s->c = 0;
+				x->p->c = 1;
+				rightRotate(x->p);
+				s = x->p->l;
+			}
+
+			if (s->r->c == 0 && s->r->c == 0)
+			{
+				s->c = 1;
+				x = x->p;
+			}
+			else
+			{
+				if (s->l->c == 0)
+				{
+					s->r->c = 0;
+					s->c = 1;
+					leftRotate(s);
+					s = x->p->l;
+				}
+
+				s->c = x->p->c;
+				x->p->c = 0;
+				s->l->c = 0;
+				rightRotate(x->p);
+				x = root;
+			}
+		}
+	}
+	x->c = 0;
+}
+
+struct node * minimum(struct node * node)
+{
+    while (node->l != NULL)
+    {
+        node = node->l;
+    }
+    return node;
+}
+
+void rbTransplant(struct node *u, struct node *v)
+{
+	if (u->p == NULL)
+	{
+		root = v;
+	}
+	else if (u == u->p->l)
+	{
+		u->p->l = v;
+	}
+	else
+	{
+		u->p->r = v;
+	}
+	v->p = u->p;
+}
+
+
+void deleteNode(struct node *node, int key)
+{
+	struct node *z = NULL;
+	struct node *y;
+	struct node *x;
+	while (node != NULL)
+	{
+		if (node->d == key)
+		{
+			z = node;
+		}
+
+		if (node->d <= key)
+		{
+			node = node->r;
+		}
+		else
+		{
+			node = node->l;
+		}
+	}
+
+	if (z == NULL)
+	{
+		printf("Key not found in the tree\n");
+		return;
+	}
+
+	y = z;
+	int y_original_color = y->c;
+	if (z->l == NULL)
+	{
+		x = z->r;
+		rbTransplant(z, z->r);
+	}
+	else if (z->r == NULL)
+	{
+		x = z->l;
+		rbTransplant(z, z->l);
+	}
+	else
+	{
+		y = minimum(z->r);
+		y_original_color = y->c;
+		x = y->r;
+		if (y->p == z)
+		{
+			x->p = y;
+		}
+		else
+		{
+			rbTransplant(y, y->r);
+			y->r = z->r;
+			y->r->p = y;
+		}
+
+		rbTransplant(z, y);
+		y->l = z->l;
+		y->l->p = y;
+		y->c = z->c;
+	}
+
+	if (y_original_color == 0)
+	{
+		deleteFix(x);
+	}
 }
 
 // driver code
@@ -234,8 +405,8 @@ int main()
 	{
 
 		// allocating memory to the node and initializing:
-		// 1. color as red
-		// 2. parent, left and right pointers as NULL
+		// 1. c as red
+		// 2. p, l and r pointers as NULL
 		// 3. data as i-th value in the array
 		struct node *temp = (struct node *)malloc(sizeof(struct node));
 		temp->r = NULL;
@@ -253,6 +424,14 @@ int main()
 		fixup(root, temp);
 		root->c = 0;
 	}
+
+	printf("Inorder Traversal of Created Tree\n");
+	printf("Root: %d \n", root->d);
+	inorder(root);
+
+	print2D(root);
+
+	deleteNode(root, 6);
 
 	printf("Inorder Traversal of Created Tree\n");
 	printf("Root: %d \n", root->d);
