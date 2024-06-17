@@ -1,39 +1,40 @@
-/** C implementation for 
+/** C implementation for
 	Red-Black Tree Insertion
-	This code is provided by 
+	This code is provided by
 	costheta_z **/
 #include <stdio.h>
 #include <stdlib.h>
-
-// Structure to represent each 
+#define COUNT 10
+// Structure to represent each
 // node in a red-black tree
-struct node {
-	int d; // data
-	int c; // 1-red, 0-black
-	struct node* p; // parent
-	struct node* r; // right-child
-	struct node* l; // left child
+struct node
+{
+	int d;			// data
+	int c;			// 1-red, 0-black
+	struct node *p; // parent
+	struct node *r; // right-child
+	struct node *l; // left child
 };
 
 // global root for the entire tree
-struct node* root = NULL;
+struct node *root = NULL;
 
 // function to perform BST insertion of a node
-struct node* bst(struct node* trav, 
-					struct node* temp)
+struct node *bst(struct node *trav,
+				 struct node *temp)
 {
-	// If the tree is empty, 
+	// If the tree is empty,
 	// return a new node
 	if (trav == NULL)
 		return temp;
 
 	// Otherwise recur down the tree
-	if (temp->d < trav->d) 
+	if (temp->d < trav->d)
 	{
 		trav->l = bst(trav->l, temp);
 		trav->l->p = trav;
 	}
-	else if (temp->d > trav->d) 
+	else if (temp->d > trav->d)
 	{
 		trav->r = bst(trav->r, temp);
 		trav->r->p = trav;
@@ -43,11 +44,11 @@ struct node* bst(struct node* trav,
 	return trav;
 }
 
-// Function performing right rotation 
+// Function performing right rotation
 // of the passed node
-void rightrotate(struct node* temp)
+void rightrotate(struct node *temp)
 {
-	struct node* left = temp->l;
+	struct node *left = temp->l;
 	temp->l = left->r;
 	if (temp->l)
 		temp->l->p = temp;
@@ -62,11 +63,11 @@ void rightrotate(struct node* temp)
 	temp->p = left;
 }
 
-// Function performing left rotation 
+// Function performing left rotation
 // of the passed node
-void leftrotate(struct node* temp)
+void leftrotate(struct node *temp)
 {
-	struct node* right = temp->r;
+	struct node *right = temp->r;
 	temp->r = right->l;
 	if (temp->r)
 		temp->r->p = temp;
@@ -81,32 +82,31 @@ void leftrotate(struct node* temp)
 	temp->p = right;
 }
 
-// This function fixes violations 
+// This function fixes violations
 // caused by BST insertion
-void fixup(struct node* root, struct node* pt)
+void fixup(struct node *root, struct node *pt)
 {
-	struct node* parent_pt = NULL;
-	struct node* grand_parent_pt = NULL;
+	struct node *parent_pt = NULL;
+	struct node *grand_parent_pt = NULL;
 
-	while ((pt != root) && (pt->c != 0)
-		&& (pt->p->c == 1)) 
+	while ((pt != root) && (pt->c != 0) && (pt->p->c == 1))
 	{
 		parent_pt = pt->p;
 		grand_parent_pt = pt->p->p;
 
 		/* Case : A
-			Parent of pt is left child 
+			Parent of pt is left child
 			of Grand-parent of
 		pt */
-		if (parent_pt == grand_parent_pt->l) 
+		if (parent_pt == grand_parent_pt->l)
 		{
 
-			struct node* uncle_pt = grand_parent_pt->r;
+			struct node *uncle_pt = grand_parent_pt->r;
 
 			/* Case : 1
 				The uncle of pt is also red
 				Only Recoloring required */
-			if (uncle_pt != NULL && uncle_pt->c == 1) 
+			if (uncle_pt != NULL && uncle_pt->c == 1)
 			{
 				grand_parent_pt->c = 1;
 				parent_pt->c = 0;
@@ -114,12 +114,14 @@ void fixup(struct node* root, struct node* pt)
 				pt = grand_parent_pt;
 			}
 
-			else {
+			else
+			{
 
 				/* Case : 2
 					pt is right child of its parent
 					Left-rotation required */
-				if (pt == parent_pt->r) {
+				if (pt == parent_pt->r)
+				{
 					leftrotate(parent_pt);
 					pt = parent_pt;
 					parent_pt = pt->p;
@@ -137,27 +139,30 @@ void fixup(struct node* root, struct node* pt)
 		}
 
 		/* Case : B
-			Parent of pt is right 
+			Parent of pt is right
 			child of Grand-parent of
 		pt */
-		else {
-			struct node* uncle_pt = grand_parent_pt->l;
+		else
+		{
+			struct node *uncle_pt = grand_parent_pt->l;
 
 			/* Case : 1
 				The uncle of pt is also red
 				Only Recoloring required */
-			if ((uncle_pt != NULL) && (uncle_pt->c == 1)) 
+			if ((uncle_pt != NULL) && (uncle_pt->c == 1))
 			{
 				grand_parent_pt->c = 1;
 				parent_pt->c = 0;
 				uncle_pt->c = 0;
 				pt = grand_parent_pt;
 			}
-			else {
+			else
+			{
 				/* Case : 2
 				pt is left child of its parent
 				Right-rotation required */
-				if (pt == parent_pt->l) {
+				if (pt == parent_pt->l)
+				{
 					rightrotate(parent_pt);
 					pt = parent_pt;
 					parent_pt = pt->p;
@@ -176,9 +181,9 @@ void fixup(struct node* root, struct node* pt)
 	}
 }
 
-// Function to print inorder traversal 
+// Function to print inorder traversal
 // of the fixated tree
-void inorder(struct node* trav)
+void inorder(struct node *trav)
 {
 	if (trav == NULL)
 		return;
@@ -187,20 +192,52 @@ void inorder(struct node* trav)
 	inorder(trav->r);
 }
 
+// Function to print binary tree in 2D
+// It does reverse inorder traversal
+void print2DUtil(struct node *root, int space)
+{
+	// Base case
+	if (root == NULL)
+		return;
+
+	// Increase distance between levels
+	space += COUNT;
+
+	// Process right child first
+	print2DUtil(root->r, space);
+
+	// Print current node after space
+	// count
+	printf("\n");
+	for (int i = COUNT; i < space; i++)
+		printf(" ");
+	printf("%d\n", root->d);
+
+	// Process left child
+	print2DUtil(root->l, space);
+}
+
+// Wrapper over print2DUtil()
+void print2D(struct node *root)
+{
+	// Pass initial space count as 0
+	print2DUtil(root, 0);
+}
+
 // driver code
 int main()
 {
 	int n = 12;
-	int a[12] = { 7, 6, 5, 4, 3, 2, 1,10,20,26,14,18 };
+	int a[12] = {7, 6, 5, 4, 3, 2, 1, 10, 20, 26, 14, 18};
 
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++)
+	{
 
 		// allocating memory to the node and initializing:
 		// 1. color as red
 		// 2. parent, left and right pointers as NULL
 		// 3. data as i-th value in the array
-		struct node* temp
-			= (struct node*)malloc(sizeof(struct node));
+		struct node *temp = (struct node *)malloc(sizeof(struct node));
 		temp->r = NULL;
 		temp->l = NULL;
 		temp->p = NULL;
@@ -218,8 +255,10 @@ int main()
 	}
 
 	printf("Inorder Traversal of Created Tree\n");
-    printf("Root: %d \n",root->d);
+	printf("Root: %d \n", root->d);
 	inorder(root);
+
+	print2D(root);
 
 	return 0;
 }
