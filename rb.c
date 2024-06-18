@@ -120,15 +120,33 @@ int main()
 
     // test cerca
     printf("\n\n");
-    Nodo *x;
-    int n = 9;
+    Nodo *x,*xa,*xb;
+    int n = 20 , na =17 , nb= 9;
     x = cerca(albero, n);
     printf("Nodo cercato: %d\n", x->chiave);
+
+    xa = cerca(albero, na);
+    printf("Nodo cercato: %d\n", xa->chiave);
+
+    xb = cerca(albero, nb);
+    printf("Nodo cercato: %d\n", xb->chiave);
 
     // test cancella
     printf("\n\n");
     printf("ELimina nodo %d\n", n);
     elimina_nodo(&albero, x);
+    printf("RADICE: %d \n", albero->chiave);
+    stampa_in_ordine(albero);
+
+    printf("\n\n");
+    printf("ELimina nodo %d\n", na);
+    elimina_nodo(&albero, xa);
+    printf("RADICE: %d \n", albero->chiave);
+    stampa_in_ordine(albero);
+
+    printf("\n\n");
+    printf("ELimina nodo %d\n", nb);
+    elimina_nodo(&albero, xb);
     printf("RADICE: %d \n", albero->chiave);
     stampa_in_ordine(albero);
     //print2D(albero);
@@ -392,7 +410,7 @@ void elimina_fixUp(Nodo **albero, Nodo *nodo)
 {
     Nodo *w;
 
-    while (nodo != &NILL && nodo->colore == 'n')
+    while ((nodo != &NILL) && (nodo->colore == 'n'))
     {
         // SE NODO E FIGLIO DESTRO
         if (nodo == nodo->padre->sx)
