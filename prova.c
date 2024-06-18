@@ -431,7 +431,7 @@ int main()
 
 	print2D(root);
 
-	deleteNode(root, 6);
+	deleteNode(root, 3);
 
 	printf("Inorder Traversal of Created Tree\n");
 	printf("Root: %d \n", root->d);

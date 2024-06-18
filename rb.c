@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#define COUNT 10
 
 // --- ALBERI ROSSO NERI ---
 
@@ -61,6 +62,38 @@ void elimina_nodo(Nodo **albero, Nodo *nodo);
 // Funzione per aggiustare albero e mantere bilanciamento e proprieta r-d dopo eliminizione di un nodo
 void elimina_fixUp(Nodo **albero, Nodo *nodo);
 
+// Function to print binary tree in 2D
+// It does reverse inorder traversal
+void print2DUtil(Nodo *root, int space)
+{
+    // Base case
+    if (root == &NILL)
+        return;
+
+    // Increase distance between levels
+    space += COUNT;
+
+    // Process r child first
+    print2DUtil(root->dx, space);
+
+    // Print current node after space
+    // count
+    printf("\n");
+    for (int i = COUNT; i < space; i++)
+        printf(" ");
+    printf("%d\n", root->chiave);
+
+    // Process l child
+    print2DUtil(root->sx, space);
+}
+
+// Wrapper over print2DUtil()
+void print2D(Nodo *root)
+{
+    // Pass initial space count as 0
+    print2DUtil(root, 'n');
+}
+
 // MAIN PER TEST
 int main()
 {
@@ -69,15 +102,16 @@ int main()
     albero = &NILL;
 
     // test inserimento
-    int chiavi[] = {1, 3, 4, 5, 10, 20, 33, 18, 7, 9};
+    int chiavi[] = {17, 20, 5, 4, 9, 18, 2, 1, 7, 13, 21, 8, 6};
     // printf("Chiave: %d \n", &chiave);
     int i;
-    for (i = 0; i < 10; i++)
+    for (i = 0; i < 13; i++)
     {
         inserisci(&albero, chiavi[i]);
     }
     printf("RADICE: %d \n", albero->chiave);
     stampa_in_ordine(albero);
+    //print2D(albero);
 
     // test minimo e massimo
     printf("\n\n");
@@ -87,7 +121,7 @@ int main()
     // test cerca
     printf("\n\n");
     Nodo *x;
-    int n = 7;
+    int n = 9;
     x = cerca(albero, n);
     printf("Nodo cercato: %d\n", x->chiave);
 
@@ -97,7 +131,7 @@ int main()
     elimina_nodo(&albero, x);
     printf("RADICE: %d \n", albero->chiave);
     stampa_in_ordine(albero);
-
+    //print2D(albero);
     return 0;
 }
 
@@ -261,6 +295,7 @@ void stampa_in_ordine(Nodo *albero)
 
 void trapianta(Nodo **albero, Nodo *u, Nodo *v)
 {
+    //!!!!!!!!!!!! VERIFICARE SE CE DA FARE UNA FREE DI U !!!!!!!!!!!!!!!
     if (u->padre == &NILL)
         (*albero) = v;
     else if (u == u->padre->sx)
@@ -268,8 +303,9 @@ void trapianta(Nodo **albero, Nodo *u, Nodo *v)
     else
         u->padre->dx = v;
 
-    if (v != &NILL)
-        v->padre = u->padre;
+    // if (v != &NILL) -->libro lo mette per bst ma affinche funzioni anche per rb lo tolgo
+    v->padre = u->padre;
+    return;
 }
 
 Nodo *minimo(Nodo *nodo)
@@ -290,6 +326,7 @@ Nodo *massimo(Nodo *nodo)
 
 Nodo *cerca(Nodo *radice, int chiave)
 {
+    // NOTA: se il nodo cercato non esiste ritorna NILL, la cui chiave e -999
     if (radice == &NILL || chiave == radice->chiave)
         return radice;
     if (chiave < radice->chiave)
@@ -304,14 +341,14 @@ void elimina_nodo(Nodo **albero, Nodo *nodo)
     Nodo *x;
     char colore_originale_y;
 
-    //verifico che il nodo esiste
-    if (cerca(nodo,nodo->chiave)== &NILL)
+    // verifico che il nodo esiste
+    if (cerca(nodo, nodo->chiave) == &NILL)
     {
         printf("Nodo inesistente!\n");
         return;
     }
 
-    //se si procedo con eliminazione
+    // se si procedo con eliminazione
     colore_originale_y = y->colore;
     if (nodo->sx == &NILL)
     {
@@ -337,14 +374,17 @@ void elimina_nodo(Nodo **albero, Nodo *nodo)
         else
         {
             x->padre = y;
-            trapianta(albero, nodo, y);
-            y->sx = nodo->sx;
-            y->sx->padre = y;
-            y->colore = nodo->colore;
         }
-        if (colore_originale_y == 'n')
-            elimina_fixUp(albero, x);
+        trapianta(albero, nodo, y);
+        y->sx = nodo->sx;
+        y->sx->padre = y;
+        y->colore = nodo->colore;
     }
+    if (colore_originale_y == 'n')
+        elimina_fixUp(albero, x);
+
+    // ho eliminato il nodo che volevo eliminare: per non lasciare garbage faccio la free
+    free(nodo);
     return;
 }
 
@@ -354,6 +394,7 @@ void elimina_fixUp(Nodo **albero, Nodo *nodo)
 
     while (nodo != &NILL && nodo->colore == 'n')
     {
+        // SE NODO E FIGLIO DESTRO
         if (nodo == nodo->padre->sx)
         {
             w = nodo->padre->dx;
@@ -386,6 +427,7 @@ void elimina_fixUp(Nodo **albero, Nodo *nodo)
                 nodo = (*albero);
             }
         }
+        // SE NODO E FIGLIO SINISTRO
         else
         { // come sopra ma con dx e sx scambiati
             w = nodo->padre->sx;
@@ -418,7 +460,7 @@ void elimina_fixUp(Nodo **albero, Nodo *nodo)
                 nodo = (*albero);
             }
         }
-        nodo->colore = 'n';
     }
+    nodo->colore = 'n';
     return;
 }
