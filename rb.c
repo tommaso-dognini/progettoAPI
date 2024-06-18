@@ -26,10 +26,10 @@ int main()
     Nodo *albero;
     albero = &NILL;
 
-    int chiavi[] = {1, 3, 4, 5};
+    int chiavi[] = {1, 3, 4, 5 , 10 , 20, 33 , 18 , 7 , 9};
     // printf("Chiave: %d \n", &chiave);
     int i;
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < 10; i++)
     {
         inserisci(&albero, chiavi[i]);
     }
@@ -235,7 +235,7 @@ void inserisci_fixup(Nodo **albero, Nodo *nuovo_nodo)
                 // caso 3
                 nuovo_nodo->padre->colore = 'n';
                 nuovo_nodo->padre->padre->colore = 'r';
-                ruota_dx(albero, nuovo_nodo);
+                ruota_dx(albero, nuovo_nodo->padre->padre);
             }
         }
         else
@@ -258,7 +258,7 @@ void inserisci_fixup(Nodo **albero, Nodo *nuovo_nodo)
                 // caso 3
                 nuovo_nodo->padre->colore = 'n';
                 nuovo_nodo->padre->padre->colore = 'r';
-                ruota_sx(albero, nuovo_nodo);
+                ruota_sx(albero, nuovo_nodo->padre->padre);
             }
         }
     }
