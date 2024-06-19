@@ -24,7 +24,7 @@ typedef struct Dati
 //  Per semplificazione di condizioni al contorno invece che usare tipo NULL
 // impongo che tutte le foglie puntano a un nodo NILL sentinella
 // chiave e colore sono indifferenti... Mi interessa che punti a se stesso (NILL)
-Nodo NILL = {'n', -999, &NILL, &NILL, &NILL};
+Nodo NILL = {'g', -999, &NILL, &NILL, &NILL};
 
 // FUNZIONI DI GESTIONE ALBERI ROSSO-NERI
 
@@ -61,6 +61,8 @@ void elimina_nodo(Nodo **albero, Nodo *nodo);
 
 // Funzione per aggiustare albero e mantere bilanciamento e proprieta r-d dopo eliminizione di un nodo
 void elimina_fixUp(Nodo **albero, Nodo *nodo);
+
+// FUNZIONI ACCESSORIE PER SOLA VISUALIZZAZIONE
 
 // Function to print binary tree in 2D
 // It does reverse inorder traversal
@@ -111,7 +113,7 @@ int main()
     }
     printf("RADICE: %d \n", albero->chiave);
     stampa_in_ordine(albero);
-    //print2D(albero);
+    // print2D(albero);
 
     // test minimo e massimo
     printf("\n\n");
@@ -120,8 +122,8 @@ int main()
 
     // test cerca
     printf("\n\n");
-    Nodo *x,*xa,*xb;
-    int n = 20 , na =17 , nb= 9;
+    Nodo *x, *xa, *xb;
+    int n = 20, na = 17, nb = 9;
     x = cerca(albero, n);
     printf("Nodo cercato: %d\n", x->chiave);
 
@@ -149,7 +151,7 @@ int main()
     elimina_nodo(&albero, xb);
     printf("RADICE: %d \n", albero->chiave);
     stampa_in_ordine(albero);
-    //print2D(albero);
+    // print2D(albero);
     return 0;
 }
 
@@ -397,9 +399,9 @@ void elimina_nodo(Nodo **albero, Nodo *nodo)
         y->sx = nodo->sx;
         y->sx->padre = y;
         y->colore = nodo->colore;
+        if (colore_originale_y == 'n')
+            elimina_fixUp(albero, x);
     }
-    if (colore_originale_y == 'n')
-        elimina_fixUp(albero, x);
 
     // ho eliminato il nodo che volevo eliminare: per non lasciare garbage faccio la free
     free(nodo);
@@ -412,7 +414,7 @@ void elimina_fixUp(Nodo **albero, Nodo *nodo)
 
     while ((nodo != &NILL) && (nodo->colore == 'n'))
     {
-        // SE NODO E FIGLIO DESTRO
+        // SE NODO E FIGLIO sinistro
         if (nodo == nodo->padre->sx)
         {
             w = nodo->padre->dx;
@@ -445,7 +447,7 @@ void elimina_fixUp(Nodo **albero, Nodo *nodo)
                 nodo = (*albero);
             }
         }
-        // SE NODO E FIGLIO SINISTRO
+        // SE NODO E FIGLIO destro
         else
         { // come sopra ma con dx e sx scambiati
             w = nodo->padre->sx;
