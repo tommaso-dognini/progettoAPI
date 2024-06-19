@@ -399,10 +399,11 @@ void elimina_nodo(Nodo **albero, Nodo *nodo)
         y->sx = nodo->sx;
         y->sx->padre = y;
         y->colore = nodo->colore;
-        if (colore_originale_y == 'n')
-            elimina_fixUp(albero, x);
     }
 
+    if (colore_originale_y == 'n')
+        elimina_fixUp(albero, x);
+    
     // ho eliminato il nodo che volevo eliminare: per non lasciare garbage faccio la free
     free(nodo);
     return;
@@ -425,7 +426,7 @@ void elimina_fixUp(Nodo **albero, Nodo *nodo)
                 ruota_sx(albero, nodo->padre);
                 w = nodo->padre->dx;
             }
-            if (w->sx->colore == 'n' && w->dx->colore == 'n')
+            if ((w->sx->colore == 'n') && (w->dx->colore == 'n'))
             { // caso 2
                 w->colore = 'r';
                 nodo = nodo->padre;
@@ -458,7 +459,7 @@ void elimina_fixUp(Nodo **albero, Nodo *nodo)
                 ruota_dx(albero, nodo->padre);
                 w = nodo->padre->sx;
             }
-            if (w->dx->colore == 'n' && w->sx->colore == 'n')
+            if ((w->dx->colore == 'n') && (w->sx->colore == 'n'))
             { // caso 2
                 w->colore = 'r';
                 nodo = nodo->padre;
