@@ -36,7 +36,7 @@ Nodo NILL = {'g', -999, NULL, &NILL, &NILL, &NILL};
 Nodo *crea_nodo(int chiave);
 
 // inserimento come se fosse bst di nodo nell'albero -> restituisce l'abero = puntatore alla radice
-void inserisci(Nodo **albero, Nodo* nuovo_nodo);
+void inserisci(Nodo **albero, Nodo *nuovo_nodo);
 
 // Funzione per eliminare un nodo (come fosse bst)
 void elimina_nodo(Nodo **albero, Nodo *nodo);
@@ -99,19 +99,14 @@ int main()
     char cmd2[] = "rimuovi_ricetta";
     char cmd3[] = "ordine";
     char cmd4[] = "rifornimento";
-    // int len_cmd1 = strlen(cmd1);
-    // int len_cmd2 = strlen(cmd2);
-    // int len_cmd3 = strlen(cmd3);
-    // int len_cmd4 = strlen(cmd4);
 
     int clock = 0; // istanti di tempo della simulazione
 
     Nodo *ricettario;
     // Nodo *magazzino, *ordini;
-    int continua = 1;
     char nome_ricetta[CMD_LEN];
     int codice_ricetta;
-    char *dati;
+    char dati[CMD_LEN];
 
     while (n > 0)
     {
@@ -132,15 +127,16 @@ int main()
         {
             scanf("%s", nome_ricetta);
             codice_ricetta = calcola_codice(nome_ricetta, 0);
+            printf("codice ricetta:  %d\n",codice_ricetta);
             // acquisisco il comando per intero -- espressione regolare che fa malloc e gestiesce in automatico lungheza fino a ENTER
-            scanf("%c", &temp);       // pulisco il buffer di input perche da ora in poi considero solo  ENTER come separatore
-            scanf("%m[^\n]s", &dati); // acquisisco comando
-            aggiungi_ricetta(&ricettario, codice_ricetta, &dati);
+            scanf("%c", &temp); // pulisco il buffer di input perche da ora in poi considero solo  ENTER come separatore
+            scanf("%[^\n]s", dati); // acquisisco comando
+            aggiungi_ricetta(&ricettario, codice_ricetta, dati);
 
             // pulisco e faccio le free
             codice_ricetta = 0;
             *nome_ricetta = 0;
-            free(dati);
+            //free(dati);
         }
 
         // rimuovi ricetta
@@ -171,7 +167,7 @@ int main()
     }
 
     // STAMPO SITUAZIONE CORRIERE
-    //stampo alberi
+    // stampo alberi
     printf("RADICE: %d \n", ricettario->chiave);
     stampa_in_ordine(ricettario);
     return 0;
@@ -195,7 +191,7 @@ Nodo *crea_nodo(int chiave)
 void inserisci(Nodo **albero, Nodo *nuovo_nodo)
 {
     // creo il nodo
-    //Nodo *nuovo_nodo = crea_nodo(chiave);
+    // Nodo *nuovo_nodo = crea_nodo(chiave);
 
     Nodo *x = *albero;
     Nodo *y = &NILL;
@@ -374,21 +370,34 @@ void aggiungi_ricetta(Nodo **ricettario, int codice_ricetta, char *comando)
     printf("codice ricetta: %d", codice_ricetta);
 
     // verifico se la ricetta e gia esistente
-    if (cerca(ricettario, codice_ricetta) == &NILL)
+    if (cerca(*ricettario, codice_ricetta) == &NILL)
     { // se esiste
         printf("ignorato\n");
     }
     else
     { // se non esiste
-      // creo il nodo della ricetta
-      Nodo* nodo = crea_nodo(codice_ricetta);
+        // creo il nodo della ricetta
+        Nodo *nodo = crea_nodo(codice_ricetta);
 
-      // inserisco la lista di ingredienti come lista concatenata con puntatore alla ridice = nodo->dati
+        // inserisco la lista di ingredienti come lista concatenata con puntatore alla ridice = nodo->dati
 
+        // inserisco il nodo nell'albero.
+        inserisci(ricettario, nodo);
+        printf("aggiunta\n");
+    }
+    return;
+}
 
-      // inserisco il nodo nell'albero.
-      inserisci(ricettario,nodo);
-      printf("aggiunta\n");
+void rimuovi_ricetta(Nodo **ricettario, int codice_ricetta)
+{
+    Nodo * nodo = cerca(*ricettario, codice_ricetta);
+    if ( nodo == &NILL)
+    {// se non ce
+        printf("non presente\n");
+    }
+    else
+    {
+        elimina_nodo(ricettario, nodo);
     }
     return;
 }
