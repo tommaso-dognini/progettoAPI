@@ -102,11 +102,11 @@ int main()
 
     int clock = 0; // istanti di tempo della simulazione
 
-    Nodo *ricettario;
+    //Nodo *ricettario;
     // Nodo *magazzino, *ordini;
     char nome_ricetta[CMD_LEN];
     int codice_ricetta;
-    char dati[CMD_LEN];
+    char *dati;
 
     while (n > 0)
     {
@@ -118,7 +118,7 @@ int main()
         }
 
         // GESTISCO COMANDO
-        scanf("%c", &temp); // pulisco il buffer di input perche da ora in poi considero solo  ENTER come separatore
+        //scanf("%c", &temp); // pulisco il buffer di input perche da ora in poi considero solo  ENTER come separatore
         scanf("%s", comando);
         n = strlen(comando);
 
@@ -130,13 +130,14 @@ int main()
             printf("codice ricetta:  %d\n",codice_ricetta);
             // acquisisco il comando per intero -- espressione regolare che fa malloc e gestiesce in automatico lungheza fino a ENTER
             scanf("%c", &temp); // pulisco il buffer di input perche da ora in poi considero solo  ENTER come separatore
-            scanf("%[^\n]s", dati); // acquisisco comando
-            aggiungi_ricetta(&ricettario, codice_ricetta, dati);
+            scanf("%m[^\n]s", &dati); // acquisisco comando
+            printf("dati: %s\n", dati);
+            //aggiungi_ricetta(&ricettario, codice_ricetta, dati);
 
             // pulisco e faccio le free
             codice_ricetta = 0;
             *nome_ricetta = 0;
-            //free(dati);
+            *dati=0;
         }
 
         // rimuovi ricetta
@@ -144,7 +145,7 @@ int main()
         {
             scanf("%s", nome_ricetta);
             codice_ricetta = calcola_codice(nome_ricetta, 0);
-            rimuovi_ricetta(&ricettario, codice_ricetta);
+            //rimuovi_ricetta(&ricettario, codice_ricetta);
         }
 
         // ordine
@@ -167,9 +168,10 @@ int main()
     }
 
     // STAMPO SITUAZIONE CORRIERE
+
     // stampo alberi
-    printf("RADICE: %d \n", ricettario->chiave);
-    stampa_in_ordine(ricettario);
+    //printf("RADICE: %d \n", ricettario->chiave);
+    //stampa_in_ordine(ricettario);
     return 0;
 }
 
