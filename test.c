@@ -8,7 +8,7 @@ int main()
     char comando[256];
     char *dati;
     char nome_ricetta[256];
-    char temp;
+    //char temp;
 
     int periodo, capienza;
 
@@ -17,14 +17,15 @@ int main()
 
     while (n > 0)
     {
-        scanf("%c", &temp);
+        
         scanf("%s", comando);
         n = strlen(comando);
 
         scanf("%s", nome_ricetta);
 
-        scanf("%c", &temp);
+        fflush(stdin);
         scanf("%m[^\n]s", &dati);
+        fflush(stdin);
 
         printf("Comando: %s\n", comando);
         printf("Nome ricetta: %s\n", nome_ricetta);
