@@ -77,7 +77,8 @@ int main()
 
         // GESTISCO COMANDO
         scanf("%c", &temp); // pulisco il buffer di input perche da ora in poi considero solo  ENTER come separatore
-        scanf("%[^\n]s", comando);
+        //scanf("%[^\n]s", comando);
+        scanf("%s", comando);
         n = strlen(comando);
 
         // aggiungi ricetta
