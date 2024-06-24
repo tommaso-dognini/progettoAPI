@@ -1,30 +1,35 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #define COUNT 10
+#define N 256
 
-// --- ALBERI ROSSO NERI ---
+//-------- BST  --------//
+// Struct per arrichire albero...
+typedef struct Dati
+{
+    char nome[N];
+    int info;
+} Dati;
 
 // Definisco la struttura di un Nodo
+// lascio attibuto colore per poi adattare a rb
 typedef struct Nodo
 {
     char colore; // 'r' = rosso , 'n' = nero
     int chiave;
+    Dati *dati;
     struct Nodo *dx;
     struct Nodo *sx;
     struct Nodo *padre;
 } Nodo;
 
-// Struct per arrichire albero...
-typedef struct Dati
-{
-    int valore;
-} Dati;
+
 
 // Definisco il nodo sentilenna NILL
 //  Per semplificazione di condizioni al contorno invece che usare tipo NULL
 // impongo che tutte le foglie puntano a un nodo NILL sentinella
 // chiave e colore sono indifferenti... Mi interessa che punti a se stesso (NILL)
-Nodo NILL = {'g', -999, &NILL, &NILL, &NILL};
+Nodo NILL = {'g', -999, NULL, &NILL, &NILL, &NILL};
 
 // FUNZIONI DI GESTIONE ALBERI ROSSO-NERI
 
@@ -34,12 +39,8 @@ Nodo *crea_nodo(int chiave);
 // inserimento come se fosse bst di nodo nell'albero -> restituisce l'abero = puntatore alla radice
 void inserisci(Nodo **albero, int chiave);
 
-// Funzione per aggiustare albero e mantenere bilanciamento e proprieta R-B dopo inserimento di un nodo
-void inserisci_fixup(Nodo **albero, Nodo *nuovo_nodo);
-
-// Funzioni per la rotazione sx e dx attorno al nodo perno
-void ruota_dx(Nodo **albero, Nodo *nodo_perno);
-void ruota_sx(Nodo **albero, Nodo *nodo_perno);
+// Funzione per eliminare un nodo (come fosse bst)
+void elimina_nodo(Nodo **albero, Nodo *nodo);
 
 // Funzione ausiliaria per stampare l'albero in senso crescente
 void stampa_in_ordine(Nodo *albero);
@@ -56,11 +57,11 @@ Nodo *massimo(Nodo *nodo);
 // Funzione che restituisce il puntatore del primo nodo, se esiste, con la chiave inserita.
 Nodo *cerca(Nodo *radice, int chiave);
 
-// Funzione per eliminare un nodo (come fosse bst)
-void elimina_nodo(Nodo **albero, Nodo *nodo);
+// Funzione che restituisce il successore (puntatore al nodo) del nodo passato
+Nodo *successore(Nodo *nodo);
 
-// Funzione per aggiustare albero e mantere bilanciamento e proprieta r-d dopo eliminizione di un nodo
-void elimina_fixUp(Nodo **albero, Nodo *nodo);
+// Funzione che restituisce il successore (puntatore al nodo) del nodo passato
+Nodo *predecessore(Nodo *nodo);
 
 // FUNZIONI ACCESSORIE PER SOLA VISUALIZZAZIONE
 
@@ -133,6 +134,11 @@ int main()
     xb = cerca(albero, nb);
     printf("Nodo cercato: %d\n", xb->chiave);
 
+    // successore e predecessore
+    printf("\n\n");
+    printf("Il successore di %d e: %d\n", x->chiave, successore(x)->chiave);
+    printf("Il predecessore di %d e: %d\n", x->chiave, predecessore(x)->chiave);
+
     // test cancella
     printf("\n\n");
     printf("ELimina nodo %d\n", n);
@@ -151,7 +157,7 @@ int main()
     elimina_nodo(&albero, xb);
     printf("RADICE: %d \n", albero->chiave);
     stampa_in_ordine(albero);
-    // print2D(albero);
+    //print2D(albero);
     return 0;
 }
 
@@ -196,109 +202,6 @@ void inserisci(Nodo **albero, int chiave)
     nuovo_nodo->sx = &NILL;
     nuovo_nodo->dx = &NILL;
     nuovo_nodo->colore = 'r';
-
-    inserisci_fixup(albero, nuovo_nodo);
-    return;
-}
-
-void ruota_sx(Nodo **albero, Nodo *nodo_perno)
-{
-    Nodo *y = nodo_perno->dx;
-    nodo_perno->dx = y->sx;
-
-    if (y->sx != &NILL)
-        nodo_perno->dx->padre = nodo_perno;
-
-    y->padre = nodo_perno->padre;
-    if (nodo_perno->padre == &NILL)
-        *(albero) = y;
-    else if (nodo_perno == nodo_perno->padre->sx)
-        nodo_perno->padre->sx = y;
-    else
-        nodo_perno->padre->dx = y;
-
-    y->sx = nodo_perno;
-    nodo_perno->padre = y;
-
-    return;
-}
-
-void ruota_dx(Nodo **albero, Nodo *nodo_perno)
-{
-    Nodo *y = nodo_perno->sx;
-    nodo_perno->sx = y->dx;
-
-    if (y->sx != &NILL)
-        nodo_perno->sx->padre = nodo_perno;
-
-    y->padre = nodo_perno->padre;
-    if (nodo_perno->padre == &NILL)
-        *(albero) = y;
-    else if (nodo_perno == nodo_perno->padre->sx)
-        nodo_perno->padre->sx = y;
-    else
-        nodo_perno->padre->dx = y;
-
-    y->dx = nodo_perno;
-    nodo_perno->padre = y;
-}
-
-void inserisci_fixup(Nodo **albero, Nodo *nuovo_nodo)
-{
-    Nodo *y;
-    while (nuovo_nodo->padre->colore == 'r')
-    {
-        if (nuovo_nodo->padre == nuovo_nodo->padre->padre->sx)
-        {
-            y = nuovo_nodo->padre->padre->dx;
-
-            // caso 1
-            if (y->colore == 'r')
-            {
-                nuovo_nodo->padre->padre->sx->colore = 'n';
-                y->colore = 'n';
-                nuovo_nodo->padre->padre->colore = 'r';
-                nuovo_nodo = nuovo_nodo->padre->padre;
-            }
-            else
-            {
-                // caso 2
-                if (nuovo_nodo == nuovo_nodo->padre->dx)
-                {
-                    nuovo_nodo = nuovo_nodo->padre;
-                    ruota_sx(albero, nuovo_nodo);
-                }
-                // caso 3
-                nuovo_nodo->padre->colore = 'n';
-                nuovo_nodo->padre->padre->colore = 'r';
-                ruota_dx(albero, nuovo_nodo->padre->padre);
-            }
-        }
-        else
-        { // come sopra ma con sx e dx scambiati
-            y = nuovo_nodo->padre->padre->sx;
-            if (y->colore == 'r')
-            { // caso 1
-                nuovo_nodo->padre->padre->dx->colore = 'n';
-                y->colore = 'n';
-                nuovo_nodo->padre->padre->colore = 'r';
-                nuovo_nodo = nuovo_nodo->padre->padre;
-            }
-            else
-            {
-                if (nuovo_nodo == nuovo_nodo->padre->sx)
-                { // caso 2
-                    nuovo_nodo = nuovo_nodo->padre;
-                    ruota_dx(albero, nuovo_nodo);
-                }
-                // caso 3
-                nuovo_nodo->padre->colore = 'n';
-                nuovo_nodo->padre->padre->colore = 'r';
-                ruota_sx(albero, nuovo_nodo->padre->padre);
-            }
-        }
-    }
-    (*albero)->colore = 'n';
     return;
 }
 
@@ -359,7 +262,6 @@ void elimina_nodo(Nodo **albero, Nodo *nodo)
 {
     Nodo *y = nodo;
     Nodo *x;
-    char colore_originale_y;
 
     // verifico che il nodo esiste
     if (cerca(nodo, nodo->chiave) == &NILL)
@@ -369,7 +271,6 @@ void elimina_nodo(Nodo **albero, Nodo *nodo)
     }
 
     // se si procedo con eliminazione
-    colore_originale_y = y->colore;
     if (nodo->sx == &NILL)
     {
         x = nodo->dx;
@@ -383,7 +284,6 @@ void elimina_nodo(Nodo **albero, Nodo *nodo)
     else
     {
         y = minimo(nodo->dx);
-        colore_originale_y = y->colore;
         x = y->dx;
         if (y != nodo->dx)
         {
@@ -401,87 +301,35 @@ void elimina_nodo(Nodo **albero, Nodo *nodo)
         y->colore = nodo->colore;
     }
 
-    if (colore_originale_y == 'n')
-        elimina_fixUp(albero, x);
-
     // ho eliminato il nodo che volevo eliminare: per non lasciare garbage faccio la free
     free(nodo);
     return;
 }
 
-void elimina_fixUp(Nodo **albero, Nodo *nodo)
+Nodo *successore(Nodo *nodo)
 {
-    Nodo *w;
+    if (nodo->dx != &NILL)
+        return minimo(nodo->dx);
 
-    while ((nodo != &NILL) && (nodo->colore == 'n'))
+    Nodo *y = nodo->padre;
+    while (y != &NILL && nodo == y->dx)
     {
-        // SE NODO E FIGLIO sinistro
-        if (nodo == nodo->padre->sx)
-        {
-            w = nodo->padre->dx;
-            if (w->colore == 'r')
-            { // caso 1
-                w->colore = 'n';
-                nodo->padre->colore = 'r';
-                ruota_sx(albero, nodo->padre);
-                w = nodo->padre->dx;
-            }
-            if ((w->sx->colore == 'n') && (w->dx->colore == 'n'))
-            { // caso 2
-                w->colore = 'r';
-                nodo = nodo->padre;
-            }
-            else
-            {
-                if (w->dx->colore == 'n')
-                { // caso 3
-                    w->sx->colore = 'n';
-                    w->colore = 'r';
-                    ruota_dx(albero, w);
-                    w = nodo->padre->dx;
-                }
-                // caso 4
-                w->colore = nodo->padre->colore;
-                nodo->padre->colore = 'n';
-                w->dx->colore = 'n';
-                ruota_sx(albero, nodo->padre);
-                nodo = (*albero);
-            }
-        }
-        // SE NODO E FIGLIO destro
-        else
-        { // come sopra ma con dx e sx scambiati
-            w = nodo->padre->sx;
-            if (w->colore == 'r')
-            { // caso 1
-                w->colore = 'n';
-                nodo->padre->colore = 'r';
-                ruota_dx(albero, nodo->padre);
-                w = nodo->padre->sx;
-            }
-            if ((w->dx->colore == 'n') && (w->sx->colore == 'n'))
-            { // caso 2
-                w->colore = 'r';
-                nodo = nodo->padre;
-            }
-            else
-            {
-                if (w->sx->colore == 'n')
-                { // caso 3
-                    w->dx->colore = 'n';
-                    w->colore = 'r';
-                    ruota_sx(albero, w);
-                    w = nodo->padre->sx;
-                }
-                // caso 4
-                w->colore = nodo->padre->colore;
-                nodo->padre->colore = 'n';
-                w->sx->colore = 'n';
-                ruota_dx(albero, nodo->padre);
-                nodo = (*albero);
-            }
-        }
+        nodo = y;
+        y=y->padre;
     }
-    nodo->colore = 'n';
-    return;
+    return y;
+}
+
+Nodo *predecessore(Nodo *nodo)
+{
+    if (nodo->dx != &NILL)
+        return massimo(nodo->sx);
+
+    Nodo *y = nodo->padre;
+    while (y != &NILL && nodo == y->sx)
+    {
+        nodo = y;
+        y=y->padre;
+    }
+    return y;
 }
