@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #define CMD_LEN 256
-// ------- FUNZIONI STRUTTURE DATI -------------
+//-----------------------------------------------------------------------------------------
+//--------  FUNZIONI STRUTTURE DATI ----------------------------------------------------------
+//-----------------------------------------------------------------------------------------
 
 // Struct per arrichire albero...
 typedef struct Dati
@@ -30,7 +32,7 @@ typedef struct Nodo
 //  chiave e colore sono indifferenti... Mi interessa che punti a se stesso (NILL)
 Nodo NILL = {'g', -999, NULL, &NILL, &NILL, &NILL};
 
-// FUNZIONI DI GESTIONE ALBERI ROSSO-NERI
+// FUNZIONI DI GESTIONE ALBERI
 
 // Funzione per la creazione di un nodo -> Malloc della struct con chiave data e puntatori a NILL
 Nodo *crea_nodo(int chiave);
@@ -66,8 +68,11 @@ Nodo *predecessore(Nodo *nodo);
 //--------  FUNZIONI PASTICCERIA ----------------------------------------------------------
 //-----------------------------------------------------------------------------------------
 
-// Funzione aggiungi ricetta:  ricettario = puntatore a radice albero delle ricette, codice_ricetta = intero identificativo della ricetta , comando = stringa conentente (nome_ingrediente qta)
-void aggiungi_ricetta(Nodo **ricettario, int codice_ricetta, char *comando);
+// Funzione aggiungi ricetta:  ricettario = puntatore a radice albero delle ricette, codice_ricetta = intero identificativo della ricetta
+int aggiungi_ricetta(Nodo **ricettario, int codice_ricetta);
+
+// Funzione aggiungi ricetta:  ricettario = puntatore a radice albero delle ricette, codice_ricetta = intero identificativo della ricetta
+void aggiorna_ricetta(Nodo **ricettario, int codice_ricetta, char *ingrediente, int qta);
 
 // Funzione rimuovi ricetta:  ricettario = puntatore a radice albero delle ricette, codice_ricetta = intero identificativo della ricetta
 void rimuovi_ricetta(Nodo **ricettario, int codice_ricetta);
@@ -76,23 +81,26 @@ void rimuovi_ricetta(Nodo **ricettario, int codice_ricetta);
 
 // ordine (nome_ricetta, numero_elementi_ordinati)
 
-//--------  FUNZIONI ACCESSORIE ---------------
+//-----------------------------------------------------------------------------------------
+//--------  FUNZIONI ACCESSORIE ----------------------------------------------------------
+//-----------------------------------------------------------------------------------------
+
 // Funzione che calcola, data una stringa in input ed un ofset la codifica in decimale. (la codifica e univoca)
 int calcola_codice(char *nome, int offset);
 
+//-----------------------------------------------------------------------------------------
+//--------  MAIN --------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
+
 int main()
 {
-    // prendo parametri corriere
+    // acquisisco parametri corriere
     int periodo, capienza;
 
     scanf("%d %d", &periodo, &capienza);
     printf("Il periodo e: %d \nLa capienza del corriere e: %d \n", periodo, capienza);
 
-    // inizio a processare comandi in ingresso, termino quando non ci sono piu comandi <--> scanf vuoto <--> lunghezza input =0
     char comando[CMD_LEN];
-
-    int n = 1; // numero di caretteri letti da input
-    char temp; // variabile accessoria per pulire buffer da ENTER
 
     // COMANDI POSSIBILI
     char cmd1[] = "aggiungi_ricetta";
@@ -102,76 +110,105 @@ int main()
 
     int clock = 0; // istanti di tempo della simulazione
 
-    //Nodo *ricettario;
-    // Nodo *magazzino, *ordini;
+    Nodo *ricettario;
+    //Nodo *nodo;
+    //  Nodo *magazzino, *ordini;
     char nome_ricetta[CMD_LEN];
+    char ordine[CMD_LEN];
+    char ingrediente[CMD_LEN];
+    int qta = 0;
     int codice_ricetta;
-    char *dati;
 
-    while (n > 0)
+    char separatore = 'a';
+    int processo = 0;       // processo = 1 se comando: aggiungi ricetta, processo = 2 se comando: ordine, processo = 3 se comando: rifornimento
+    int ricetta_valida = 0; // ricetta_valida = 1 la ricetta non esiste ed e da creare,  ricetta_valida =0 la ricetta esiste gia e ignoro il comando aggiungere
+
+    while (scanf("%c", &separatore) != EOF)
     {
-        // VERIFICA CORRIERE
-        if (clock % periodo == 0 && clock != 0)
-        {
-            // gestisco il corriere
-            printf("corriere\n");
+
+        // INIZIO A PROCESSARE INPUT
+        if (separatore == '\n')
+        { // se separatore e \n allora sono all'inizio di un comando
+
+            // VERIFICA CORRIERE
+            if (clock % periodo == 0 && clock != 0)
+            {
+                // gestisco il corriere
+                printf("corriere\n");
+            }
+
+            // ACQUISISCO COMANDO
+            scanf("%s", comando);
+
+            // COMANDO = AGGIUNGI_RICETTA
+            if (strcmp(comando, cmd1) == 0)
+            {
+                processo = 1;
+                scanf("%s", nome_ricetta);
+                printf("Nome ricetta:%s\n", nome_ricetta);
+                codice_ricetta = calcola_codice(nome_ricetta, 0);
+                printf("Codice ricetta:%d\n", codice_ricetta);
+
+                // verifico se esiste e creo ricetta
+                ricetta_valida = aggiungi_ricetta(&ricettario, codice_ricetta);
+
+                // operazioni al contorno
+                clock++;
+                printf("Clock:%d\n", clock);
+                // pulisco e faccio le free
+            }
+            // COMANDO = RIMUOVI_RICETTA
+            if (strcmp(comando, cmd2) == 0)
+            {
+                scanf("%s", nome_ricetta);
+                codice_ricetta = calcola_codice(nome_ricetta, 0);
+
+                // rimuovo ricetta
+                rimuovi_ricetta(&ricettario, codice_ricetta);
+                // operazioni al contorno
+                clock++;
+                printf("Clock:%d\n", clock);
+            }
+            // COMANDO = ORDINE
+            if (strcmp(comando, cmd3) == 0)
+            {
+                printf("%s\n", comando);
+            }
+            // COMANDO = RIFORNIMENTO
+            if (strcmp(comando, cmd4) == 0)
+            {
+                printf("%s\n", comando);
+            }
         }
+        else if (separatore != '\n')
+        { // se separatore non e EOF e nemmeno ENTER e uno spazio e sto processando dati di una delle funzionui della pasticceria
 
-        // GESTISCO COMANDO
-        //scanf("%c", &temp); // pulisco il buffer di input perche da ora in poi considero solo  ENTER come separatore
-        scanf("%s", comando);
-        n = strlen(comando);
+            if (processo == 1) // sto processando comando aggiungi ricetta e sto prendendo ingredienti
+            {
+                scanf("%s %d", ingrediente, &qta);
+                printf("INGREDIENTE:%s,QTA:%d\n", ingrediente, qta);
 
-        // aggiungi ricetta
-        if (strcmp(comando, cmd1) == 0)
-        {
-            scanf("%s", nome_ricetta);
-            codice_ricetta = calcola_codice(nome_ricetta, 0);
-            printf("codice ricetta:  %d\n",codice_ricetta);
-            // acquisisco il comando per intero -- espressione regolare che fa malloc e gestiesce in automatico lungheza fino a ENTER
-            scanf("%c", &temp); // pulisco il buffer di input perche da ora in poi considero solo  ENTER come separatore
-            scanf("%m[^\n]s", &dati); // acquisisco comando
-            printf("dati: %s\n", dati);
-            //aggiungi_ricetta(&ricettario, codice_ricetta, dati);
+                if (ricetta_valida == 1)
+                {
+                    // aggiungo coppia ingrediente e quantita nel ricettario
+                }
+            }
 
-            // pulisco e faccio le free
-            codice_ricetta = 0;
-            *nome_ricetta = 0;
-            *dati=0;
+            if (processo == 2) // sto processando comando ordine e sto prendendo ordini e quantita
+            {
+                scanf("%s %d", ordine, &qta);
+                printf("INGREDIENTE:%s,QTA:%d\n", ordine, qta);
+            }
         }
-
-        // rimuovi ricetta
-        if (strcmp(comando, cmd2) == 0)
-        {
-            scanf("%s", nome_ricetta);
-            codice_ricetta = calcola_codice(nome_ricetta, 0);
-            //rimuovi_ricetta(&ricettario, codice_ricetta);
-        }
-
-        // ordine
-        if (strcmp(comando, cmd3) == 0)
-        {
-            printf("%s\n", comando);
-        }
-
-        // rifornimento
-        if (strcmp(comando, cmd4) == 0)
-        {
-            printf("%s\n", comando);
-        }
-
-        // inizzializzo lunghezza comando
+        separatore = 'a';
         comando[0] = 0;
-
-        // aumento contatore istanti di tempo
-        clock++;
     }
 
     // STAMPO SITUAZIONE CORRIERE
-
+    printf("Fine, clock:%d", clock);
     // stampo alberi
-    //printf("RADICE: %d \n", ricettario->chiave);
-    //stampa_in_ordine(ricettario);
+    // printf("RADICE: %d \n", ricettario->chiave);
+    // stampa_in_ordine(ricettario);
     return 0;
 }
 
@@ -364,42 +401,38 @@ int calcola_codice(char *nome, int offset)
 }
 
 //--------  FUNZIONI PASTICCERIA ---------------
-void aggiungi_ricetta(Nodo **ricettario, int codice_ricetta, char *comando)
+int aggiungi_ricetta(Nodo **ricettario, int codice_ricetta)
 {
-    // char nome_ingrediente[CMD_LEN];
-    // int qta;
+    Nodo *nodo;
+    int ricetta_valida;
 
-    printf("codice ricetta: %d", codice_ricetta);
-
-    // verifico se la ricetta e gia esistente
-    if (cerca(*ricettario, codice_ricetta) == &NILL)
-    { // se esiste
-        printf("ignorato\n");
+    if (cerca(*ricettario, codice_ricetta) != &NILL)
+    {
+        printf("ignorata\n");
+        ricetta_valida = 0;
     }
     else
-    { // se non esiste
-        // creo il nodo della ricetta
-        Nodo *nodo = crea_nodo(codice_ricetta);
-
-        // inserisco la lista di ingredienti come lista concatenata con puntatore alla ridice = nodo->dati
-
-        // inserisco il nodo nell'albero.
+    {
+        nodo = crea_nodo(codice_ricetta);
         inserisci(ricettario, nodo);
         printf("aggiunta\n");
+        ricetta_valida = 1;
     }
-    return;
+    return ricetta_valida;
 }
+
 
 void rimuovi_ricetta(Nodo **ricettario, int codice_ricetta)
 {
-    Nodo * nodo = cerca(*ricettario, codice_ricetta);
-    if ( nodo == &NILL)
-    {// se non ce
+    Nodo *nodo = cerca(*ricettario, codice_ricetta);
+    if (nodo == &NILL)
+    { // se non ce
         printf("non presente\n");
     }
     else
     {
         elimina_nodo(ricettario, nodo);
+        printf("eliminata\n");
     }
     return;
 }
