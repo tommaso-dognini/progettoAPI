@@ -37,7 +37,7 @@ Nodo NILL = {'g', -999, NULL, &NILL, &NILL, &NILL};
 Nodo *crea_nodo(int chiave);
 
 // inserimento come se fosse bst di nodo nell'albero -> restituisce l'abero = puntatore alla radice
-void inserisci(Nodo **albero, int chiave);
+void inserisci(Nodo **albero, Nodo* nuovo_nodo);
 
 // Funzione per eliminare un nodo (come fosse bst)
 void elimina_nodo(Nodo **albero, Nodo *nodo);
@@ -101,7 +101,7 @@ void print2D(Nodo *root)
 int main()
 {
     // Inizializzo alebero = puntatore alla radice
-    Nodo *albero;
+    Nodo *albero, *nodo;
     albero = &NILL;
 
     // test inserimento
@@ -110,7 +110,8 @@ int main()
     int i;
     for (i = 0; i < 13; i++)
     {
-        inserisci(&albero, chiavi[i]);
+        nodo = crea_nodo(chiavi[i]);
+        inserisci(&albero, nodo);
     }
     printf("RADICE: %d \n", albero->chiave);
     stampa_in_ordine(albero);
@@ -174,10 +175,10 @@ Nodo *crea_nodo(int chiave)
     return nuovo_nodo;
 }
 
-void inserisci(Nodo **albero, int chiave)
+void inserisci(Nodo **albero, Nodo* nuovo_nodo)
 {
-    // creo il nodo
-    Nodo *nuovo_nodo = crea_nodo(chiave);
+    // // creo il nodo
+    // Nodo *nuovo_nodo = crea_nodo(chiave);
 
     Nodo *x = *albero;
     Nodo *y = &NILL;

@@ -182,11 +182,11 @@ Nodo *crea_nodo(int chiave)
     // creo il nodo
     Nodo *nuovo_nodo = (struct Nodo *)malloc(sizeof(struct Nodo));
     nuovo_nodo->chiave = chiave;
+    nuovo_nodo->dati = NULL;
     nuovo_nodo->colore = 'r';
     nuovo_nodo->dx = &NILL;
     nuovo_nodo->sx = &NILL;
     nuovo_nodo->padre = &NILL;
-
     return nuovo_nodo;
 }
 
