@@ -1,5 +1,3 @@
 1 20
-aggiungi_ricetta torta1 zucchero 20 burro 10 cioccolato 200
-ordine torta1 5
-rimuovi_ricetta torta1
-
+ricetta torta1 zucchero 20
+ordine torta2 5

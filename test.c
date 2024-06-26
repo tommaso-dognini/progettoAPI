@@ -13,23 +13,24 @@ int main()
     int processo = 0;
     int qta;
     int clock = 0;
+    int controllo;
 
     int periodo, capienza;
     // int processo = 0; // processo = 1 se aggiungi ricetta, 2 se rimuovi ricetta, ...
 
-    scanf("%d %d", &periodo, &capienza);
+    controllo = scanf("%d %d", &periodo, &capienza);
     printf("Il periodo e: %d \nLa capienza del corriere e: %d \n", periodo, capienza);
 
     while (scanf("%c", &separatore) != EOF)
     {
         if (separatore == '\n')
         { // se separatore e ENTER allora ho finito un comando e me ne arriva un altro
-            scanf("%s", comando);
+            controllo = scanf("%s", comando);
             // ricetta
             if (strcmp(comando, "ricetta") == 0)
             {
                 processo = 1;
-                scanf("%s", nome_ricetta);
+                controllo = scanf("%s", nome_ricetta);
                 printf("Nome ricetta:%s\n", nome_ricetta);
                 // verifico se esiste e creo ricetta
 
@@ -50,13 +51,16 @@ int main()
 
             if (processo == 1) // sto processando comando aggiungi ricetta e sto prendendo ingredienti
             {
-                scanf("%s %d", ingrediente, &qta);
+                controllo = scanf("%s %d", ingrediente, &qta);
                 printf("INGREDIENTE:%s,QTA:%d\n", ingrediente, qta);
             }
         }
         separatore = 'a';
         comando[0] = 0;
     }
-    printf("Fine, clock:%d",clock);
+    printf("Fine, clock:%d", clock);
+    if (controllo == EOF)
+        controllo = 1;
+
     return 0;
 }
