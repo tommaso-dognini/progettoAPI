@@ -97,10 +97,11 @@ int main()
     Nodo *ingrediente = &NILL;
     //   Nodo *magazzino, *ordini;
     char nome_ricetta[CMD_LEN];
-    // char ordine[CMD_LEN];
     char nome_ingrediente[CMD_LEN];
+    char ordine[CMD_LEN];
     int qta = 0;
-    int codice_ricetta;
+    int scadenza=0;
+    int codice_ricetta=0;
     int controllo = 0;
     char separatore = 'a';
 
@@ -119,6 +120,7 @@ int main()
             // gestisco il corriere
             printf("corriere\n");
         }
+
         // ACQUISISCO COMANDO
         controllo = scanf("%s", comando);
         // AGGIUNGI_RICETTA
@@ -167,27 +169,57 @@ int main()
         // RIMUOVI_RICETTA
         else if (strcmp(comando, "rimuovi_ricetta") == 0)
         {
+            // ACQUISISCO NOME RICETTA
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
             codice_ricetta = calcola_codice(nome_ricetta, 0);
             printf("Nome ricetta:%s, Codice ricetta:%d\n", nome_ricetta, codice_ricetta);
-            // RIMUOVO RICETTA DA RICETTARIO
+            // VERIFICO CHE NON SIA IN USO
+            // SE IN USO o IN ATTESA DI ESSERE SPEDITO
+            printf("ordini in sospeso\n");
+            // VERIFICO CHE SIA PRESENTE
+            //  RIMUOVO RICETTA DA RICETTARIO
             rimuovi_ricetta(&ricettario, codice_ricetta);
+            printf("rimossa\n");
             stampa_in_ordine(ricettario);
+            // SE NON E PRESENTE
+            printf("non presente\n");
+            
         }
 
         // ORDINE
         else if (strcmp(comando, "ordine") == 0)
         {
-            printf("Comando:%s\n", comando);
-            controllo = scanf("%c", &separatore);
+            // PROCESSO GLI ORDINI UNO AD UNO
+            while (separatore != '\n')
+            {
+                controllo = scanf("%s", ordine);
+                controllo = scanf("%d", &qta);
+                controllo = scanf("%c", &separatore);
+                printf("Ordine:%s,qta:%d\n", ordine, qta);
+                // PRELEVO LA RICETTA DA RICETTARIO
+                // VERIFICO DI AVERE INGREDIENTI IN MAGAZZINO
+                // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
+                // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
+            }
         }
 
         // RIFORNIMENTO
         else if (strcmp(comando, "rifornimento") == 0)
         {
-            printf("Comando:%s\n", comando);
-            controllo = scanf("%c", &separatore);
+            // PROCESSO GLI INGREDIENTI RIFORNITI UNO AD UNO
+            while (separatore != '\n')
+            {
+                controllo = scanf("%s", nome_ingrediente);
+                controllo = scanf("%d", &qta);
+                controllo = scanf("%d", &scadenza);
+                controllo = scanf("%c", &separatore);
+                printf("Rifornimento:%s,qta:%d,scadenza:%d\n", ordine, qta, scadenza);
+                // AGGIUNGO NEL MAGAZZINO
+                // VERIFICO DI AVERE INGREDIENTI IN MAGAZZINO
+            }
+            // HO AGGIORNATO IL MAGAZZINO
+            // VERIFICO SE HO ORDINI IN ATTESA CHE POSSO PROCESSARE
         }
 
         // AGGIUSTAMENTI
@@ -197,9 +229,6 @@ int main()
 
     // STAMPO SITUAZIONE CORRIERE
     printf("Fine, clock:%d", clock);
-    // stampo alberi
-    // printf("RADICE: %d \n", ricettario->chiave);
-    // stampa_in_ordine(ricettario);
     return 0;
 }
 
@@ -393,10 +422,6 @@ int calcola_codice(char *nome, int offset)
 }
 
 //--------  FUNZIONI PASTICCERIA ---------------
-// void aggiungi_ricetta(Nodo **ricettario, int codice_ricetta)
-// {
-//     return;
-// }
 
 void rimuovi_ricetta(Nodo **ricettario, int codice_ricetta)
 {
