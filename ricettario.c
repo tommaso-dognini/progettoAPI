@@ -1,10 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#define CMD_LEN 256
-//-----------------------------------------------------------------------------------------
-//--------  FUNZIONI STRUTTURE DATI ----------------------------------------------------------
-//-----------------------------------------------------------------------------------------
+#define CMD_LEN 20
+#include <stdio.h>
+#include <stdlib.h>
 
 //-------------------- Liste  semplici (single linked)  -----------------------------------//
 // Definisco la struttura di un Nodo
@@ -32,200 +31,6 @@ typedef struct HashTable
     int num_buckets_inseriti;
     Bucket **buckets;
 } HashTable;
-
-// crea HashTable
-void crea_ht(HashTable *ht)
-
-// crea Bucket
-Bucket *crea_bucket(char *string, Nodo *lista)
-
-// funzione di hash: uso rolling polinomial con p = 53 e dimensione = 1e9 + 9
-int hash(char *string)
-
-// Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
-Bucket *ht_cerca(HashTable *ht, char *string)
-
-void ht_inserisci_ricettario(HashTable *ht, Bucket *nuovo_bucket, char *string)
-
-void ht_inserisci_magazzino(HashTable *ht, Bucket *nuovo_bucket, char *string)
-
-void ht_elimina_ricettario(HashTable *ht, char *string)
-
-
-
-
-
-//-----------------------------------------------------------------------------------------
-//--------  FUNZIONI PASTICCERIA ----------------------------------------------------------
-//-----------------------------------------------------------------------------------------
-
-
-
-
-
-//-----------------------------------------------------------------------------------------
-//--------  FUNZIONI ACCESSORIE ----------------------------------------------------------
-//-----------------------------------------------------------------------------------------
-
-
-
-
-
-//-----------------------------------------------------------------------------------------
-//--------  MAIN --------------------------------------------------------------------------
-//-----------------------------------------------------------------------------------------
-
-int main()
-{
-
-    char comando[CMD_LEN];
-    int clock = 0; // istanti di tempo della simulazione
-
-    HashTable *ricettario;
-    HashTable *magazzino;
-
-    crea_ht(ricettario);
-    crea_ht(magazzino);
-
-    // Nodo *nodo = &NILL; // nodo accessorio
-    // Nodo *ingrediente = &NILL;
-
-    char nome_ricetta[CMD_LEN];
-    char nome_ingrediente[CMD_LEN];
-    char ordine[CMD_LEN];
-    int qta = 0;
-    int scadenza = 0;
-    int codice_ricetta = 0;
-    int controllo = 0;
-    char separatore = 'a';
-
-    // acquisisco parametri corriere
-    int periodo, capienza;
-
-    controllo = scanf("%d %d", &periodo, &capienza);
-    printf("Il periodo e: %d \nLa capienza del corriere e: %d \n", periodo, capienza);
-    controllo = scanf("%c", &separatore);
-
-    while (separatore == '\n' && controllo != -1)
-    {
-        // VERIFICA CORRIERE
-        if (clock % periodo == 0 && clock != 0)
-        {
-            // gestisco il corriere
-            printf("corriere\n");
-        }
-
-        // ACQUISISCO COMANDO
-        controllo = scanf("%s", comando);
-        // AGGIUNGI_RICETTA
-        if (strcmp(comando, "aggiungi_ricetta") == 0)
-        {
-            controllo = scanf("%s", nome_ricetta);
-            controllo = scanf("%c", &separatore);
-
-            codice_ricetta = hash(nome_ricetta);
-            printf("Nome ricetta:%s Codice ricetta:%d\n", nome_ricetta, codice_ricetta);
-
-            if (ht_cerca(ricettario, nome_ricetta) != NULL)
-            {
-                // LA RICETTA E GIA PRESENTE -> LA IGNORO
-                printf("ignorata\n");
-                // DEVO LO STESSO CONSUMARE INPUT DA STDIN
-                while (separatore != '\n')
-                {
-                    controllo = scanf("%s", nome_ingrediente);
-                    controllo = scanf("%d", &qta);
-                    controllo = scanf("%c", &separatore);
-                }
-            }
-            else
-            {
-                // CREO IL NODO RICETTA
-                nodo = crea_nodo(codice_ricetta);
-                while (separatore != '\n')
-                {
-                    controllo = scanf("%s", nome_ingrediente);
-                    controllo = scanf("%d", &qta);
-                    controllo = scanf("%c", &separatore);
-                    printf("Ingrediente:%s,qta:%d\n", nome_ingrediente, qta);
-                    // AGGIUNGO INGREDIENTE ALLA NODO RICETTA
-                    ingrediente = crea_nodo(calcola_codice(nome_ingrediente, 0));
-                    ingrediente->qta = qta;
-                    inserisci(&(nodo->ingredienti), ingrediente);
-                }
-                // AGGIUNGO IL NODO RICETTA AL RICETTARIO
-                inserisci(&ricettario, nodo);
-                printf("Stampa in ordine\n");
-                stampa_in_ordine(ricettario);
-                stampa_in_ordine(nodo->ingredienti);
-            }
-        }
-
-        // RIMUOVI_RICETTA
-        else if (strcmp(comando, "rimuovi_ricetta") == 0)
-        {
-            // ACQUISISCO NOME RICETTA
-            controllo = scanf("%s", nome_ricetta);
-            controllo = scanf("%c", &separatore);
-            codice_ricetta = calcola_codice(nome_ricetta, 0);
-            printf("Nome ricetta:%s, Codice ricetta:%d\n", nome_ricetta, codice_ricetta);
-            // VERIFICO CHE NON SIA IN USO
-            // SE IN USO o IN ATTESA DI ESSERE SPEDITO
-            printf("ordini in sospeso\n");
-            // VERIFICO CHE SIA PRESENTE
-            //  RIMUOVO RICETTA DA RICETTARIO
-            rimuovi_ricetta(&ricettario, codice_ricetta);
-            printf("rimossa\n");
-            stampa_in_ordine(ricettario);
-            // SE NON E PRESENTE
-            printf("non presente\n");
-        }
-
-        // ORDINE
-        else if (strcmp(comando, "ordine") == 0)
-        {
-            // PROCESSO GLI ORDINI UNO AD UNO
-            while (separatore != '\n')
-            {
-                controllo = scanf("%s", ordine);
-                controllo = scanf("%d", &qta);
-                controllo = scanf("%c", &separatore);
-                printf("Ordine:%s,qta:%d\n", ordine, qta);
-                // PRELEVO LA RICETTA DA RICETTARIO
-                // VERIFICO DI AVERE INGREDIENTI IN MAGAZZINO
-                // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
-                // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
-            }
-        }
-
-        // RIFORNIMENTO
-        else if (strcmp(comando, "rifornimento") == 0)
-        {
-            // PROCESSO GLI INGREDIENTI RIFORNITI UNO AD UNO
-            while (separatore != '\n')
-            {
-                controllo = scanf("%s", nome_ingrediente);
-                controllo = scanf("%d", &qta);
-                controllo = scanf("%d", &scadenza);
-                controllo = scanf("%c", &separatore);
-                printf("Rifornimento:%s,qta:%d,scadenza:%d\n", ordine, qta, scadenza);
-                // AGGIUNGO NEL MAGAZZINO
-            }
-            // HO AGGIORNATO IL MAGAZZINO
-            // VERIFICO SE HO ORDINI IN ATTESA CHE POSSO PROCESSARE
-        }
-
-        // AGGIUSTAMENTI
-        comando[0] = 0;
-        clock++;
-    }
-
-    // STAMPO SITUAZIONE CORRIERE
-    printf("Fine, clock:%d", clock);
-    return 0;
-}
-
-// -------------------- FUNZIONI STRUTTURE DATI ----------------------------------------
 
 // crea HashTable
 void crea_ht(HashTable *ht)
@@ -407,3 +212,73 @@ void ht_elimina_ricettario(HashTable *ht, char *string)
 
 
 
+// MAIN PER TEST
+int main()
+{
+    char string1[] = "tommaso";
+    char string2[] = "zucchero";
+    // char string3[] = "fecola";
+
+    HashTable *ricettario = (HashTable *)malloc(sizeof(HashTable));
+
+    crea_ht(ricettario);
+
+    Bucket *bucket = crea_bucket(string1, NULL);
+    ht_inserisci_ricettario(ricettario, bucket, string1);
+
+    printf("%s\n", ht_cerca(ricettario, string1) != NULL ? ht_cerca(ricettario, string1)->string : "not found");
+
+    ht_elimina_ricettario(ricettario, string2);
+
+    printf("%s\n", ht_cerca(ricettario, string1) != NULL ? ht_cerca(ricettario, string1)->string : "not found");
+
+
+    return 0;
+}
+
+
+void ht_elimina_magazzino(HashTable *ht, char *string)
+{
+    int indice = hash(string);
+
+    if (ht->buckets[indice] == NULL)
+    {
+        // non ce niente da eliminare
+        printf("Non presente\n");
+        return;
+    }
+    else
+    {
+        Bucket *temp = ht->buckets[indice];
+        Bucket *prec = ht->buckets[indice];
+
+        while (strcmp(temp->string, string) != 0 && temp->successore != NULL)
+        {
+            prec = temp;
+            temp = temp->successore;
+        }
+        if (strcmp(temp->string, string) == 0)
+        {
+            prec->successore = temp->successore;
+
+            // elimino la lista di ingredienti di temp
+            Nodo *nodo = temp->lista;
+            Nodo *nodo_prec;
+            while (nodo != NULL)
+            {
+                nodo_prec=nodo;
+                nodo = nodo->successore;
+                free(nodo_prec);
+            }
+
+            // elimino temp
+            free(temp);
+        }
+        else
+        {
+            // non ce niente da eliminare
+            printf("Non presente\n");
+        }
+    }
+    return;
+}
