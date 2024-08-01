@@ -122,46 +122,6 @@ void ht_inserisci_ricettario(HashTable *ht, Bucket *nuovo_bucket, Bucket *temp, 
     return;
 }
 
-void ht_inserisci_magazzino(HashTable *ht, Bucket *nuovo_bucket, char *string)
-{
-    // calcolo hash
-    int indice = hash(string);
-
-    Bucket *temp = ht_cerca(ht, string);
-
-    // non ce quindi inserisco in testa
-    if (temp == NULL)
-    {
-        // inserimento in testa
-        // Non ci sono altri bucket con stesso hash
-        if (ht->buckets[indice] == NULL)
-        {
-            // Non ci sono altri bucket con stesso hash
-            ht->buckets[indice] = nuovo_bucket;
-        }
-        else
-        {
-            // ci sono gia altri bucket, inserisco in testa
-            nuovo_bucket->successore = ht->buckets[indice];
-            ht->buckets[indice] = nuovo_bucket;
-            // ri ordino la lista in ordine crescente
-        }
-        // printf("aggiunta\n");
-    }
-    else
-    {
-        // significa che ce gia quindi devo solo agguingere in coda alla lista dei lotti il nuovo lotto.
-        Nodo *temp2 = temp->lista;
-        while (temp2->successore != NULL)
-        {
-            temp2 = temp2->successore;
-        }
-        temp2->successore = nuovo_bucket->lista;
-        // ri ordino la lista in ordine crescente
-    }
-    return;
-}
-
 void ht_elimina_ricetta(HashTable *ht, char *string)
 {
     int indice = hash(string);
@@ -240,11 +200,11 @@ Nodo *crea_nodo(char *nome_ingrediente, int qta, int scadenza)
     return nuovo_nodo;
 }
 
-void inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo)
+Nodo *inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo)
 {
     if (testa == NULL)
     {
-        testa = nodo;
+        return nodo;
     }
     else
     {
@@ -254,9 +214,8 @@ void inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo)
             temp = temp->successore;
         }
         temp->successore = testa;
-        testa = nodo;
+        return nodo;
     }
-    return;
 }
 
 void stampa_lista(Nodo *testa)
@@ -304,7 +263,9 @@ int main()
     return 0;
 }
 
-void ht_elimina_magazzino(HashTable *ht, char *string)
+// ------------------------  MAGAZZINO ---------------------------------//
+
+void ht_elimina_lotto(HashTable *ht, char *string)
 {
     int indice = hash(string);
 
@@ -348,4 +309,34 @@ void ht_elimina_magazzino(HashTable *ht, char *string)
         }
     }
     return;
+}
+
+//-------------------------------------- MAGAZZINO -----------------------------------//
+
+void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
+{
+    // calcolo hash
+    int indice = hash(string);
+
+    // se il bucket non esiste
+    if (ht->buckets[indice] == NULL)
+    {
+        // inizializzo il bucket e lo inserisco
+        Bucket *nuovo_bucket = crea_bucket(string, lotto);
+        ht->buckets[indice] = nuovo_bucket;
+        return;
+    }
+    else
+    {
+        // altrimenti lo cerco e modifico soltanto la sua lista di lotti aggiungendo lotto in testa.
+        Bucket *bucket = ht_cerca(ht, string);
+        // faccio inserimento in testa alla lista bucket->lista
+        bucket->lista = inserisci_nodo_in_testa(bucket->lista, lotto);
+    }
+    return;
+}
+
+void ht_elimina_lotto(HashTable *ht, Nodo *lotto, char *string)
+{
+    
 }
