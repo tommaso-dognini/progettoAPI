@@ -89,7 +89,6 @@ int main()
     inizializza_ht(ricettario);
     // crea_ht(magazzino);
 
-
     char nome_ricetta[CMD_LEN];
     char nome_ingrediente[CMD_LEN];
     char ordine[CMD_LEN];
@@ -379,16 +378,9 @@ void ht_elimina_ricetta(HashTable *ht, char *string)
         Bucket *temp = ht->buckets[indice];
         Bucket *prec = ht->buckets[indice];
 
-        // cerco il bucket da eliminare
-        while (strcmp(temp->string, string) != 0 && temp->successore != NULL)
-        {
-            prec = temp;
-            temp = temp->successore;
-        }
+        // verifico se e' il primo
         if (strcmp(temp->string, string) == 0)
         {
-            prec->successore = temp->successore;
-
             // elimino la lista di ingredienti di temp
             Nodo *nodo = temp->lista;
             Nodo *nodo_prec;
@@ -398,16 +390,43 @@ void ht_elimina_ricetta(HashTable *ht, char *string)
                 nodo = nodo->successore;
                 free(nodo_prec);
             }
-            temp->lista = NULL;
-
+            // modifico testa della lista
+            ht->buckets[indice] = temp->successore;
             // elimino temp
             free(temp);
             printf("rimossa\n");
         }
         else
         {
-            // non ce niente da eliminare
-            printf("Non presente\n");
+            // altrimenti cerco il bucket e lo elimino
+            while (strcmp(temp->string, string) != 0 && temp->successore != NULL)
+            {
+                prec = temp;
+                temp = temp->successore;
+            }
+            if (strcmp(temp->string, string) == 0)
+            {
+                prec->successore = temp->successore;
+
+                // elimino la lista di ingredienti di temp
+                Nodo *nodo = temp->lista;
+                Nodo *nodo_prec;
+                while (nodo != NULL)
+                {
+                    nodo_prec = nodo;
+                    nodo = nodo->successore;
+                    free(nodo_prec);
+                }
+
+                // elimino temp
+                free(temp);
+                printf("rimossa\n");
+            }
+            else
+            {
+                // non ce niente da eliminare
+                printf("Non presente\n");
+            }
         }
     }
     return;

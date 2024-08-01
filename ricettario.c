@@ -162,7 +162,7 @@ void ht_inserisci_magazzino(HashTable *ht, Bucket *nuovo_bucket, char *string)
     return;
 }
 
-void ht_elimina_ricettario(HashTable *ht, char *string)
+void ht_elimina_ricetta(HashTable *ht, char *string)
 {
     int indice = hash(string);
 
@@ -177,15 +177,9 @@ void ht_elimina_ricettario(HashTable *ht, char *string)
         Bucket *temp = ht->buckets[indice];
         Bucket *prec = ht->buckets[indice];
 
-        while (strcmp(temp->string, string) != 0 && temp->successore != NULL)
-        {
-            prec = temp;
-            temp = temp->successore;
-        }
+        // verifico se e' il primo
         if (strcmp(temp->string, string) == 0)
         {
-            prec->successore = temp->successore;
-
             // elimino la lista di ingredienti di temp
             Nodo *nodo = temp->lista;
             Nodo *nodo_prec;
@@ -195,14 +189,41 @@ void ht_elimina_ricettario(HashTable *ht, char *string)
                 nodo = nodo->successore;
                 free(nodo_prec);
             }
-
+            // modifico testa della lista
+            ht->buckets[indice] = temp->successore;
             // elimino temp
             free(temp);
         }
         else
         {
-            // non ce niente da eliminare
-            printf("Non presente\n");
+            // altrimenti cerco il bucket e lo elimino
+            while (strcmp(temp->string, string) != 0 && temp->successore != NULL)
+            {
+                prec = temp;
+                temp = temp->successore;
+            }
+            if (strcmp(temp->string, string) == 0)
+            {
+                prec->successore = temp->successore;
+
+                // elimino la lista di ingredienti di temp
+                Nodo *nodo = temp->lista;
+                Nodo *nodo_prec;
+                while (nodo != NULL)
+                {
+                    nodo_prec = nodo;
+                    nodo = nodo->successore;
+                    free(nodo_prec);
+                }
+
+                // elimino temp
+                free(temp);
+            }
+            else
+            {
+                // non ce niente da eliminare
+                printf("Non presente\n");
+            }
         }
     }
     return;
@@ -238,7 +259,6 @@ void inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo)
     return;
 }
 
-
 void stampa_lista(Nodo *testa)
 {
     Nodo *temp = testa;
@@ -254,8 +274,8 @@ void stampa_lista(Nodo *testa)
 int main()
 {
     char string1[] = "tommaso";
-    //char string2[] = "zucchero";
-    // char string3[] = "fecola";
+    // char string2[] = "zucchero";
+    //  char string3[] = "fecola";
 
     HashTable *ricettario = (HashTable *)malloc(sizeof(HashTable));
 
@@ -276,7 +296,7 @@ int main()
 
     printf("%s\n", ht_cerca(ricettario, string1) != NULL ? ht_cerca(ricettario, string1)->string : "not found");
 
-    ht_elimina_ricettario(ricettario, string1);
+    ht_elimina_ricetta(ricettario, string1);
 
     printf("%s\n", ht_cerca(ricettario, string1) != NULL ? ht_cerca(ricettario, string1)->string : "not found");
 
