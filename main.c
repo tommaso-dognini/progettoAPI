@@ -16,6 +16,18 @@ typedef struct Nodo
     struct Nodo *successore;
 } Nodo;
 
+void stampa_lista(Nodo *testa);
+
+Nodo *min_scadenza(Nodo *testa);
+
+void *elimina_lista(Nodo *testa);
+
+Nodo *elimina_nodo_ptr(Nodo *testa, Nodo *nodo);
+
+Nodo *inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo);
+
+Nodo *crea_nodo(char *nome_ingrediente, int qta, int scadenza);
+
 // ---------------------------  HASH TABLE ---------------------------------------------//
 
 // Definisco la struttura della hash table
@@ -34,46 +46,48 @@ typedef struct HashTable
 } HashTable;
 
 // crea HashTable
-void crea_ht(HashTable *ht)
+void inizializza_ht(HashTable *ht);
 
-    // crea Bucket
-    Bucket *crea_bucket(char *string, Nodo *lista)
+// crea Bucket
+Bucket *crea_bucket(char *string, Nodo *lista);
 
-    // funzione di hash: uso rolling polinomial con p = 53 e dimensione = 1e9 + 9
-    int hash(char *string)
+// funzione di hash: uso rolling polinomial con p = 53 e dimensione = 1e9 + 9
+int hash(char *string);
 
-    // Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
-    Bucket *ht_cerca(HashTable *ht, char *string)
+// Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
+Bucket *ht_cerca(HashTable *ht, char *string);
 
-        void ht_inserisci_ricettario(HashTable *ht, Bucket *nuovo_bucket, char *string)
+void ht_inserisci_ricettario(HashTable *ht, Bucket *nuovo_bucket, char *string);
 
-            void ht_inserisci_magazzino(HashTable *ht, Bucket *nuovo_bucket, char *string)
+void ht_inserisci_magazzino(HashTable *ht, Bucket *nuovo_bucket, char *string);
 
-                void ht_elimina_ricettario(HashTable *ht, char *string)
+void ht_elimina_ricetta(HashTable *ht, char *string);
 
-    //-----------------------------------------------------------------------------------------
-    //--------  FUNZIONI PASTICCERIA ----------------------------------------------------------
-    //-----------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
+//--------  FUNZIONI PASTICCERIA ----------------------------------------------------------
+//-----------------------------------------------------------------------------------------
 
-    //-----------------------------------------------------------------------------------------
-    //--------  FUNZIONI ACCESSORIE ----------------------------------------------------------
-    //-----------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
+//--------  FUNZIONI ACCESSORIE ----------------------------------------------------------
+//-----------------------------------------------------------------------------------------
 
-    //-----------------------------------------------------------------------------------------
-    //--------  MAIN --------------------------------------------------------------------------
-    //-----------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
+//--------  MAIN --------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------
 
-    int main()
+int main()
 {
 
     char comando[CMD_LEN];
     int clock = 0; // istanti di tempo della simulazione
 
-    HashTable *ricettario;
-    HashTable *magazzino;
+    HashTable *ricettario = (HashTable *) malloc (sizeof(HashTable));
+    //HashTable *magazzino;
 
-    crea_ht(ricettario);
-    crea_ht(magazzino);
+    Nodo *ingrediente;
+
+    inizializza_ht(ricettario);
+    //crea_ht(magazzino);
 
     // Nodo *nodo = &NILL; // nodo accessorio
     // Nodo *ingrediente = &NILL;
@@ -83,7 +97,6 @@ void crea_ht(HashTable *ht)
     char ordine[CMD_LEN];
     int qta = 0;
     int scadenza = 0;
-    int codice_ricetta = 0;
     int controllo = 0;
     char separatore = 'a';
 
@@ -129,6 +142,9 @@ void crea_ht(HashTable *ht)
             }
             else
             {
+                // CREO IL NODO RICETTA
+                Bucket *bucket = crea_bucket(nome_ricetta, NULL);
+
                 // ACQUISISCO INGREDIENTI E CREO LISTA INGREDIENTI
                 while (separatore != '\n')
                 {
@@ -136,18 +152,15 @@ void crea_ht(HashTable *ht)
                     controllo = scanf("%d", &qta);
                     controllo = scanf("%c", &separatore);
                     printf("Ingrediente:%s,qta:%d\n", nome_ingrediente, qta);
+
                     // AGGIUNGO INGREDIENTE ALLA NODO RICETTA
-                    ingrediente = crea_nodo(calcola_codice(nome_ingrediente, 0));
-                    ingrediente->qta = qta;
-                    inserisci(&(nodo->ingredienti), ingrediente);
+                    ingrediente = crea_nodo(nome_ingrediente, qta, 0);
+                    bucket->lista = inserisci_nodo_in_testa(bucket->lista,ingrediente);
                 }
-                // CREO IL NODO RICETTA
-                Bucket *bucket = crea_bucket(nome_ricetta, NULL);
+
                 // AGGIUNGO IL NODO RICETTA AL RICETTARIO
-                inserisci(&ricettario, nodo);
-                printf("Stampa in ordine\n");
-                stampa_in_ordine(ricettario);
-                stampa_in_ordine(nodo->ingredienti);
+                ht_inserisci_ricettario(ricettario,bucket, bucket->string);
+                stampa_lista(bucket->lista);
             }
         }
 
@@ -157,18 +170,16 @@ void crea_ht(HashTable *ht)
             // ACQUISISCO NOME RICETTA
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
-            codice_ricetta = calcola_codice(nome_ricetta, 0);
-            printf("Nome ricetta:%s, Codice ricetta:%d\n", nome_ricetta, codice_ricetta);
+            
+            printf("Nome ricetta:%s\n", nome_ricetta);
             // VERIFICO CHE NON SIA IN USO
             // SE IN USO o IN ATTESA DI ESSERE SPEDITO
-            printf("ordini in sospeso\n");
-            // VERIFICO CHE SIA PRESENTE
-            //  RIMUOVO RICETTA DA RICETTARIO
-            rimuovi_ricetta(&ricettario, codice_ricetta);
-            printf("rimossa\n");
-            stampa_in_ordine(ricettario);
-            // SE NON E PRESENTE
-            printf("non presente\n");
+
+            //printf("ordini in sospeso\n");
+            
+        
+            // ALTRIMENTI RIMUOVO RICETTA DA RICETTARIO
+            ht_elimina_ricetta(ricettario,nome_ricetta);
         }
 
         // ORDINE
@@ -217,8 +228,8 @@ void crea_ht(HashTable *ht)
 
 // -------------------- FUNZIONI STRUTTURE DATI ----------------------------------------
 
-// crea HashTable
-void crea_ht(HashTable *ht)
+// inizializza HashTable
+void inizializza_ht(HashTable *ht)
 {
     ht->dimensione = 1e9 + 9;
     ht->num_buckets_inseriti = 0;
@@ -349,7 +360,7 @@ void ht_inserisci_magazzino(HashTable *ht, Bucket *nuovo_bucket, char *string)
     return;
 }
 
-void ht_elimina_ricettario(HashTable *ht, char *string)
+void ht_elimina_ricetta(HashTable *ht, char *string)
 {
     int indice = hash(string);
 
@@ -364,6 +375,7 @@ void ht_elimina_ricettario(HashTable *ht, char *string)
         Bucket *temp = ht->buckets[indice];
         Bucket *prec = ht->buckets[indice];
 
+        //cerco il bucket da eliminare
         while (strcmp(temp->string, string) != 0 && temp->successore != NULL)
         {
             prec = temp;
@@ -382,9 +394,11 @@ void ht_elimina_ricettario(HashTable *ht, char *string)
                 nodo = nodo->successore;
                 free(nodo_prec);
             }
+            temp->lista = NULL;
 
             // elimino temp
             free(temp);
+            printf("rimossa\n");
         }
         else
         {
@@ -405,11 +419,11 @@ Nodo *crea_nodo(char *nome_ingrediente, int qta, int scadenza)
     return nuovo_nodo;
 }
 
-void inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo)
+Nodo *inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo)
 {
     if (testa == NULL)
     {
-        testa = nodo;
+        return nodo;
     }
     else
     {
@@ -419,17 +433,73 @@ void inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo)
             temp = temp->successore;
         }
         temp->successore = testa;
-        testa = nodo;
+        return nodo;
     }
-    return;
 }
+
+Nodo *elimina_nodo_ptr(Nodo *testa, Nodo *nodo)
+{
+    Nodo *temp = testa;
+    // se e il primo
+    if (testa == nodo)
+    {
+        testa = testa->successore;
+        free(temp);
+        return testa;
+    }
+    // altrimenti lo cerco
+    while (temp->successore != nodo && temp->successore != NULL)
+    {
+        temp = temp->successore;
+    }
+    if (temp->successore != NULL)
+    {
+        temp->successore = temp->successore->successore;
+        free(nodo);
+    }
+    return testa;
+}
+
+void *elimina_lista(Nodo *testa)
+{
+    Nodo *temp = testa;
+    Nodo *prec = testa;
+    while (temp != NULL)
+    {
+        prec = temp;
+        temp = temp->successore;
+        free(prec);
+    }
+    return NULL;
+}
+
+Nodo *min_scadenza(Nodo *testa)
+{
+    Nodo *min = testa;
+    Nodo *temp = testa;
+
+    if (testa == NULL)
+        return testa;
+
+    while (temp != NULL)
+    {
+        if (temp->scadenza < min->scadenza)
+        {
+            min = temp;
+        }
+        temp = temp->successore;
+    }
+    return min;
+}
+
 void stampa_lista(Nodo *testa)
 {
     Nodo *temp = testa;
     while (temp != NULL)
     {
-        printf("%s, %d ,%d\n", temp->nome_ingrediente, temp->qta, temp->scadenza);
+        printf("%s, %d ,%d -> ", temp->nome_ingrediente, temp->qta, temp->scadenza);
         temp = temp->successore;
     }
+    printf("\n");
     return;
 }
