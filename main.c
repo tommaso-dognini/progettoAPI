@@ -81,13 +81,13 @@ int main()
     char comando[CMD_LEN];
     int clock = 0; // istanti di tempo della simulazione
 
-    HashTable *ricettario = (HashTable *) malloc (sizeof(HashTable));
-    //HashTable *magazzino;
+    HashTable *ricettario = (HashTable *)malloc(sizeof(HashTable));
+    // HashTable *magazzino;
 
     Nodo *ingrediente;
 
     inizializza_ht(ricettario);
-    //crea_ht(magazzino);
+    // crea_ht(magazzino);
 
     // Nodo *nodo = &NILL; // nodo accessorio
     // Nodo *ingrediente = &NILL;
@@ -155,13 +155,15 @@ int main()
 
                     // AGGIUNGO INGREDIENTE ALLA NODO RICETTA
                     ingrediente = crea_nodo(nome_ingrediente, qta, 0);
-                    bucket->lista = inserisci_nodo_in_testa(bucket->lista,ingrediente);
+                    bucket->lista = inserisci_nodo_in_testa(bucket->lista, ingrediente);
                 }
 
                 // AGGIUNGO IL NODO RICETTA AL RICETTARIO
-                ht_inserisci_ricettario(ricettario,bucket, bucket->string);
+                ht_inserisci_ricettario(ricettario, bucket, bucket->string);
                 stampa_lista(bucket->lista);
             }
+
+            nome_ricetta[0] = 0;
         }
 
         // RIMUOVI_RICETTA
@@ -170,16 +172,15 @@ int main()
             // ACQUISISCO NOME RICETTA
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
-            
+
             printf("Nome ricetta:%s\n", nome_ricetta);
             // VERIFICO CHE NON SIA IN USO
             // SE IN USO o IN ATTESA DI ESSERE SPEDITO
 
-            //printf("ordini in sospeso\n");
-            
-        
+            // printf("ordini in sospeso\n");
+
             // ALTRIMENTI RIMUOVO RICETTA DA RICETTARIO
-            ht_elimina_ricetta(ricettario,nome_ricetta);
+            ht_elimina_ricetta(ricettario, nome_ricetta);
         }
 
         // ORDINE
@@ -222,7 +223,7 @@ int main()
     }
 
     // STAMPO SITUAZIONE CORRIERE
-    printf("Fine, clock:%d", clock);
+    printf("Fine, clock:%d\n", clock);
     return 0;
 }
 
@@ -375,7 +376,7 @@ void ht_elimina_ricetta(HashTable *ht, char *string)
         Bucket *temp = ht->buckets[indice];
         Bucket *prec = ht->buckets[indice];
 
-        //cerco il bucket da eliminare
+        // cerco il bucket da eliminare
         while (strcmp(temp->string, string) != 0 && temp->successore != NULL)
         {
             prec = temp;

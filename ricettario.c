@@ -254,7 +254,7 @@ void stampa_lista(Nodo *testa)
 int main()
 {
     char string1[] = "tommaso";
-    char string2[] = "zucchero";
+    //char string2[] = "zucchero";
     // char string3[] = "fecola";
 
     HashTable *ricettario = (HashTable *)malloc(sizeof(HashTable));
@@ -276,7 +276,7 @@ int main()
 
     printf("%s\n", ht_cerca(ricettario, string1) != NULL ? ht_cerca(ricettario, string1)->string : "not found");
 
-    ht_elimina_ricettario(ricettario, string2);
+    ht_elimina_ricettario(ricettario, string1);
 
     printf("%s\n", ht_cerca(ricettario, string1) != NULL ? ht_cerca(ricettario, string1)->string : "not found");
 
