@@ -91,12 +91,10 @@ Bucket *ht_cerca(HashTable *ht, char *string)
     }
 }
 
-void ht_inserisci_ricettario(HashTable *ht, Bucket *nuovo_bucket, char *string)
+void ht_inserisci_ricettario(HashTable *ht, Bucket *nuovo_bucket, Bucket *temp, char *string)
 {
     // calcolo hash
     int indice = hash(string);
-
-    Bucket *temp = ht_cerca(ht, string);
 
     // non ce quindi inserisco in testa
     if (temp == NULL)
@@ -193,7 +191,7 @@ void ht_elimina_ricettario(HashTable *ht, char *string)
             Nodo *nodo_prec;
             while (nodo != NULL)
             {
-                nodo_prec=nodo;
+                nodo_prec = nodo;
                 nodo = nodo->successore;
                 free(nodo_prec);
             }
@@ -210,7 +208,47 @@ void ht_elimina_ricettario(HashTable *ht, char *string)
     return;
 }
 
+//----------------------------------- LISTE ------------------------------//
+Nodo *crea_nodo(char *nome_ingrediente, int qta, int scadenza)
+{
+    Nodo *nuovo_nodo = (Nodo *)malloc(sizeof(Nodo));
+    strcpy(nuovo_nodo->nome_ingrediente, nome_ingrediente);
+    nuovo_nodo->qta = qta;
+    nuovo_nodo->scadenza = scadenza;
+    nuovo_nodo->successore = NULL;
+    return nuovo_nodo;
+}
 
+void inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo)
+{
+    if (testa == NULL)
+    {
+        testa = nodo;
+    }
+    else
+    {
+        Nodo *temp = nodo;
+        while (temp->successore != NULL)
+        {
+            temp = temp->successore;
+        }
+        temp->successore = testa;
+        testa = nodo;
+    }
+    return;
+}
+
+
+void stampa_lista(Nodo *testa)
+{
+    Nodo *temp = testa;
+    while (temp != NULL)
+    {
+        printf("%s, %d ,%d\n", temp->nome_ingrediente, temp->qta, temp->scadenza);
+        temp = temp->successore;
+    }
+    return;
+}
 
 // MAIN PER TEST
 int main()
@@ -224,7 +262,17 @@ int main()
     crea_ht(ricettario);
 
     Bucket *bucket = crea_bucket(string1, NULL);
-    ht_inserisci_ricettario(ricettario, bucket, string1);
+
+    Nodo *nodo1 = crea_nodo("zucchero", 10, 1);
+    Nodo *nodo2 = crea_nodo("pane", 10, 1);
+    Nodo *nodo3 = crea_nodo("acqua", 10, 1);
+
+    inserisci_nodo_in_testa(nodo1, nodo2);
+    inserisci_nodo_in_testa(nodo1, nodo3);
+    stampa_lista(nodo1);
+
+    Bucket *temp = ht_cerca(ricettario, bucket->string);
+    ht_inserisci_ricettario(ricettario, bucket, temp, bucket->string);
 
     printf("%s\n", ht_cerca(ricettario, string1) != NULL ? ht_cerca(ricettario, string1)->string : "not found");
 
@@ -232,10 +280,9 @@ int main()
 
     printf("%s\n", ht_cerca(ricettario, string1) != NULL ? ht_cerca(ricettario, string1)->string : "not found");
 
-
+    stampa_lista(bucket->lista);
     return 0;
 }
-
 
 void ht_elimina_magazzino(HashTable *ht, char *string)
 {
@@ -266,7 +313,7 @@ void ht_elimina_magazzino(HashTable *ht, char *string)
             Nodo *nodo_prec;
             while (nodo != NULL)
             {
-                nodo_prec=nodo;
+                nodo_prec = nodo;
                 nodo = nodo->successore;
                 free(nodo_prec);
             }
