@@ -89,8 +89,6 @@ int main()
     inizializza_ht(ricettario);
     // crea_ht(magazzino);
 
-    // Nodo *nodo = &NILL; // nodo accessorio
-    // Nodo *ingrediente = &NILL;
 
     char nome_ricetta[CMD_LEN];
     char nome_ingrediente[CMD_LEN];
@@ -118,6 +116,9 @@ int main()
 
         // ACQUISISCO COMANDO
         controllo = scanf("%s", comando);
+
+        //----------------------------- GESTIONE COMANDI -------------------//
+
         // AGGIUNGI_RICETTA
         if (strcmp(comando, "aggiungi_ricetta") == 0)
         {
@@ -186,6 +187,7 @@ int main()
         // ORDINE
         else if (strcmp(comando, "ordine") == 0)
         {
+            controllo = scanf("%c", &separatore);
             // PROCESSO GLI ORDINI UNO AD UNO
             while (separatore != '\n')
             {
@@ -203,6 +205,7 @@ int main()
         // RIFORNIMENTO
         else if (strcmp(comando, "rifornimento") == 0)
         {
+            controllo = scanf("%c", &separatore);
             // PROCESSO GLI INGREDIENTI RIFORNITI UNO AD UNO
             while (separatore != '\n')
             {
