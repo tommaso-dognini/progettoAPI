@@ -123,6 +123,9 @@ int main()
 
         // ACQUISISCO COMANDO
         controllo = scanf("%s", comando);
+
+        //---------------------- GESTIONE COMANDI -----------------------------------------//
+        
         // AGGIUNGI_RICETTA
         if (strcmp(comando, "aggiungi_ricetta") == 0)
         {
