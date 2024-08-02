@@ -28,6 +28,33 @@ Nodo *inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo);
 
 Nodo *crea_nodo(char *nome_ingrediente, int qta, int scadenza);
 
+// ORDINI
+// Definisco la struttura di un Nodo Ordine
+typedef struct Ordine
+{
+    char nome_ricetta[CMD_LEN];
+    int qta;
+    int tempo;
+    int peso;
+    struct Ordine *successore;
+} Ordine;
+
+void stampa_lista_ordini(Ordine *testa);
+
+void *elimina_lista_ordini(Ordine *testa);
+
+Ordine *elimina_nodo_ptr_ordini(Ordine *testa, Ordine *nodo);
+
+Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo);
+
+Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso);
+
+// --------------------------- ORDINAMENTO ---------------------------------------------//
+
+void merge_sort();
+
+void merge();
+
 // ---------------------------  HASH TABLE ---------------------------------------------//
 
 // Definisco la struttura della hash table
@@ -63,8 +90,6 @@ void ht_elimina_ricetta(HashTable *ht, char *string);
 
 void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string);
 
-void ht_elimina_lotto(HashTable *ht, char *string, Nodo *lotto);
-
 //-----------------------------------------------------------------------------------------
 //--------  FUNZIONI PASTICCERIA ----------------------------------------------------------
 //-----------------------------------------------------------------------------------------
@@ -84,12 +109,16 @@ int main()
     int clock = 0; // istanti di tempo della simulazione
 
     HashTable *ricettario = (HashTable *)malloc(sizeof(HashTable));
-    HashTable *magazzino  = (HashTable *)malloc(sizeof(HashTable));
+    HashTable *magazzino = (HashTable *)malloc(sizeof(HashTable));
 
     Nodo *ingrediente;
 
     inizializza_ht(ricettario);
     inizializza_ht(magazzino);
+
+    Ordine *ordini = NULL;
+    Ordine *ordini_attesa = NULL;
+    Ordine *ordini_corriere = NULL;
 
     char nome_ricetta[CMD_LEN];
     char nome_ingrediente[CMD_LEN];
@@ -218,7 +247,7 @@ int main()
 
                 // AGGIUNGO NEL MAGAZZINO
                 ingrediente = crea_nodo(nome_ingrediente, qta, scadenza);
-                ht_inserisci_lotto(magazzino,ingrediente,nome_ingrediente);
+                ht_inserisci_lotto(magazzino, ingrediente, nome_ingrediente);
                 stampa_lista(magazzino->buckets[hash(nome_ingrediente)]->lista);
             }
             // HO AGGIORNATO IL MAGAZZINO
@@ -399,7 +428,6 @@ void ht_elimina_ricetta(HashTable *ht, char *string)
     return;
 }
 
-
 //-------------------------------------- MAGAZZINO -----------------------------------//
 
 void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
@@ -413,6 +441,7 @@ void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
         // inizializzo il bucket e lo inserisco
         Bucket *nuovo_bucket = crea_bucket(string, lotto);
         ht->buckets[indice] = nuovo_bucket;
+        printf("rifornito\n");
         return;
     }
     else
@@ -421,15 +450,12 @@ void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
         Bucket *bucket = ht_cerca(ht, string);
         // faccio inserimento in testa alla lista bucket->lista
         bucket->lista = inserisci_nodo_in_testa(bucket->lista, lotto);
+        printf("rifornito\n");
     }
     return;
 }
 
-
 //--------------------------------- ORDINI ------------------------------------------//
-
-
-
 
 //------------------------LISTE -----------------------------------------------------//
 

@@ -116,12 +116,13 @@ int main()
     int v[] = {1, 2, 3};
     Nodo *lista = NULL;
     Nodo *nuovo_nodo;
+    Nodo *nuovo_nodo2;
 
     // printf("String: ");
     // scanf("%s", string);
     // printf("Lista:\n");
-    nuovo_nodo = crea_nodo("tommaso", 1, v[0]);
-    lista = inserisci_nodo_in_testa(lista, nuovo_nodo);
+    nuovo_nodo2 = crea_nodo("tommaso", 1, v[0]);
+    lista = inserisci_nodo_in_testa(lista, nuovo_nodo2);
     stampa_lista(lista);
 
     nuovo_nodo = crea_nodo("riccardo", 1, v[1]);
@@ -135,7 +136,7 @@ int main()
     printf("Minimo:\n");
     printf("%s, scadenza: %d", min_scadenza(lista)->nome_ingrediente, min_scadenza(lista)->scadenza);
 
-    lista = elimina_nodo(lista, nuovo_nodo);
+    lista = elimina_nodo(lista, nuovo_nodo2);
     stampa_lista(lista);
 
     elimina_lista(lista);
