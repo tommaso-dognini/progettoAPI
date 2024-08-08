@@ -40,7 +40,7 @@ typedef struct Ordine
     struct Ordine *successore;
 } Ordine;
 
-//-------------------- Liste  semplici (single linked)  -----------------------------------//
+//----------------- Liste  semplici (single linked) X RICETTARIO E MAGAZZINO ---------//
 
 void stampa_lista(Nodo *testa);
 
@@ -56,7 +56,7 @@ Nodo *crea_nodo(char *nome_ingrediente, int qta, int scadenza);
 
 int calcola_peso(Nodo *testa);
 
-// ORDINI
+// ---------------------------  ORDINI ---------------------------------------------//
 
 void stampa_lista_ordini(Ordine *testa);
 
@@ -70,10 +70,13 @@ Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso);
 
 int verifica_ingrediente(HashTable *magazzino, char *nome_ingrediente, int qta_necessaria, int clock);
 
-// --------------------------- ORDINAMENTO ---------------------------------------------//
+void produci_ordine(HashTable *magazzino, Bucket *Bucket_ricetta, int qta);
+
+// --------------------------- FUNZIONI DI ORDINAMENTO LISTE ----------------------------//
+
+
 
 // ---------------------------  HASH TABLE ---------------------------------------------//
-
 
 // crea HashTable
 void inizializza_ht(HashTable *ht);
@@ -87,19 +90,15 @@ int hash(char *string);
 // Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
 Bucket *ht_cerca(HashTable *ht, char *string);
 
+// ---------------------------  RICETTARIO  ---------------------------------------------//
+
 void ht_inserisci_ricetta(HashTable *ht, Bucket *nuovo_bucket, char *string);
 
 void ht_elimina_ricetta(HashTable *ht, char *string);
 
+// ---------------------------  MAGAZZINO ---------------------------------------------//
 void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string);
 
-//-----------------------------------------------------------------------------------------
-//--------  FUNZIONI PASTICCERIA ----------------------------------------------------------
-//-----------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------
-//--------  FUNZIONI ACCESSORIE ----------------------------------------------------------
-//-----------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------
 //--------  MAIN --------------------------------------------------------------------------
@@ -109,7 +108,7 @@ int main()
 {
 
     char comando[CMD_LEN];
-    int clock = 0; // istanti di tempo della simulazione
+    int clock = 1; // istanti di tempo della simulazione
 
     HashTable *ricettario = (HashTable *)malloc(sizeof(HashTable));
     HashTable *magazzino = (HashTable *)malloc(sizeof(HashTable));
@@ -122,7 +121,7 @@ int main()
 
     Ordine *ordini_pronti = NULL;
     Ordine *ordini_attesa = NULL;
-    //Ordine *lista_corriere = NULL;
+    // Ordine *lista_corriere = NULL;
 
     Ordine *ordine = NULL;
 
@@ -149,7 +148,7 @@ int main()
     while (separatore == '\n' && controllo != -1)
     {
         // VERIFICA CORRIERE
-        if (clock % periodo == 0 && clock != 0)
+        if (clock % periodo == 0 && clock != 1)
         {
             // gestisco il corriere
             printf("corriere\n");
@@ -255,7 +254,7 @@ int main()
                         peso = peso + nodo_temp->qta * qta;
 
                         // per ogni ingrediente della ricetta controllo di averlo nel magazzino altrimenti metto attesa
-                        if (verifica_ingrediente(magazzino, nodo_temp->nome_ingrediente, nodo_temp->qta*qta, clock) == 0)
+                        if (verifica_ingrediente(magazzino, nodo_temp->nome_ingrediente, nodo_temp->qta * qta, clock) == 0)
                         {
                             attesa = 1; // non ce metto in attesa la ricetta
                         }
@@ -271,14 +270,20 @@ int main()
                     ordine = crea_ordine(nome_ricetta, qta, clock, peso);
                     ordini_pronti = inserisci_nodo_in_testa_ordini(ordini_pronti, ordine);
                     // produco ordine
-                    // produci_ordine(magazzino, bucket, qta);
+                    produci_ordine(magazzino, bucket, qta);
                 }
                 else
                 { // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
                     ordine = crea_ordine(nome_ricetta, qta, clock, peso);
                     ordini_attesa = inserisci_nodo_in_testa_ordini(ordini_attesa, ordine);
+                    //ordino lista di ordini di attesa in senso crescente per tempo di acquisizione (tempo)
                 }
             }
+            printf("ordini_pronti:\n");
+            stampa_lista_ordini(ordini_pronti);
+
+            printf("ordini_attesa:\n");
+            stampa_lista_ordini(ordini_attesa);
         }
 
         // RIFORNIMENTO
@@ -301,6 +306,7 @@ int main()
             }
             // HO AGGIORNATO IL MAGAZZINO
             // VERIFICO SE HO ORDINI IN ATTESA CHE POSSO PROCESSARE
+
         }
 
         // AGGIUSTAMENTI
@@ -477,18 +483,6 @@ void ht_elimina_ricetta(HashTable *ht, char *string)
     return;
 }
 
-int calcola_peso(Nodo *testa)
-{
-    Nodo *temp = testa;
-    int peso = 0;
-    while (temp != NULL)
-    {
-        peso = peso + temp->qta;
-        temp = temp->successore;
-    }
-    return peso;
-}
-
 //-------------------------------------- MAGAZZINO -----------------------------------//
 
 void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
@@ -514,47 +508,6 @@ void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
         printf("rifornito\n");
     }
     return;
-}
-
-//--------------------------------- ORDINI ------------------------------------------//
-
-// se chiamata gia verificato che ogni ingrediente e presente per poter produrre ordine
-//void produci_ordine(HashTable *magazzino, Bucket *Bucket_ricetta, int qta)
-
-
-int verifica_ingrediente(HashTable *magazzino, char *nome_ingrediente, int qta_necessaria, int clock)
-{
-    Bucket *bucket = ht_cerca(magazzino, nome_ingrediente);
-    Nodo *temp = bucket->lista;
-    if (bucket->lista == NULL)
-    {
-        return 0; // ingrediente mancante
-    }
-    else
-    {
-        while (temp != NULL)
-        {
-
-            if (temp->scadenza < clock)
-            {
-                // ingrediente scaduto--> lo elimino dalla lista dei lotti
-                elimina_nodo_ptr(bucket->lista, temp);
-            }
-            else
-            {
-                if (temp->qta >= qta_necessaria)
-                {
-                    return 1;
-                }
-                else
-                {
-                    qta_necessaria -= temp->qta;
-                }
-            }
-            temp = temp->successore;
-        }
-    }
-    return 0;
 }
 
 //------------------------LISTE -----------------------------------------------------//
@@ -654,7 +607,85 @@ void stampa_lista(Nodo *testa)
     return;
 }
 
-// ordini
+//--------------------------------- ORDINI ------------------------------------------//
+
+// se chiamata gia verificato che ogni ingrediente e presente per poter produrre ordine
+void produci_ordine(HashTable *magazzino, Bucket *Bucket_ricetta, int qta)
+{
+    Nodo *temp = Bucket_ricetta->lista;
+    Nodo *temp_magazzino;
+    Bucket *bucket_magazzino;
+    int qta_necessaria;
+
+    // NOTA:
+    // so gia che la ricetta non e vuota e che ci sono tutti gli ingredienti necessari e che ho gia tolto gli ingredienti scaduti
+
+    // scorro la lista di ingredienti e per ciascuno modifico le quantita/ rimuovo i lotti nel magazino
+    while (temp != NULL)
+    {
+        bucket_magazzino = ht_cerca(magazzino, temp->nome_ingrediente);
+        temp_magazzino = bucket_magazzino->lista;
+
+        qta_necessaria = qta * temp->qta;
+
+        //per ogni ingrediente scorro la lista dei lotti
+        while (temp_magazzino != NULL && qta_necessaria > 0)
+        {
+            if (temp_magazzino->qta > qta_necessaria)
+            {
+                temp_magazzino->qta -= qta_necessaria;
+                qta_necessaria = 0; // per questo ingrediente ho tolto la qta utilizzata e sono aposto
+            }
+            else
+            { // qta necessaria diminuisce ed elimino lotto perche lo uso tutto
+                qta_necessaria -= temp_magazzino->qta;
+                elimina_nodo_ptr(bucket_magazzino->lista, temp_magazzino);
+            }
+
+            // continuo a scorrere la lista di lotti
+            temp_magazzino = temp_magazzino->successore;
+        }
+
+        // continuo a scorre la lista di ingredienti e ripeto lo stesso procedimento per ogni ingrediente
+        temp = temp->successore;
+    }
+    return;
+}
+
+int verifica_ingrediente(HashTable *magazzino, char *nome_ingrediente, int qta_necessaria, int clock)
+{
+    Bucket *bucket = ht_cerca(magazzino, nome_ingrediente);
+    Nodo *temp = bucket->lista;
+    if (bucket->lista == NULL)
+    {
+        return 0; // ingrediente mancante
+    }
+    else
+    {
+        while (temp != NULL)
+        {
+
+            if (temp->scadenza < clock)
+            {
+                // ingrediente scaduto--> lo elimino dalla lista dei lotti
+                elimina_nodo_ptr(bucket->lista, temp);
+            }
+            else
+            {
+                if (temp->qta >= qta_necessaria)
+                {
+                    return 1;
+                }
+                else
+                {
+                    qta_necessaria -= temp->qta;
+                }
+            }
+            temp = temp->successore;
+        }
+    }
+    return 0;
+}
 
 void stampa_lista_ordini(Ordine *testa)
 {
