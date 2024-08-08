@@ -68,13 +68,16 @@ Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo);
 
 Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso);
 
+//verifica se un ingrediente e presente in quantita sufficiente (non scaduto) per la ricetta desiderata
 int verifica_ingrediente(HashTable *magazzino, char *nome_ingrediente, int qta_necessaria, int clock);
 
+//modifica le quantita nel ricettario sottraendo quelle utilizzate per produrre la ricetta
 void produci_ordine(HashTable *magazzino, Bucket *Bucket_ricetta, int qta);
 
+// ritorna 1 se la ricetta e presente nella lista oppure 0 se non e presente
+int cerca_in_lista(Ordine *testa, char *nome_ricetta);
+
 // --------------------------- FUNZIONI DI ORDINAMENTO LISTE ----------------------------//
-
-
 
 // ---------------------------  HASH TABLE ---------------------------------------------//
 
@@ -98,7 +101,6 @@ void ht_elimina_ricetta(HashTable *ht, char *string);
 
 // ---------------------------  MAGAZZINO ---------------------------------------------//
 void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string);
-
 
 //-----------------------------------------------------------------------------------------
 //--------  MAIN --------------------------------------------------------------------------
@@ -215,13 +217,16 @@ int main()
             controllo = scanf("%c", &separatore);
 
             printf("Nome ricetta:%s\n", nome_ricetta);
-            // VERIFICO CHE NON SIA IN USO
-            // SE IN USO o IN ATTESA DI ESSERE SPEDITO
-
-            // printf("ordini in sospeso\n");
-
-            // ALTRIMENTI RIMUOVO RICETTA DA RICETTARIO
-            ht_elimina_ricetta(ricettario, nome_ricetta);
+            // VERIFICO CHE NON SIA IN USO = ordini_attesa e CHE NON E' LA RICETTA DI UN ORDINE CHE NON HO ANCORA SPEDITO = oridini_pronti
+            if (cerca_in_lista(ordini_attesa, nome_ricetta) == 1 || cerca_in_lista(ordini_pronti, nome_ricetta) == 1)
+            {
+                printf("ordini in sospeso\n");
+            }
+            else
+            {
+                // ALTRIMENTI RIMUOVO RICETTA DA RICETTARIO
+                ht_elimina_ricetta(ricettario, nome_ricetta);
+            }
         }
 
         // ORDINE
@@ -240,9 +245,10 @@ int main()
 
                 // PRELEVO LA RICETTA DA RICETTARIO
                 bucket = ht_cerca(ricettario, nome_ricetta);
-                if (bucket == NULL)
+                if (bucket == NULL || bucket->lista == NULL)
                 {
                     attesa = 1; // non ho la ricetta -> metto in attesa
+                    printf("rifiutato\n");
                 }
                 else
                 {
@@ -276,8 +282,9 @@ int main()
                 { // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
                     ordine = crea_ordine(nome_ricetta, qta, clock, peso);
                     ordini_attesa = inserisci_nodo_in_testa_ordini(ordini_attesa, ordine);
-                    //ordino lista di ordini di attesa in senso crescente per tempo di acquisizione (tempo)
+                    // ordino lista di ordini di attesa in senso crescente per tempo di acquisizione (tempo)
                 }
+                printf("accettato\n");
             }
             printf("ordini_pronti:\n");
             stampa_lista_ordini(ordini_pronti);
@@ -306,7 +313,6 @@ int main()
             }
             // HO AGGIORNATO IL MAGAZZINO
             // VERIFICO SE HO ORDINI IN ATTESA CHE POSSO PROCESSARE
-
         }
 
         // AGGIUSTAMENTI
@@ -628,7 +634,7 @@ void produci_ordine(HashTable *magazzino, Bucket *Bucket_ricetta, int qta)
 
         qta_necessaria = qta * temp->qta;
 
-        //per ogni ingrediente scorro la lista dei lotti
+        // per ogni ingrediente scorro la lista dei lotti
         while (temp_magazzino != NULL && qta_necessaria > 0)
         {
             if (temp_magazzino->qta > qta_necessaria)
@@ -762,4 +768,17 @@ Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso)
     nuovo_nodo->peso = peso;
     nuovo_nodo->successore = NULL;
     return nuovo_nodo;
+}
+
+int cerca_in_lista(Ordine *testa, char *nome_ricetta)
+{
+    Ordine *temp = testa;
+    while (temp != NULL)
+    {
+        if(strcmp(temp->nome_ricetta, nome_ricetta)==0)
+            return 1; //trovata
+        
+        temp = temp->successore;
+    }
+    return 0;//non trovata
 }
