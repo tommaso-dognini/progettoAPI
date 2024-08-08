@@ -28,6 +28,8 @@ Nodo *inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo);
 
 Nodo *crea_nodo(char *nome_ingrediente, int qta, int scadenza);
 
+int calcola_peso(Nodo *testa);
+
 // ORDINI
 // Definisco la struttura di un Nodo Ordine
 typedef struct Ordine
@@ -36,6 +38,7 @@ typedef struct Ordine
     int qta;
     int tempo;
     int peso;
+    int attesa; // 1 se attesa, 0 se processato
     struct Ordine *successore;
 } Ordine;
 
@@ -47,7 +50,7 @@ Ordine *elimina_nodo_ptr_ordini(Ordine *testa, Ordine *nodo);
 
 Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo);
 
-Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso);
+Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso, int attesa);
 
 // --------------------------- ORDINAMENTO ---------------------------------------------//
 
@@ -112,20 +115,26 @@ int main()
     HashTable *magazzino = (HashTable *)malloc(sizeof(HashTable));
 
     Nodo *ingrediente;
+    Nodo *nodo_temp;
 
     inizializza_ht(ricettario);
     inizializza_ht(magazzino);
 
     Ordine *ordini = NULL;
-    Ordine *ordini_attesa = NULL;
     Ordine *ordini_corriere = NULL;
+    Ordine *ordine = NULL;
+
+    Bucket *bucket = NULL;
+    Bucket *bucket_temp = NULL;
 
     char nome_ricetta[CMD_LEN];
     char nome_ingrediente[CMD_LEN];
-    char ordine[CMD_LEN];
+
     int qta = 0;
     int scadenza = 0;
     int controllo = 0;
+    int attesa = 0;
+    int peso = 0;
     char separatore = 'a';
 
     // acquisisco parametri corriere
@@ -157,9 +166,9 @@ int main()
 
             // codice_ricetta = hash(nome_ricetta);
             printf("Nome ricetta:%s\n", nome_ricetta);
-            Bucket *temp = ht_cerca(ricettario, nome_ricetta);
+            bucket_temp = ht_cerca(ricettario, nome_ricetta);
 
-            if (temp != NULL)
+            if (bucket_temp != NULL)
             {
                 // LA RICETTA E GIA PRESENTE -> LA IGNORO
                 printf("ignorata\n");
@@ -174,7 +183,7 @@ int main()
             else
             {
                 // CREO IL NODO RICETTA
-                Bucket *bucket = crea_bucket(nome_ricetta, NULL);
+                bucket = crea_bucket(nome_ricetta, NULL);
 
                 // ACQUISISCO INGREDIENTI E CREO LISTA INGREDIENTI
                 while (separatore != '\n')
@@ -217,18 +226,52 @@ int main()
         // ORDINE
         else if (strcmp(comando, "ordine") == 0)
         {
+            attesa = 0;
             controllo = scanf("%c", &separatore);
             // PROCESSO GLI ORDINI UNO AD UNO
             while (separatore != '\n')
             {
-                controllo = scanf("%s", ordine);
+                controllo = scanf("%s", nome_ricetta);
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%c", &separatore);
                 printf("Ordine:%s,qta:%d\n", ordine, qta);
                 // PRELEVO LA RICETTA DA RICETTARIO
-                // VERIFICO DI AVERE INGREDIENTI IN MAGAZZINO
+                bucket = ht_cerca(ricettario, nome_ricetta);
+                if (bucket == NULL)
+                {
+                    attesa = 1; // non ho la ricetta -> metto in attesa
+                }
+                else
+                {
+                    // CALCOLO PESO E VERIFICO DI AVERE INGREDIENTI IN MAGAZZINO
+                    nodo_temp = bucket->lista;
+                    while (nodo_temp != NULL)
+                    {
+                        // calcolo peso
+                        peso = peso + nodo_temp->qta;
+
+                        // per ogni ingrediente della ricetta controllo di averlo nel magazzino altrimenti metto attesa
+
+                        // avanzo al nodo successivo
+                        nodo_temp = nodo_temp->successore;
+                    }
+                    peso = calcola_peso(bucket->lista);
+                }
+
                 // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
-                // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
+                if (attesa = 0)
+                {
+                    ordine = crea_ordine(nome_ricetta, qta, clock, peso, attesa);
+                    inserisci_nodo_in_testa_ordini(ordini, ordine);
+                    //produco ordine
+                    produci_ordine(ricettario, magazzino, ordine);
+                }
+                else //attesa =1;
+                {
+                    // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
+                    ordine = crea_ordine(nome_ricetta, qta, clock, peso, attesa);
+                    inserisci_nodo_in_testa_ordini(ordini, ordine);
+                }
             }
         }
 
@@ -428,6 +471,18 @@ void ht_elimina_ricetta(HashTable *ht, char *string)
     return;
 }
 
+int calcola_peso(Nodo *testa)
+{
+    Nodo *temp = testa;
+    int peso = 0;
+    while (temp != NULL)
+    {
+        peso = peso + temp->qta;
+        temp = temp->successore;
+    }
+    return peso;
+}
+
 //-------------------------------------- MAGAZZINO -----------------------------------//
 
 void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
@@ -552,4 +607,84 @@ void stampa_lista(Nodo *testa)
     }
     printf("\n");
     return;
+}
+
+// ordini
+
+void stampa_lista_ordini(Ordine *testa)
+{
+    Ordine *temp = testa;
+    while (temp != NULL)
+    {
+        printf("%s, %d ,%d -> ", temp->nome_ricetta, temp->qta, temp->tempo);
+        temp = temp->successore;
+    }
+    printf("\n");
+    return;
+}
+
+void *elimina_lista_ordini(Ordine *testa)
+{
+    Ordine *temp = testa;
+    Ordine *prec = testa;
+    while (temp != NULL)
+    {
+        prec = temp;
+        temp = temp->successore;
+        free(prec);
+    }
+    return NULL;
+}
+
+Ordine *elimina_nodo_ptr_ordini(Ordine *testa, Ordine *nodo)
+{
+    Ordine *temp = testa;
+    // se e il primo
+    if (testa == nodo)
+    {
+        testa = testa->successore;
+        free(temp);
+        return testa;
+    }
+    // altrimenti lo cerco
+    while (temp->successore != nodo && temp->successore != NULL)
+    {
+        temp = temp->successore;
+    }
+    if (temp->successore != NULL)
+    {
+        temp->successore = temp->successore->successore;
+        free(nodo);
+    }
+    return testa;
+}
+
+Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo)
+{
+    if (testa == NULL)
+    {
+        return nodo;
+    }
+    else
+    {
+        Ordine *temp = nodo;
+        while (temp->successore != NULL)
+        {
+            temp = temp->successore;
+        }
+        temp->successore = testa;
+        return nodo;
+    }
+}
+
+Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso, int attesa)
+{
+    Ordine *nuovo_nodo = (Ordine *)malloc(sizeof(Ordine));
+    strcpy(nuovo_nodo->nome_ricetta, nome_ricetta);
+    nuovo_nodo->qta = qta;
+    nuovo_nodo->tempo = tempo;
+    nuovo_nodo->peso = peso;
+    nuovo_nodo->attesa = attesa;
+    nuovo_nodo->successore = NULL;
+    return nuovo_nodo;
 }
