@@ -6,7 +6,6 @@
 //--------  FUNZIONI STRUTTURE DATI ----------------------------------------------------------
 //-----------------------------------------------------------------------------------------
 
-//-------------------- Liste  semplici (single linked)  -----------------------------------//
 // Definisco la struttura di un Nodo
 typedef struct Nodo
 {
@@ -15,6 +14,33 @@ typedef struct Nodo
     int scadenza;
     struct Nodo *successore;
 } Nodo;
+
+// Definisco la struttura della hash table
+typedef struct Bucket
+{
+    char string[CMD_LEN];
+    struct Nodo *lista;
+    struct Bucket *successore;
+} Bucket;
+
+typedef struct HashTable
+{
+    int dimensione;
+    int num_buckets_inseriti;
+    Bucket **buckets;
+} HashTable;
+
+// Definisco la struttura di un Nodo Ordine
+typedef struct Ordine
+{
+    char nome_ricetta[CMD_LEN];
+    int qta;
+    int tempo;
+    int peso;
+    struct Ordine *successore;
+} Ordine;
+
+//-------------------- Liste  semplici (single linked)  -----------------------------------//
 
 void stampa_lista(Nodo *testa);
 
@@ -31,16 +57,6 @@ Nodo *crea_nodo(char *nome_ingrediente, int qta, int scadenza);
 int calcola_peso(Nodo *testa);
 
 // ORDINI
-// Definisco la struttura di un Nodo Ordine
-typedef struct Ordine
-{
-    char nome_ricetta[CMD_LEN];
-    int qta;
-    int tempo;
-    int peso;
-    int attesa; // 1 se attesa, 0 se processato
-    struct Ordine *successore;
-} Ordine;
 
 void stampa_lista_ordini(Ordine *testa);
 
@@ -50,30 +66,14 @@ Ordine *elimina_nodo_ptr_ordini(Ordine *testa, Ordine *nodo);
 
 Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo);
 
-Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso, int attesa);
+Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso);
+
+int verifica_ingrediente(HashTable *magazzino, char *nome_ingrediente, int qta_necessaria, int clock);
 
 // --------------------------- ORDINAMENTO ---------------------------------------------//
 
-void merge_sort();
-
-void merge();
-
 // ---------------------------  HASH TABLE ---------------------------------------------//
 
-// Definisco la struttura della hash table
-typedef struct Bucket
-{
-    char string[CMD_LEN];
-    struct Nodo *lista;
-    struct Bucket *successore;
-} Bucket;
-
-typedef struct HashTable
-{
-    int dimensione;
-    int num_buckets_inseriti;
-    Bucket **buckets;
-} HashTable;
 
 // crea HashTable
 void inizializza_ht(HashTable *ht);
@@ -120,8 +120,10 @@ int main()
     inizializza_ht(ricettario);
     inizializza_ht(magazzino);
 
-    Ordine *ordini = NULL;
-    Ordine *ordini_corriere = NULL;
+    Ordine *ordini_pronti = NULL;
+    Ordine *ordini_attesa = NULL;
+    //Ordine *lista_corriere = NULL;
+
     Ordine *ordine = NULL;
 
     Bucket *bucket = NULL;
@@ -226,15 +228,17 @@ int main()
         // ORDINE
         else if (strcmp(comando, "ordine") == 0)
         {
-            attesa = 0;
             controllo = scanf("%c", &separatore);
             // PROCESSO GLI ORDINI UNO AD UNO
             while (separatore != '\n')
             {
+                attesa = 0; // inizzializzo valore di attesa per nuovo ordine a 0 cioe pronto per essere eseguito fino a prova contraria
+
                 controllo = scanf("%s", nome_ricetta);
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%c", &separatore);
-                printf("Ordine:%s,qta:%d\n", ordine, qta);
+                printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
+
                 // PRELEVO LA RICETTA DA RICETTARIO
                 bucket = ht_cerca(ricettario, nome_ricetta);
                 if (bucket == NULL)
@@ -247,30 +251,32 @@ int main()
                     nodo_temp = bucket->lista;
                     while (nodo_temp != NULL)
                     {
-                        // calcolo peso
-                        peso = peso + nodo_temp->qta;
+                        // calcolo peso dell'ordine
+                        peso = peso + nodo_temp->qta * qta;
 
                         // per ogni ingrediente della ricetta controllo di averlo nel magazzino altrimenti metto attesa
+                        if (verifica_ingrediente(magazzino, nodo_temp->nome_ingrediente, nodo_temp->qta*qta, clock) == 0)
+                        {
+                            attesa = 1; // non ce metto in attesa la ricetta
+                        }
+                        printf("attesa =%d, %s\n", attesa, nodo_temp->nome_ingrediente);
 
                         // avanzo al nodo successivo
                         nodo_temp = nodo_temp->successore;
                     }
-                    peso = calcola_peso(bucket->lista);
                 }
-
                 // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
-                if (attesa = 0)
+                if (attesa == 0)
                 {
-                    ordine = crea_ordine(nome_ricetta, qta, clock, peso, attesa);
-                    inserisci_nodo_in_testa_ordini(ordini, ordine);
-                    //produco ordine
-                    produci_ordine(ricettario, magazzino, ordine);
+                    ordine = crea_ordine(nome_ricetta, qta, clock, peso);
+                    ordini_pronti = inserisci_nodo_in_testa_ordini(ordini_pronti, ordine);
+                    // produco ordine
+                    // produci_ordine(magazzino, bucket, qta);
                 }
-                else //attesa =1;
-                {
-                    // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
-                    ordine = crea_ordine(nome_ricetta, qta, clock, peso, attesa);
-                    inserisci_nodo_in_testa_ordini(ordini, ordine);
+                else
+                { // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
+                    ordine = crea_ordine(nome_ricetta, qta, clock, peso);
+                    ordini_attesa = inserisci_nodo_in_testa_ordini(ordini_attesa, ordine);
                 }
             }
         }
@@ -512,6 +518,45 @@ void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
 
 //--------------------------------- ORDINI ------------------------------------------//
 
+// se chiamata gia verificato che ogni ingrediente e presente per poter produrre ordine
+//void produci_ordine(HashTable *magazzino, Bucket *Bucket_ricetta, int qta)
+
+
+int verifica_ingrediente(HashTable *magazzino, char *nome_ingrediente, int qta_necessaria, int clock)
+{
+    Bucket *bucket = ht_cerca(magazzino, nome_ingrediente);
+    Nodo *temp = bucket->lista;
+    if (bucket->lista == NULL)
+    {
+        return 0; // ingrediente mancante
+    }
+    else
+    {
+        while (temp != NULL)
+        {
+
+            if (temp->scadenza < clock)
+            {
+                // ingrediente scaduto--> lo elimino dalla lista dei lotti
+                elimina_nodo_ptr(bucket->lista, temp);
+            }
+            else
+            {
+                if (temp->qta >= qta_necessaria)
+                {
+                    return 1;
+                }
+                else
+                {
+                    qta_necessaria -= temp->qta;
+                }
+            }
+            temp = temp->successore;
+        }
+    }
+    return 0;
+}
+
 //------------------------LISTE -----------------------------------------------------//
 
 Nodo *crea_nodo(char *nome_ingrediente, int qta, int scadenza)
@@ -677,14 +722,13 @@ Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo)
     }
 }
 
-Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso, int attesa)
+Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso)
 {
     Ordine *nuovo_nodo = (Ordine *)malloc(sizeof(Ordine));
     strcpy(nuovo_nodo->nome_ricetta, nome_ricetta);
     nuovo_nodo->qta = qta;
     nuovo_nodo->tempo = tempo;
     nuovo_nodo->peso = peso;
-    nuovo_nodo->attesa = attesa;
     nuovo_nodo->successore = NULL;
     return nuovo_nodo;
 }

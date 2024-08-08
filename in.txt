@@ -1,9 +1,6 @@
 3 20
 aggiungi_ricetta torta1 zucchero 20 pane 10 burro 120
 aggiungi_ricetta torta2 zucchero 20 pane 10 burro 120
-aggiungi_ricetta torta1 zucchero 20 pane 10 burro 120
-rimuovi_ricetta torta3
-rimuovi_ricetta torta1
-aggiungi_ricetta torta1 zucchero 20
-ordine torta2 5
-rifornimento zucchero 10 1
+rifornimento zucchero 2 100 pane 10 100 burro 120 100
+ordine torta1 1
+
