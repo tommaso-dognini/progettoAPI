@@ -79,19 +79,21 @@ int cerca_in_lista(Ordine *testa, char *nome_ricetta);
 
 // --------------------------- FUNZIONI DI ORDINAMENTO LISTE ----------------------------//
 
+// liste di ordini
 void sottoliste_ordini(Ordine *testa, Ordine **inizio, Ordine **fine);
 
 Ordine *merge_crescente_ordini(Ordine *a, Ordine *b);
 
-Ordine *merge_decrescente_ordini(Ordine *a, Ordine *b);
+Ordine *merge_decrescente_corriere(Ordine *a, Ordine *b);
 
 void merge_sort_ordini(Ordine **testa_indirizzo);
 
+void merge_sort_corriere(Ordine **testa_indirizzo);
+
+// liste in hashtables
 void sottoliste(Nodo *testa, Nodo **inizio, Nodo **fine);
 
 Nodo *merge_crescente(Nodo *a, Nodo *b);
-
-Nodo *merge_decrescente(Nodo *a, Nodo *b);
 
 void merge_sort(Nodo **testa_indirizzo);
 
@@ -139,9 +141,10 @@ int main()
 
     Ordine *ordini_pronti = NULL;
     Ordine *ordini_attesa = NULL;
-    // Ordine *lista_corriere = NULL;
+    Ordine *ordini_corriere = NULL;
 
     Ordine *ordine = NULL;
+    Ordine *ordine_corriere = NULL;
 
     Bucket *bucket = NULL;
     Bucket *bucket_temp = NULL;
@@ -158,6 +161,7 @@ int main()
 
     // acquisisco parametri corriere
     int periodo, capienza;
+    int capienza_rimasta;
 
     controllo = scanf("%d %d", &periodo, &capienza);
     printf("Il periodo e: %d \nLa capienza del corriere e: %d \n", periodo, capienza);
@@ -172,6 +176,42 @@ int main()
         {
             // gestisco il corriere
             printf("corriere\n");
+            // scorro la lista di ordini pronti e metto in lista corriere
+            capienza_rimasta = capienza;
+            ordine = ordini_pronti;
+            while (ordine != NULL)
+            {
+                if (ordine->peso <= capienza_rimasta)
+                {
+                    //creo il nuovo nodo ordine per la lista del corriere
+                    ordine_corriere = crea_ordine(ordine->nome_ricetta,ordine->qta,ordine->tempo,ordine->peso);
+                    //inserisco nella lista delgi ordini del corriere
+                    ordini_corriere = inserisci_nodo_in_testa_ordini(ordini_corriere, ordine_corriere);
+                    
+                    //aggiorno campienza rimasta
+                    capienza_rimasta -= ordine->peso;
+                    //rimuovo ordine dalla lista degli ordini
+                    ordini_pronti=elimina_nodo_ptr_ordini(ordini_pronti, ordine);
+                }
+                ordine = ordine->successore;
+            }
+            // ordino la lista di ordini del corriere per peso in senso decrescente
+            merge_sort_corriere(&ordini_corriere);
+
+            //stampo come da specifica tempo di acquisizione, nome ricetta, qta
+            if (ordini_corriere == NULL)
+            {
+                printf("camioncino vuoto\n");
+            }
+            else
+            {
+                ordine = ordini_corriere;
+                while (ordine!=NULL)
+                {
+                    printf("%d %s %d\n", ordine->tempo, ordine->nome_ricetta, ordine->qta);
+                    ordine = ordine->successore;
+                }
+            }
         }
 
         // ACQUISISCO COMANDO
@@ -684,29 +724,6 @@ Nodo *merge_crescente(Nodo *a, Nodo *b)
     return testa;
 }
 
-Nodo *merge_decrescente(Nodo *a, Nodo *b)
-{
-    Nodo *testa = NULL;
-
-    // casi base
-    if (a == NULL)
-        return b;
-    else if (b == NULL)
-        return a;
-
-    if (a->scadenza <= b->scadenza)
-    {
-        testa = a;
-        testa->successore = merge_decrescente(a->successore, b);
-    }
-    else
-    {
-        testa = b;
-        testa->successore = merge_decrescente(a, b->successore);
-    }
-    return testa;
-}
-
 void merge_sort(Nodo **testa_indirizzo)
 {
     Nodo *testa = *testa_indirizzo;
@@ -898,6 +915,7 @@ int cerca_in_lista(Ordine *testa, char *nome_ricetta)
     return 0; // non trovata
 }
 
+// ordinamento liste di ordini
 void sottoliste_ordini(Ordine *testa, Ordine **inizio, Ordine **fine)
 {
     Ordine *lepre;
@@ -946,7 +964,7 @@ Ordine *merge_crescente_ordini(Ordine *a, Ordine *b)
     return testa;
 }
 
-Ordine *merge_decrescente_ordini(Ordine *a, Ordine *b)
+Ordine *merge_decrescente_corriere(Ordine *a, Ordine *b)
 {
     Ordine *testa = NULL;
 
@@ -956,15 +974,15 @@ Ordine *merge_decrescente_ordini(Ordine *a, Ordine *b)
     else if (b == NULL)
         return a;
 
-    if (a->tempo <= b->tempo)
+    if (a->peso <= b->peso)
     {
         testa = a;
-        testa->successore = merge_decrescente_ordini(a->successore, b);
+        testa->successore = merge_decrescente_corriere(a->successore, b);
     }
     else
     {
         testa = b;
-        testa->successore = merge_decrescente_ordini(a, b->successore);
+        testa->successore = merge_decrescente_corriere(a, b->successore);
     }
     return testa;
 }
@@ -987,5 +1005,26 @@ void merge_sort_ordini(Ordine **testa_indirizzo)
 
     // unisco le due sottoliste
     *testa_indirizzo = merge_crescente_ordini(a, b);
+    return;
+}
+
+void merge_sort_corriere(Ordine **testa_indirizzo)
+{
+    Ordine *testa = *testa_indirizzo;
+    Ordine *a;
+    Ordine *b;
+
+    // caso base
+    if (testa == NULL || testa->successore == NULL)
+        return;
+
+    // divido la lista testa in due sottoliste a e b
+    sottoliste_ordini(testa, &a, &b);
+    // ordino le due sottoliste
+    merge_sort_ordini(&a);
+    merge_sort_ordini(&b);
+
+    // unisco le due sottoliste
+    *testa_indirizzo = merge_decrescente_corriere(a, b);
     return;
 }
