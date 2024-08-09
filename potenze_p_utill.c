@@ -6,7 +6,7 @@
 int main()
 {
     int i = 0;
-    int p = 53;
+    int p = 31;
     long long int p_pow = 1;
     int m = 1e9 + 9;
     //long long sum = 0;

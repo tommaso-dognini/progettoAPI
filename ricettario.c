@@ -232,7 +232,7 @@ void stampa_lista(Nodo *testa)
 // MAIN PER TEST
 int main()
 {
-    char string1[] = "tommaso";
+    char string1[] = "cioccolato";
     // char string2[] = "zucchero";
     //  char string3[] = "fecola";
 
@@ -334,9 +334,4 @@ void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
         bucket->lista = inserisci_nodo_in_testa(bucket->lista, lotto);
     }
     return;
-}
-
-void ht_elimina_lotto(HashTable *ht, Nodo *lotto, char *string)
-{
-    
 }

@@ -68,16 +68,32 @@ Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo);
 
 Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso);
 
-//verifica se un ingrediente e presente in quantita sufficiente (non scaduto) per la ricetta desiderata
+// verifica se un ingrediente e presente in quantita sufficiente (non scaduto) per la ricetta desiderata
 int verifica_ingrediente(HashTable *magazzino, char *nome_ingrediente, int qta_necessaria, int clock);
 
-//modifica le quantita nel ricettario sottraendo quelle utilizzate per produrre la ricetta
+// modifica le quantita nel ricettario sottraendo quelle utilizzate per produrre la ricetta
 void produci_ordine(HashTable *magazzino, Bucket *Bucket_ricetta, int qta);
 
 // ritorna 1 se la ricetta e presente nella lista oppure 0 se non e presente
 int cerca_in_lista(Ordine *testa, char *nome_ricetta);
 
 // --------------------------- FUNZIONI DI ORDINAMENTO LISTE ----------------------------//
+
+void sottoliste_ordini(Ordine *testa, Ordine **inizio, Ordine **fine);
+
+Ordine *merge_crescente_ordini(Ordine *a, Ordine *b);
+
+Ordine *merge_decrescente_ordini(Ordine *a, Ordine *b);
+
+void merge_sort_ordini(Ordine **testa_indirizzo);
+
+void sottoliste(Nodo *testa, Nodo **inizio, Nodo **fine);
+
+Nodo *merge_crescente(Nodo *a, Nodo *b);
+
+Nodo *merge_decrescente(Nodo *a, Nodo *b);
+
+void merge_sort(Nodo **testa_indirizzo);
 
 // ---------------------------  HASH TABLE ---------------------------------------------//
 
@@ -149,6 +165,8 @@ int main()
 
     while (separatore == '\n' && controllo != -1)
     {
+        printf("CLOCK: %d\n", clock);
+
         // VERIFICA CORRIERE
         if (clock % periodo == 0 && clock != 1)
         {
@@ -275,6 +293,10 @@ int main()
                 {
                     ordine = crea_ordine(nome_ricetta, qta, clock, peso);
                     ordini_pronti = inserisci_nodo_in_testa_ordini(ordini_pronti, ordine);
+
+                    // ordino lotti in senso crescente per tempo di acquisizione (tempo)
+                    merge_sort_ordini(&ordini_pronti);
+
                     // produco ordine
                     produci_ordine(magazzino, bucket, qta);
                 }
@@ -282,7 +304,9 @@ int main()
                 { // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
                     ordine = crea_ordine(nome_ricetta, qta, clock, peso);
                     ordini_attesa = inserisci_nodo_in_testa_ordini(ordini_attesa, ordine);
-                    // ordino lista di ordini di attesa in senso crescente per tempo di acquisizione (tempo)
+
+                    // ordino lotti in senso crescente per tempo di acquisizione (tempo)
+                    merge_sort_ordini(&ordini_attesa);
                 }
                 printf("accettato\n");
             }
@@ -309,7 +333,9 @@ int main()
                 // AGGIUNGO NEL MAGAZZINO
                 ingrediente = crea_nodo(nome_ingrediente, qta, scadenza);
                 ht_inserisci_lotto(magazzino, ingrediente, nome_ingrediente);
-                stampa_lista(magazzino->buckets[hash(nome_ingrediente)]->lista);
+
+                // ripristino ordine crescente per data di scadenza in lista di lotti
+                merge_sort(&(magazzino->buckets[hash(nome_ingrediente)]->lista));
             }
             // HO AGGIORNATO IL MAGAZZINO
             // VERIFICO SE HO ORDINI IN ATTESA CHE POSSO PROCESSARE
@@ -319,9 +345,6 @@ int main()
         comando[0] = 0;
         clock++;
     }
-
-    // STAMPO SITUAZIONE CORRIERE
-    printf("Fine, clock:%d\n", clock);
     return 0;
 }
 
@@ -350,8 +373,8 @@ int hash(char *string)
     // vettore con valori di potenze di p precalcolati per aumentare efficienza. Calcolati fino a p ^CMD_LEN = 256
     int p_pow[] = {53, 2809, 148877, 7890481, 418195493, 164360931, 711129271, 689851030, 562104266, 791525837, 950868992, 396056126, 990974498, 521647926, 647339835, 309010949, 377580153, 11747929, 622640237, 999932273, 996410001, 809729585, 915667627, 530383799, 110341095, 848077990, 948133074, 251052472, 305780899, 206387503, 938537569, 742490716, 352007597, 656402479, 789331081, 834546924, 230986576, 242288420, 841286152, 588165660, 172779701, 157324072, 338175744, 923314279, 935656355, 589786374, 258677543, 709909662, 625211753, 136222612, 219798373, 649313670, 413624204, 922082623, 870378587, 130064697, 893428887, 351730588, 641721002, 11212800, 594278400, 496754921, 328010579, 384560534, 381708122, 230530286, 218105050, 559567551, 657079942, 825236620, 737540473, 89644718, 751170018, 812010603, 36561572, 937763307, 701454830, 177105657, 386599740, 489786040, 958659895, 808973985, 875620827, 407903417, 618880912, 800688048, 436466166, 132706591, 33449260, 772810771, 958970503, 825436209, 748118690, 650290219, 465381301, 665208737, 256062746, 571325421, 280247043, 853093153, 213936704, 338645213, 948196136, 254394758, 482922057, 594868796, 528045909, 986432934, 280945034, 890086676, 174593405, 253450384, 432870235, 942122257, 932479180, 421396099, 333993049, 701631444, 186466199, 882708466, 783548284, 528058683, 987109956, 316827200, 791841456, 967596799, 282629888, 979383938, 907348255, 89457083, 741225363, 284943888, 102025929, 407374192, 590831987, 314095032, 647036552, 292936950, 525658215, 859885152, 573912651, 417370233, 120622151, 392973949, 827619117, 863812814, 782078737, 450172692, 859152469, 535080452, 359263704, 40976141, 171735455, 101979034, 404888757, 459103932, 332508180, 622933387, 15469214, 819868342, 453021739, 10151951, 538053403, 516830107, 391995428, 775757504, 115147343, 102809125, 448883580, 790829533, 913964880, 440138208, 327324817, 348215148, 455402682, 136341930, 226122227, 984477932, 177329928, 398486103, 119763270, 347453256, 415022406, 996187329, 797927969, 290181979, 379644752, 121171676, 422098774, 371234824, 675445501, 798611238, 326395236, 298947355, 844209680, 743112644, 384969781, 403398213, 380105100, 145570120, 715216297, 906463408, 42560192, 255690158, 551578257, 233647360, 383309972, 315428336, 717701664, 38187850, 23956032, 269669687, 292493285, 502143970, 613630176, 522399040, 687148877, 418890157, 201178123, 662440429, 109342422, 795148321, 142860635, 571613592, 295520106, 662565483, 115970284, 146424998, 760524831, 307815683, 314231055, 654245771, 675025557, 776354206, 146772549, 778945034, 284086433, 56580814, 998783124, 935505104, 581770071, 833813493, 192114733, 182080759, 650280146, 464847432, 636913680, 756424743, 90511019, 797083971, 245450085, 8854388, 469282564, 871975676, 214710414, 379651843};
     // long long p = 53;
-    long long m = 1e9 + 7;
-    long long hash = 0;
+    long long m = 1e9 + 9;
+    unsigned long long hash = 0;
     for (int i = 0; i < strlen(string); i++)
     {
         hash = (hash + (string[i] - 'a' + 1) * p_pow[i]) % m;
@@ -613,6 +636,98 @@ void stampa_lista(Nodo *testa)
     return;
 }
 
+void sottoliste(Nodo *testa, Nodo **inizio, Nodo **fine)
+{
+    Nodo *lepre;
+    Nodo *tartaruga;
+
+    tartaruga = testa;
+    lepre = testa->successore;
+
+    // la lepre avanza due nodi e la tartaruga uno solo
+    while (lepre != NULL)
+    {
+        lepre = lepre->successore;
+        if (lepre != NULL)
+        {
+            tartaruga = tartaruga->successore;
+            lepre = lepre->successore;
+        }
+    }
+
+    *inizio = testa;
+    *fine = tartaruga->successore;
+    tartaruga->successore = NULL;
+    return;
+}
+
+Nodo *merge_crescente(Nodo *a, Nodo *b)
+{
+    Nodo *testa = NULL;
+
+    // casi base
+    if (a == NULL)
+        return b;
+    else if (b == NULL)
+        return a;
+
+    if (a->scadenza <= b->scadenza)
+    {
+        testa = a;
+        testa->successore = merge_crescente(a->successore, b);
+    }
+    else
+    {
+        testa = b;
+        testa->successore = merge_crescente(a, b->successore);
+    }
+    return testa;
+}
+
+Nodo *merge_decrescente(Nodo *a, Nodo *b)
+{
+    Nodo *testa = NULL;
+
+    // casi base
+    if (a == NULL)
+        return b;
+    else if (b == NULL)
+        return a;
+
+    if (a->scadenza <= b->scadenza)
+    {
+        testa = a;
+        testa->successore = merge_decrescente(a->successore, b);
+    }
+    else
+    {
+        testa = b;
+        testa->successore = merge_decrescente(a, b->successore);
+    }
+    return testa;
+}
+
+void merge_sort(Nodo **testa_indirizzo)
+{
+    Nodo *testa = *testa_indirizzo;
+    Nodo *a;
+    Nodo *b;
+
+    // caso base
+    if (testa == NULL || testa->successore == NULL)
+        return;
+
+    // divido la lista testa in due sottoliste a e b
+    sottoliste(testa, &a, &b);
+    // ordino le due sottoliste
+    merge_sort(&a);
+    merge_sort(&b);
+
+    // unisco le due sottoliste
+    *testa_indirizzo = merge_crescente(a, b);
+    return;
+}
+
 //--------------------------------- ORDINI ------------------------------------------//
 
 // se chiamata gia verificato che ogni ingrediente e presente per poter produrre ordine
@@ -645,7 +760,7 @@ void produci_ordine(HashTable *magazzino, Bucket *Bucket_ricetta, int qta)
             else
             { // qta necessaria diminuisce ed elimino lotto perche lo uso tutto
                 qta_necessaria -= temp_magazzino->qta;
-                elimina_nodo_ptr(bucket_magazzino->lista, temp_magazzino);
+                bucket_magazzino->lista = elimina_nodo_ptr(bucket_magazzino->lista, temp_magazzino);
             }
 
             // continuo a scorrere la lista di lotti
@@ -674,7 +789,7 @@ int verifica_ingrediente(HashTable *magazzino, char *nome_ingrediente, int qta_n
             if (temp->scadenza < clock)
             {
                 // ingrediente scaduto--> lo elimino dalla lista dei lotti
-                elimina_nodo_ptr(bucket->lista, temp);
+                bucket->lista = elimina_nodo_ptr(bucket->lista, temp);
             }
             else
             {
@@ -775,10 +890,102 @@ int cerca_in_lista(Ordine *testa, char *nome_ricetta)
     Ordine *temp = testa;
     while (temp != NULL)
     {
-        if(strcmp(temp->nome_ricetta, nome_ricetta)==0)
-            return 1; //trovata
-        
+        if (strcmp(temp->nome_ricetta, nome_ricetta) == 0)
+            return 1; // trovata
+
         temp = temp->successore;
     }
-    return 0;//non trovata
+    return 0; // non trovata
+}
+
+void sottoliste_ordini(Ordine *testa, Ordine **inizio, Ordine **fine)
+{
+    Ordine *lepre;
+    Ordine *tartaruga;
+
+    tartaruga = testa;
+    lepre = testa->successore;
+
+    // la lepre avanza due nodi e la tartaruga uno solo
+    while (lepre != NULL)
+    {
+        lepre = lepre->successore;
+        if (lepre != NULL)
+        {
+            tartaruga = tartaruga->successore;
+            lepre = lepre->successore;
+        }
+    }
+
+    *inizio = testa;
+    *fine = tartaruga->successore;
+    tartaruga->successore = NULL;
+    return;
+}
+
+Ordine *merge_crescente_ordini(Ordine *a, Ordine *b)
+{
+    Ordine *testa = NULL;
+
+    // casi base
+    if (a == NULL)
+        return b;
+    else if (b == NULL)
+        return a;
+
+    if (a->tempo <= b->tempo)
+    {
+        testa = a;
+        testa->successore = merge_crescente_ordini(a->successore, b);
+    }
+    else
+    {
+        testa = b;
+        testa->successore = merge_crescente_ordini(a, b->successore);
+    }
+    return testa;
+}
+
+Ordine *merge_decrescente_ordini(Ordine *a, Ordine *b)
+{
+    Ordine *testa = NULL;
+
+    // casi base
+    if (a == NULL)
+        return b;
+    else if (b == NULL)
+        return a;
+
+    if (a->tempo <= b->tempo)
+    {
+        testa = a;
+        testa->successore = merge_decrescente_ordini(a->successore, b);
+    }
+    else
+    {
+        testa = b;
+        testa->successore = merge_decrescente_ordini(a, b->successore);
+    }
+    return testa;
+}
+
+void merge_sort_ordini(Ordine **testa_indirizzo)
+{
+    Ordine *testa = *testa_indirizzo;
+    Ordine *a;
+    Ordine *b;
+
+    // caso base
+    if (testa == NULL || testa->successore == NULL)
+        return;
+
+    // divido la lista testa in due sottoliste a e b
+    sottoliste_ordini(testa, &a, &b);
+    // ordino le due sottoliste
+    merge_sort_ordini(&a);
+    merge_sort_ordini(&b);
+
+    // unisco le due sottoliste
+    *testa_indirizzo = merge_crescente_ordini(a, b);
+    return;
 }
