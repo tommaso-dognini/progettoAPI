@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#define CMD_LEN 200
+#define CMD_LEN 256
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -67,6 +67,6 @@ int hash(char *string)
 
 int main()
 {
-	printf("Hash: %d\n", hash("farina"));
+	printf("Hash: %d\n", hash("R1sHSjaN7409HULkW_5iL"));
 	return 0;
 }
