@@ -167,18 +167,18 @@ int main()
     int capienza_rimasta;
 
     controllo = scanf("%d %d", &periodo, &capienza);
-    printf("Il periodo e: %d \nLa capienza del corriere e: %d \n", periodo, capienza);
+    // printf("Il periodo e: %d \nLa capienza del corriere e: %d \n", periodo, capienza);
     controllo = scanf("%c", &separatore);
 
     while (separatore == '\n' && controllo != -1)
     {
-        printf("CLOCK: %d\n", clock);
+        // printf("CLOCK: %d\n", clock);
 
         // VERIFICA CORRIERE
         if (clock % periodo == 0 && clock != 0)
         {
             // gestisco il corriere
-            printf("corriere\n");
+            //printf("corriere\n");
             // scorro la lista di ordini pronti e metto in lista corriere
             capienza_rimasta = capienza;
             ordine = ordini_pronti;
@@ -305,7 +305,7 @@ int main()
                 controllo = scanf("%s", nome_ricetta);
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%c", &separatore);
-                printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
+                // printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
 
                 // PRELEVO LA RICETTA DA RICETTARIO
                 bucket_ricetta = ht_cerca(ricettario, nome_ricetta);
@@ -339,8 +339,8 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
-                        // avanzo all'ingrediente successivo
+                        // printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
+                        //  avanzo all'ingrediente successivo
                         nodo_ingrediente = nodo_ingrediente->successore;
                     }
 
@@ -366,11 +366,11 @@ int main()
                     }
                 }
             }
-            printf("ordini_pronti:\n");
-            stampa_lista_ordini(ordini_pronti);
+            // printf("ordini_pronti:\n");
+            // stampa_lista_ordini(ordini_pronti);
 
-            printf("ordini_attesa:\n");
-            stampa_lista_ordini(ordini_attesa);
+            // printf("ordini_attesa:\n");
+            // stampa_lista_ordini(ordini_attesa);
         }
 
         // RIFORNIMENTO
@@ -395,7 +395,66 @@ int main()
             }
             // HO AGGIORNATO IL MAGAZZINO
             printf("rifornito\n");
+
             // VERIFICO SE HO ORDINI IN ATTESA CHE POSSO PROCESSARE
+            Ordine *temp = ordini_attesa;
+            Bucket *bucket_ricetta;
+            Nodo *nodo_ingrediente;
+
+            while (temp != NULL) //scorro tutta la lista di ordini in attesa
+            {
+                // PRELEVO LA RICETTA DA RICETTARIO
+                bucket_ricetta = ht_cerca(ricettario, temp->nome_ricetta);
+                if (bucket_ricetta == NULL || bucket_ricetta->lista == NULL)
+                {
+                    attesa = 1; // non ho la ricetta -> metto in attesa
+                }
+                else
+                { // HO LA RICETTA -> VERIFICO DI POTERLA PRODURRE: HO INGREDIENTI NON SCADUTI A SUFFICIENZA
+                    // VERIFICO PER OGNI INGREDIENTE:
+                    nodo_ingrediente = bucket_ricetta->lista;
+                    while (nodo_ingrediente != NULL && attesa!=1) 
+                    {
+                        // CONTROLLO MAGAZZINO
+                        bucket = ht_cerca(magazzino, nodo_ingrediente->nome_ingrediente);
+
+                        if (bucket == NULL)
+                        {
+                            attesa = 1;
+                        }
+                        else
+                        {
+                            if (verifica_ingrediente(magazzino, &bucket, nodo_ingrediente->nome_ingrediente, nodo_ingrediente->qta * qta, clock) == 0)
+                            {
+                                // ce un ingrediente che manca
+                                attesa = 1;
+                            }
+                        }
+                        // printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
+                        //  avanzo all'ingrediente successivo
+                        nodo_ingrediente = nodo_ingrediente->successore;
+                    }
+
+                    // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
+                    if (attesa == 0)
+                    {
+                        ordine = crea_ordine(nome_ricetta, qta, clock, peso);
+                        ordini_pronti = inserisci_nodo_in_testa_ordini(ordini_pronti, ordine);
+
+                        // produco ordine
+                        produci_ordine(magazzino, bucket_ricetta, qta);
+
+                        // ordino lotti in senso crescente per tempo di acquisizione (tempo)
+                        merge_sort_ordini(&ordini_pronti);
+
+                        //elimino l'ordine dalla lista di attesa e non devo riordinare nulla perche la proprieta si preserva
+                        ordini_attesa = elimina_nodo_ptr_ordini(ordini_attesa, temp);
+                    }
+                }
+
+                //passo al prossimo ordine in attesa
+                temp = temp->successore;
+            }
         }
 
         // AGGIUSTAMENTI
