@@ -60,7 +60,7 @@ int calcola_peso(Nodo *testa);
 
 void stampa_lista_ordini(Ordine *testa);
 
-void *elimina_lista_ordini(Ordine *testa);
+Ordine *elimina_lista_ordini(Ordine *testa);
 
 Ordine *elimina_nodo_ptr_ordini(Ordine *testa, Ordine *nodo);
 
@@ -178,7 +178,7 @@ int main()
         if (clock % periodo == 0 && clock != 0)
         {
             // gestisco il corriere
-            //printf("corriere\n");
+            // printf("corriere\n");
             // scorro la lista di ordini pronti e metto in lista corriere
             capienza_rimasta = capienza;
             ordine = ordini_pronti;
@@ -215,9 +215,13 @@ int main()
                     ordine = ordine->successore;
                 }
             }
+
+            // elimino la lista del corriere
+            ordini_corriere = elimina_lista_ordini(ordini_corriere);
         }
 
-        // ACQUISISCO COMANDO
+        //----------------------------- ACQUISISCO COMANDO -------------------//
+
         controllo = scanf("%s", comando);
 
         //----------------------------- GESTIONE COMANDI -------------------//
@@ -235,7 +239,7 @@ int main()
             if (bucket_temp != NULL)
             {
                 // LA RICETTA E GIA PRESENTE -> LA IGNORO
-                printf("ignorata\n");
+                printf("ignorato\n");
                 // DEVO LO STESSO CONSUMARE INPUT DA STDIN
                 while (separatore != '\n')
                 {
@@ -301,6 +305,7 @@ int main()
             while (separatore != '\n')
             {
                 attesa = 0; // inizzializzo valore di attesa per nuovo ordine a 0 cioe pronto per essere eseguito fino a prova contraria
+                peso = 0;   // inizializzo peso dell'ordine
 
                 controllo = scanf("%s", nome_ricetta);
                 controllo = scanf("%d", &qta);
@@ -401,11 +406,11 @@ int main()
             Bucket *bucket_ricetta;
             Nodo *nodo_ingrediente;
 
-            while (temp != NULL) //scorro tutta la lista di ordini in attesa
+            while (temp != NULL) // scorro tutta la lista di ordini in attesa
             {
                 // PRELEVO LA RICETTA DA RICETTARIO
                 bucket_ricetta = ht_cerca(ricettario, temp->nome_ricetta);
-                if (bucket_ricetta == NULL || bucket_ricetta->lista == NULL)
+                if (bucket_ricetta == NULL || bucket_ricetta->lista == NULL) // in realta so gia che ce lho di sicuro....
                 {
                     attesa = 1; // non ho la ricetta -> metto in attesa
                 }
@@ -413,7 +418,7 @@ int main()
                 { // HO LA RICETTA -> VERIFICO DI POTERLA PRODURRE: HO INGREDIENTI NON SCADUTI A SUFFICIENZA
                     // VERIFICO PER OGNI INGREDIENTE:
                     nodo_ingrediente = bucket_ricetta->lista;
-                    while (nodo_ingrediente != NULL && attesa!=1) 
+                    while (nodo_ingrediente != NULL && attesa != 1)
                     {
                         // CONTROLLO MAGAZZINO
                         bucket = ht_cerca(magazzino, nodo_ingrediente->nome_ingrediente);
@@ -447,12 +452,11 @@ int main()
                         // ordino lotti in senso crescente per tempo di acquisizione (tempo)
                         merge_sort_ordini(&ordini_pronti);
 
-                        //elimino l'ordine dalla lista di attesa e non devo riordinare nulla perche la proprieta si preserva
+                        // elimino l'ordine dalla lista di attesa e non devo riordinare nulla perche la proprieta si preserva
                         ordini_attesa = elimina_nodo_ptr_ordini(ordini_attesa, temp);
                     }
                 }
-
-                //passo al prossimo ordine in attesa
+                // passo al prossimo ordine in attesa
                 temp = temp->successore;
             }
         }
@@ -566,7 +570,7 @@ void ht_elimina_ricetta(HashTable *ht, char *string)
     if (ht->buckets[indice] == NULL)
     {
         // non ce niente da eliminare
-        printf("Non presente\n");
+        printf("non presente\n");
         return;
     }
     else
@@ -919,7 +923,7 @@ void stampa_lista_ordini(Ordine *testa)
     return;
 }
 
-void *elimina_lista_ordini(Ordine *testa)
+Ordine *elimina_lista_ordini(Ordine *testa)
 {
     Ordine *temp = testa;
     Ordine *prec = testa;
@@ -1056,10 +1060,23 @@ Ordine *merge_decrescente_corriere(Ordine *a, Ordine *b)
     else if (b == NULL)
         return a;
 
-    if (a->peso <= b->peso)
+    if (a->peso > b->peso)
     {
         testa = a;
         testa->successore = merge_decrescente_corriere(a->successore, b);
+    }
+    else if (a->peso == b->peso)
+    {
+        if (a->tempo < b->tempo)
+        {
+            testa = a;
+            testa->successore = merge_decrescente_corriere(a->successore, b);
+        }
+        else
+        {
+            testa = b;
+            testa->successore = merge_decrescente_corriere(a, b->successore);
+        }
     }
     else
     {
@@ -1103,8 +1120,8 @@ void merge_sort_corriere(Ordine **testa_indirizzo)
     // divido la lista testa in due sottoliste a e b
     sottoliste_ordini(testa, &a, &b);
     // ordino le due sottoliste
-    merge_sort_ordini(&a);
-    merge_sort_ordini(&b);
+    merge_sort_corriere(&a);
+    merge_sort_corriere(&b);
 
     // unisco le due sottoliste
     *testa_indirizzo = merge_decrescente_corriere(a, b);
