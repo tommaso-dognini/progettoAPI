@@ -1,50 +1,37 @@
 aggiunta
-accettato
-rifornito
-accettato
-accettato
-accettato
-accettato
-rifornito
-accettato
-rifornito
-accettato
-accettato
-accettato
-accettato
-ordini in sospeso
-rifiutato
-accettato
-accettato
-accettato
-rifornito
-1 k91ztT0f80YkrVS 6
-3 k91ztT0f80YkrVS 5
-4 k91ztT0f80YkrVS 4
-accettato
-accettato
-aggiunta
-accettato
-accettato
-accettato
-accettato
-accettato
 ignorato
-ordini in sospeso
 accettato
 accettato
 accettato
 accettato
+accettato
+rifornito
+accettato
+accettato
+accettato
+rifornito
 accettato
 accettato
 accettato
 accettato
 aggiunta
 accettato
-6 k91ztT0f80YkrVS 6
-5 k91ztT0f80YkrVS 4
-11 k91ztT0f80YkrVS 3
-17 k91ztT0f80YkrVS 2
+accettato
+accettato
+18 R1sHSjaN7409HULkW_5iL 30
+5 R1sHSjaN7409HULkW_5iL 24
+6 R1sHSjaN7409HULkW_5iL 23
+10 R1sHSjaN7409HULkW_5iL 23
+14 R1sHSjaN7409HULkW_5iL 22
+8 R1sHSjaN7409HULkW_5iL 19
+13 R1sHSjaN7409HULkW_5iL 16
+3 R1sHSjaN7409HULkW_5iL 11
+9 R1sHSjaN7409HULkW_5iL 10
+17 R1sHSjaN7409HULkW_5iL 10
+12 R1sHSjaN7409HULkW_5iL 6
+15 R1sHSjaN7409HULkW_5iL 4
+2 R1sHSjaN7409HULkW_5iL 3
+4 R1sHSjaN7409HULkW_5iL 3
 accettato
 accettato
 accettato
@@ -52,22 +39,6 @@ accettato
 accettato
 accettato
 accettato
-ordini in sospeso
-accettato
-ordini in sospeso
-accettato
-accettato
-accettato
-accettato
-accettato
-accettato
-rifornito
-accettato
-rifornito
-accettato
-8 k91ztT0f80YkrVS 10
-23 Kj8cfb01WZAyPsH9Adt8_RLR 4
-50 k91ztT0f80YkrVS 1
 accettato
 accettato
 ordini in sospeso
@@ -77,9 +48,18 @@ accettato
 accettato
 accettato
 accettato
-rifornito
 accettato
 accettato
+accettato
+accettato
+camioncino vuoto
+accettato
+accettato
+accettato
+accettato
+accettato
+accettato
+ordini in sospeso
 accettato
 accettato
 rifiutato
@@ -88,146 +68,130 @@ accettato
 accettato
 accettato
 accettato
-10 k91ztT0f80YkrVS 9
-26 Kj8cfb01WZAyPsH9Adt8_RLR 5
-41 Kj8cfb01WZAyPsH9Adt8_RLR 5
+accettato
 aggiunta
-ignorato
+accettato
+accettato
+aggiunta
+camioncino vuoto
+accettato
+accettato
 rimossa
-non presente
-rifornito
-accettato
+rifiutato
 accettato
 rifiutato
 accettato
 accettato
-rifornito
-rifornito
 accettato
+ordini in sospeso
+accettato
+accettato
+accettato
+accettato
+ordini in sospeso
+rifiutato
+aggiunta
+rifiutato
+accettato
+accettato
+camioncino vuoto
 accettato
 accettato
 accettato
 aggiunta
 accettato
 accettato
-rifiutato
-12 k91ztT0f80YkrVS 9
-33 Kj8cfb01WZAyPsH9Adt8_RLR 7
-95 k91ztT0f80YkrVS 1
-accettato
-aggiunta
-accettato
-accettato
-rifiutato
-accettato
-accettato
-accettato
-accettato
-rifiutato
 rifornito
+rifiutato
 accettato
 accettato
 accettato
-accettato
-accettato
-ignorato
 accettato
 non presente
 accettato
-24 Kj8cfb01WZAyPsH9Adt8_RLR 13
-27 Kj8cfb01WZAyPsH9Adt8_RLR 11
-108 Kj8cfb01WZAyPsH9Adt8_RLR 2
+accettato
 rifiutato
+aggiunta
+accettato
+accettato
+accettato
+27 R1sHSjaN7409HULkW_5iL 30
+31 R1sHSjaN7409HULkW_5iL 30
+55 R1sHSjaN7409HULkW_5iL 30
+70 R1sHSjaN7409HULkW_5iL 30
+45 R1sHSjaN7409HULkW_5iL 29
+35 R1sHSjaN7409HULkW_5iL 28
+19 R1sHSjaN7409HULkW_5iL 26
+23 R1sHSjaN7409HULkW_5iL 26
+58 R1sHSjaN7409HULkW_5iL 25
+44 R1sHSjaN7409HULkW_5iL 23
+78 R1sHSjaN7409HULkW_5iL 23
+97 R1sHSjaN7409HULkW_5iL 23
+34 R1sHSjaN7409HULkW_5iL 21
+85 R1sHSjaN7409HULkW_5iL 21
+32 R1sHSjaN7409HULkW_5iL 18
+61 R1sHSjaN7409HULkW_5iL 16
+33 R1sHSjaN7409HULkW_5iL 15
+24 R1sHSjaN7409HULkW_5iL 12
+71 R1sHSjaN7409HULkW_5iL 10
+37 R1sHSjaN7409HULkW_5iL 8
+40 R1sHSjaN7409HULkW_5iL 8
+68 R1sHSjaN7409HULkW_5iL 8
+57 R1sHSjaN7409HULkW_5iL 7
+91 R1sHSjaN7409HULkW_5iL 6
+42 R1sHSjaN7409HULkW_5iL 5
+79 R1sHSjaN7409HULkW_5iL 2
+30 R1sHSjaN7409HULkW_5iL 1
+accettato
+accettato
+accettato
+accettato
+rifiutato
+accettato
+rifiutato
+aggiunta
+accettato
+rifornito
+ordini in sospeso
+accettato
+accettato
+accettato
+accettato
+rifiutato
+accettato
+accettato
+accettato
+accettato
+99 Lwmxfma4Ytxf9WXR 29
+118 R1sHSjaN7409HULkW_5iL 15
+114 Lwmxfma4Ytxf9WXR 9
+89 Lwmxfma4Ytxf9WXR 8
+100 Lwmxfma4Ytxf9WXR 4
+aggiunta
+accettato
+accettato
+accettato
+accettato
+accettato
+accettato
 ignorato
 accettato
 accettato
 accettato
 accettato
-rifornito
-accettato
-accettato
-accettato
-accettato
-aggiunta
-accettato
-accettato
-accettato
-accettato
-ignorato
-accettato
-aggiunta
-accettato
-25 k91ztT0f80YkrVS 9
-57 Kj8cfb01WZAyPsH9Adt8_RLR 10
-accettato
-accettato
-accettato
-ordini in sospeso
-accettato
-rifornito
-accettato
-accettato
-accettato
-accettato
-accettato
-accettato
-aggiunta
-accettato
 ordini in sospeso
 accettato
 accettato
 aggiunta
-accettato
-aggiunta
-21 k91ztT0f80YkrVS 12
-89 Kj8cfb01WZAyPsH9Adt8_RLR 5
-aggiunta
-accettato
-accettato
-accettato
-accettato
-accettato
-accettato
-accettato
-aggiunta
-accettato
-accettato
-accettato
-accettato
-accettato
 ordini in sospeso
 accettato
 accettato
 accettato
-accettato
-accettato
-37 Kj8cfb01WZAyPsH9Adt8_RLR 15
-68 Kj8cfb01WZAyPsH9Adt8_RLR 7
-92 Kj8cfb01WuJYWnhdFI 1
-accettato
-ordini in sospeso
-aggiunta
-accettato
-accettato
-accettato
-ordini in sospeso
-accettato
-accettato
-rifornito
-accettato
-accettato
-accettato
-accettato
-accettato
-accettato
-accettato
-accettato
-accettato
-accettato
-39 Kj8cfb01WZAyPsH9Adt8_RLR 15
-111 k91ztT0fKnERew7EteSsXg4PIx2 2
-105 Kj8cfb01WZAyPsH9Adt8_RLR 5
-accettato
+121 R1sHSjaN7409HULkW_5iL 25
+128 R1sHSjaN7409HULkW_5iL 16
+130 Lwmxfma4Ytxf9WXR 14
+129 R1sHSjaN7409HULkW_5iL 12
+133 Lwmxfma4Ytxf9WXR 9
 rifornito
 accettato
 rifornito
@@ -236,69 +200,82 @@ accettato
 accettato
 accettato
 accettato
-accettato
-accettato
-ordini in sospeso
-accettato
-ordini in sospeso
-accettato
-accettato
-accettato
-accettato
-accettato
-ordini in sospeso
-13 k91ztT0f80YkrVS 15
-accettato
-accettato
-accettato
-accettato
-aggiunta
-accettato
-accettato
-ordini in sospeso
-accettato
-rifornito
-aggiunta
-aggiunta
-accettato
 rifornito
 accettato
+accettato
+accettato
+accettato
+accettato
 ordini in sospeso
+accettato
+accettato
+accettato
+accettato
+accettato
+112 TltfZVeOF 27
+117 TltfZVeOF 13
+84 R1sHSjaN751UVLvuE 4
+124 TltfZVeOF 10
+141 R1sHSjaN7409HULkW_5iL 5
+139 LwmxfmzysVxSEQ9Mx5Yo1P 1
+143 R1sHSjaN7409HULkW_5iL 3
+101 R1sHSjaN751UVLvuE 1
+111 TltfZVeOF 1
 rifiutato
-accettato
-accettato
-accettato
-30 k91ztT0f80YkrVS 7
-40 Kj8cfb01WZAyPsH9Adt8_RLR 12
-ordini in sospeso
-ordini in sospeso
-accettato
-accettato
 aggiunta
-accettato
-accettato
-accettato
-accettato
-rifornito
-aggiunta
-accettato
-aggiunta
-rifornito
-accettato
-accettato
-accettato
-accettato
-accettato
-accettato
-35 Kj8cfb01WZAyPsH9Adt8_RLR 16
-45 Kj8cfb01WuJYWnhdFI 2
-accettato
-accettato
 accettato
 accettato
 accettato
 accettato
 rifiutato
+rifornito
+ordini in sospeso
+accettato
+rifiutato
+rifiutato
+aggiunta
+ordini in sospeso
 accettato
 accettato
 aggiunta
+rifiutato
+ordini in sospeso
+accettato
+116 Lwmxfma4Ytxf9WXR 30
+138 Lwmxfma4Ytxf9WXR 28
+103 R1sHSjaN751UVLvuE 6
+137 Lwmxfma4Ytxf9WXR 14
+93 R1sHSjaN751UVLvuE 5
+98 R1sHSjaN751UVLvuE 5
+152 R1sHSjaN751UVLvuE 4
+150 Lwmxfma4Ytxf9WXR 8
+123 R1sHSjaN751UVLvuE 3
+147 Lwmxfma4Ytxf9WXR 7
+151 Lwmxfma4Ytxf9WXR 7
+159 TltfZVeOqZICducF9ztS0B6VKTx 17
+113 dV66drdPk 3
+ordini in sospeso
+accettato
+accettato
+accettato
+rifornito
+accettato
+accettato
+accettato
+rifiutato
+rifornito
+accettato
+accettato
+accettato
+aggiunta
+aggiunta
+accettato
+accettato
+accettato
+ordini in sospeso
+accettato
+73 dV66drdPk 14
+25 LwmxfmW 25
+36 LwmxfmW 23
+144 dV66drdPk 12
+43 L
