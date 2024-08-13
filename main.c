@@ -422,7 +422,7 @@ int main()
                         // CONTROLLO MAGAZZINO
                         bucket = ht_cerca(magazzino, nodo_ingrediente->nome_ingrediente);
 
-                        if (bucket == NULL || bucket->lista == NULL)
+                        if (bucket == NULL || bucket->lista == NULL ) // 
                         {
                             attesa = 1;
                         }
@@ -448,11 +448,11 @@ int main()
                         // produco ordine
                         produci_ordine(magazzino, bucket_ricetta, ordine->qta);
 
-                        // ordino lotti in senso crescente per tempo di acquisizione (tempo)
-                        merge_sort_ordini(&ordini_pronti);
-
                         // elimino l'ordine dalla lista di attesa e non devo riordinare nulla perche la proprieta si preserva
                         ordini_attesa = elimina_nodo_ptr_ordini(ordini_attesa, temp);
+
+                        // ordino lotti in senso crescente per tempo di acquisizione (tempo)
+                        merge_sort_ordini(&ordini_pronti);
                     }
                 }
                 // passo al prossimo ordine in attesa
