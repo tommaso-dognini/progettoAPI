@@ -146,7 +146,7 @@ int main()
     Ordine *ordini_corriere = NULL;
 
     Ordine *ordine = NULL;
-    Ordine * ordine_prec;
+    Ordine *ordine_prec;
     Ordine *ordine_corriere = NULL;
 
     Bucket *bucket = NULL;
@@ -206,7 +206,6 @@ int main()
                     stop = 1;
                     ordine = ordine->successore;
                 }
-                
             }
 
             // stampo come da specifica tempo di acquisizione, nome ricetta, qta
@@ -310,6 +309,7 @@ int main()
             Nodo *nodo_ingrediente;
 
             controllo = scanf("%c", &separatore);
+
             // PROCESSO GLI ORDINI UNO AD UNO
             while (separatore != '\n')
             {
@@ -325,7 +325,7 @@ int main()
                 bucket_ricetta = ht_cerca(ricettario, nome_ricetta);
                 if (bucket_ricetta == NULL || bucket_ricetta->lista == NULL)
                 {
-                    attesa = 1; // non ho la ricetta oppure ho una ricetta vuota -> metto in attesa
+                    // non ho la ricetta oppure ho una ricetta vuota -> rifiuto ordine
                     printf("rifiutato\n");
                 }
                 else
@@ -341,12 +341,13 @@ int main()
                         // CONTROLLO MAGAZZINO
                         bucket = ht_cerca(magazzino, nodo_ingrediente->nome_ingrediente);
 
-                        if (bucket == NULL)
+                        if (bucket == NULL || bucket->lista == NULL)
                         {
+                            // non ci sono ingredinti in magazzino
                             attesa = 1;
                         }
                         else
-                        {
+                        {   //ho una lista di lotti da controllare: voglio verificare di avere ingredienti non scaduti a sufficienza
                             if (verifica_ingrediente(magazzino, &bucket, nodo_ingrediente->nome_ingrediente, nodo_ingrediente->qta * qta, clock) == 0)
                             {
                                 // ce un ingrediente che manca
@@ -357,7 +358,6 @@ int main()
                         //     avanzo all'ingrediente successivo
                         nodo_ingrediente = nodo_ingrediente->successore;
                     }
-
                     // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
                     if (attesa == 0)
                     {
@@ -391,6 +391,7 @@ int main()
         else if (strcmp(comando, "rifornimento") == 0)
         {
             controllo = scanf("%c", &separatore);
+
             // PROCESSO GLI INGREDIENTI RIFORNITI UNO AD UNO
             while (separatore != '\n')
             {
@@ -407,23 +408,25 @@ int main()
                 // ripristino ordine crescente per data di scadenza in lista di lotti
                 merge_sort(&(magazzino->buckets[hash(nome_ingrediente)]->lista));
             }
+
             // HO AGGIORNATO IL MAGAZZINO
             printf("rifornito\n");
 
             // VERIFICO SE HO ORDINI IN ATTESA CHE POSSO PROCESSARE
             Ordine *temp = ordini_attesa;
-            Ordine * prec_temp;
+            Ordine *prec_temp;
             Bucket *bucket_ricetta;
             Nodo *nodo_ingrediente;
 
             while (temp != NULL) // scorro tutta la lista di ordini in attesa
             {
                 attesa = 0;
+
                 // PRELEVO LA RICETTA DA RICETTARIO
                 bucket_ricetta = ht_cerca(ricettario, temp->nome_ricetta);
                 if (bucket_ricetta == NULL || bucket_ricetta->lista == NULL) // in realta so gia che ce lho di sicuro....
                 {
-                    attesa = 1; // non ho la ricetta -> metto in attesa
+                    //attesa = 1; // non ho la ricetta -> metto in attesa
                     // passo al prossimo ordine in attesa
                     temp = temp->successore;
                 }
@@ -431,18 +434,20 @@ int main()
                 { // HO LA RICETTA -> VERIFICO DI POTERLA PRODURRE: HO INGREDIENTI NON SCADUTI A SUFFICIENZA
                     // VERIFICO PER OGNI INGREDIENTE:
                     nodo_ingrediente = bucket_ricetta->lista;
-                    while (nodo_ingrediente != NULL && attesa != 1) //
+                    while (nodo_ingrediente != NULL && attesa != 1) //scorro la lista di ingredienti della ricetta
                     {
                         // CONTROLLO MAGAZZINO
                         bucket = ht_cerca(magazzino, nodo_ingrediente->nome_ingrediente);
 
-                        if (bucket == NULL || bucket->lista == NULL) //
+                        if (bucket == NULL || bucket->lista == NULL) 
                         {
+                            //non ho nessun ingrediente del tipo desiderato
                             attesa = 1;
                         }
                         else
                         {
-                            if (verifica_ingrediente(magazzino, &bucket, nodo_ingrediente->nome_ingrediente, nodo_ingrediente->qta * temp->qta, clock) == 0)
+                            //ci sono dei lotti dell'ingrediente desiderato verifico di averne abbastanza non scaduto!
+                            if (verifica_ingrediente(magazzino, &bucket, nodo_ingrediente->nome_ingrediente, (nodo_ingrediente->qta)*(temp->qta), clock) == 0)
                             {
                                 // ce un ingrediente che manca
                                 attesa = 1;
@@ -851,10 +856,11 @@ void merge_sort(Nodo **testa_indirizzo)
 //--------------------------------- ORDINI ------------------------------------------//
 
 // se chiamata gia verificato che ogni ingrediente e presente per poter produrre ordine
-void produci_ordine(HashTable *magazzino, Bucket *Bucket_ricetta, int qta)
+void produci_ordine(HashTable *magazzino, Bucket *bucket_ricetta, int qta)
 {
-    Nodo *nodo_ingrediente = Bucket_ricetta->lista;
+    Nodo *nodo_ingrediente = bucket_ricetta->lista;
     Nodo *lotto;
+    Nodo *lotto_prec;
     Bucket *bucket_magazzino;
     int qta_necessaria;
 
@@ -876,15 +882,23 @@ void produci_ordine(HashTable *magazzino, Bucket *Bucket_ricetta, int qta)
             {
                 lotto->qta -= qta_necessaria;
                 qta_necessaria = 0; // per questo ingrediente ho tolto la qta utilizzata e sono aposto
+                // continuo a scorrere la lista di lotti
+                lotto = lotto->successore;
             }
             else
-            { // qta necessaria diminuisce
+            { // il primo lotto non basta ma so che ne ho a sufficienza nei succesivi lotti.
+                // qta necessaria diminuisce
                 qta_necessaria -= lotto->qta;
-                lotto->qta = -1;
+
+                // uso tutta la qta del lotto quindi lo elimino
+                // per farlo prima avanzo e poi faccio la free del vecchio lotto
+                lotto_prec = lotto;
+                lotto = lotto->successore;
+                // ora posso eliminare lotto_prec senza fare casini
+                elimina_lotto(&bucket_magazzino, lotto_prec);
             }
 
-            // continuo a scorrere la lista di lotti
-            lotto = lotto->successore;
+            // ho gia fatto avanzamento al lotto successivo
         }
 
         // continuo a scorre la lista di ingredienti e ripeto lo stesso procedimento per ogni ingrediente
@@ -898,7 +912,7 @@ int verifica_ingrediente(HashTable *magazzino, Bucket **bucket, char *nome_ingre
 {
     Bucket *bucket_magazzino = *bucket;
     Nodo *lotto = bucket_magazzino->lista;
-    Nodo * lotto_prec;
+    Nodo *lotto_prec;
 
     if (bucket_magazzino == NULL || bucket_magazzino->lista == NULL)
     {
@@ -909,9 +923,9 @@ int verifica_ingrediente(HashTable *magazzino, Bucket **bucket, char *nome_ingre
 
         while (lotto != NULL)
         {
-            if (lotto->scadenza < clock || lotto->qta <= 0)
+            if (lotto->scadenza <= clock || lotto->qta <= 0)
             {
-                //devo fare la free di lotto mi preparo una copia, avanzo e poi faccio la free
+                // devo fare la free di lotto mi preparo una copia, avanzo e poi faccio la free
                 lotto_prec = lotto;
                 lotto = lotto->successore;
                 // ingrediente scaduto o gia utilizzato --> lo elimino dalla lista dei lotti
@@ -929,7 +943,6 @@ int verifica_ingrediente(HashTable *magazzino, Bucket **bucket, char *nome_ingre
                 }
                 lotto = lotto->successore;
             }
-            
         }
     }
     return 0;
