@@ -13,13 +13,6 @@ typedef struct Nodo
     int qta;
     int scadenza;
     struct Nodo *successore;
-    char colore; // 'r' = rosso , 'n' = nero
-    int chiave;
-    struct Nodo *ingredienti;
-    int qta; // utilizzo solo per ordini e per albero degli ingredienti di una ricetta
-    struct Nodo *dx;
-    struct Nodo *sx;
-    struct Nodo *padre;
 } Nodo;
 
 // Definisco la struttura della hash table
@@ -74,32 +67,6 @@ Ordine *elimina_nodo_ptr_ordini(Ordine *testa, Ordine *nodo);
 Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo);
 
 Ordine *crea_ordine(char *nome_ricetta, int qta, int tempo, int peso);
-// BST
-//  Definisco il nodo sentilenna NILL
-//  Per semplificazione di condizioni al contorno invece che usare tipo NULL
-//  impongo che tutte le foglie puntano a un nodo NILL sentinella
-//  chiave e colore sono indifferenti... Mi interessa che punti a se stesso (NILL)
-Nodo NILL = {'g', -999, &NILL, 0, &NILL, &NILL, &NILL};
-
-// FUNZIONI DI GESTIONE ALBERI
-
-// Funzione per la creazione di un nodo -> Malloc della struct con chiave data e puntatori a NILL
-Nodo *crea_nodo(int chiave);
-
-// inserimento come se fosse bst di nodo nell'albero -> restituisce l'abero = puntatore alla radice
-void inserisci(Nodo **albero, Nodo *nuovo_nodo);
-
-// Funzione per eliminare un nodo (come fosse bst)
-void elimina_nodo(Nodo **albero, Nodo *nodo);
-
-// Funzione ausiliaria per stampare l'albero in senso crescente
-void stampa_in_ordine(Nodo *albero);
-
-// Funzione per impiantare un sotto albero ad un nodo
-void trapianta(Nodo **albero, Nodo *u, Nodo *v);
-
-// Funzione che restituisce il minimo (puntatore al nodo) del sotto albero del nodo passato.
-Nodo *minimo(Nodo *nodo);
 
 // verifica se un ingrediente e presente in quantita sufficiente (non scaduto) per la ricetta desiderata
 int verifica_ingrediente(HashTable *magazzino, Bucket **bucket, char *nome_ingrediente, int qta_necessaria, int clock);
@@ -154,29 +121,6 @@ void elimina_lotto(Bucket **bucket, Nodo *lotto);
 
 // ---------------------------  MAGAZZINO ---------------------------------------------//
 void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string);
-//-----------------------------------------------------------------------------------------
-//--------  FUNZIONI PASTICCERIA ----------------------------------------------------------
-//-----------------------------------------------------------------------------------------
-
-// Funzione aggiungi ricetta:  ricettario = puntatore a radice albero delle ricette, codice_ricetta = intero identificativo della ricetta
-void aggiungi_ricetta(Nodo **ricettario, int codice_ricetta);
-
-// Funzione aggiungi ricetta:  ricettario = puntatore a radice albero delle ricette, codice_ricetta = intero identificativo della ricetta
-void aggiorna_ricetta(Nodo **ricettario, int codice_ricetta, char *ingrediente, int qta);
-
-// Funzione rimuovi ricetta:  ricettario = puntatore a radice albero delle ricette, codice_ricetta = intero identificativo della ricetta
-void rimuovi_ricetta(Nodo **ricettario, int codice_ricetta);
-
-// rifornimento (nome_ingrediente, qta, scadenza)
-
-// ordine (nome_ricetta, numero_elementi_ordinati)
-
-//-----------------------------------------------------------------------------------------
-//--------  FUNZIONI ACCESSORIE ----------------------------------------------------------
-//-----------------------------------------------------------------------------------------
-
-// Funzione che calcola, data una stringa in input ed un ofset la codifica in decimale. (la codifica e univoca)
-int calcola_codice(char *nome, int offset);
 
 //-----------------------------------------------------------------------------------------
 //--------  MAIN --------------------------------------------------------------------------
@@ -543,152 +487,9 @@ int main()
         }
 
         // AGGIUSTAMENTI
-
-    char comando[CMD_LEN];
-    int clock = 0; // istanti di tempo della simulazione
-
-    Nodo *ricettario = &NILL;
-    Nodo *nodo = &NILL; // nodo accessorio
-    Nodo *ingrediente = &NILL;
-    //   Nodo *magazzino, *ordini;
-    char nome_ricetta[CMD_LEN];
-    char nome_ingrediente[CMD_LEN];
-    char ordine[CMD_LEN];
-    int qta = 0;
-    int scadenza=0;
-    int codice_ricetta=0;
-    int controllo = 0;
-    char separatore = 'a';
-
-    // acquisisco parametri corriere
-    int periodo, capienza;
-
-    scanf("%d %d", &periodo, &capienza);
-    printf("Il periodo e: %d \nLa capienza del corriere e: %d \n", periodo, capienza);
-    controllo = scanf("%c", &separatore);
-
-    while (separatore == '\n' && controllo != -1)
-    {
-        // VERIFICA CORRIERE
-        if (clock % periodo == 0 && clock != 0)
-        {
-            // gestisco il corriere
-            printf("corriere\n");
-        }
-
-        // ACQUISISCO COMANDO
-        controllo = scanf("%s", comando);
-
-        //---------------------- GESTIONE COMANDI -----------------------------------------//
-        
-        // AGGIUNGI_RICETTA
-        if (strcmp(comando, "aggiungi_ricetta") == 0)
-        {
-            controllo = scanf("%s", nome_ricetta);
-            controllo = scanf("%c", &separatore);
-            codice_ricetta = calcola_codice(nome_ricetta, 0);
-            printf("Nome ricetta:%s Codice ricetta:%d\n", nome_ricetta, codice_ricetta);
-
-            if (cerca(ricettario, codice_ricetta) != &NILL)
-            {
-                // LA RICETTA E GIA PRESENTE -> LA IGNORO
-                printf("ignorata\n");
-                // DEVO LO STESSO CONSUMARE INPUT DA STDIN
-                while (separatore != '\n')
-                {
-                    controllo = scanf("%s", nome_ingrediente);
-                    controllo = scanf("%d", &qta);
-                    controllo = scanf("%c", &separatore);
-                }
-            }
-            else
-            {
-                // CREO IL NODO RICETTA
-                nodo = crea_nodo(codice_ricetta);
-                while (separatore != '\n')
-                {
-                    controllo = scanf("%s", nome_ingrediente);
-                    controllo = scanf("%d", &qta);
-                    controllo = scanf("%c", &separatore);
-                    printf("Ingrediente:%s,qta:%d\n", nome_ingrediente, qta);
-                    // AGGIUNGO INGREDIENTE ALLA NODO RICETTA
-                    ingrediente = crea_nodo(calcola_codice(nome_ingrediente, 0));
-                    ingrediente->qta = qta;
-                    inserisci(&(nodo->ingredienti), ingrediente);
-                }
-                // AGGIUNGO IL NODO RICETTA AL RICETTARIO
-                inserisci(&ricettario, nodo);
-                printf("Stampa in ordine\n");
-                stampa_in_ordine(ricettario);
-                stampa_in_ordine(nodo->ingredienti);
-            }
-        }
-
-        // RIMUOVI_RICETTA
-        else if (strcmp(comando, "rimuovi_ricetta") == 0)
-        {
-            // ACQUISISCO NOME RICETTA
-            controllo = scanf("%s", nome_ricetta);
-            controllo = scanf("%c", &separatore);
-            codice_ricetta = calcola_codice(nome_ricetta, 0);
-            printf("Nome ricetta:%s, Codice ricetta:%d\n", nome_ricetta, codice_ricetta);
-            // VERIFICO CHE NON SIA IN USO
-            // SE IN USO o IN ATTESA DI ESSERE SPEDITO
-            printf("ordini in sospeso\n");
-            // VERIFICO CHE SIA PRESENTE
-            //  RIMUOVO RICETTA DA RICETTARIO
-            rimuovi_ricetta(&ricettario, codice_ricetta);
-            printf("rimossa\n");
-            stampa_in_ordine(ricettario);
-            // SE NON E PRESENTE
-            printf("non presente\n");
-            
-        }
-
-        // ORDINE
-        else if (strcmp(comando, "ordine") == 0)
-        {
-            // PROCESSO GLI ORDINI UNO AD UNO
-            while (separatore != '\n')
-            {
-                controllo = scanf("%s", ordine);
-                controllo = scanf("%d", &qta);
-                controllo = scanf("%c", &separatore);
-                printf("Ordine:%s,qta:%d\n", ordine, qta);
-                // PRELEVO LA RICETTA DA RICETTARIO
-                // VERIFICO DI AVERE INGREDIENTI IN MAGAZZINO
-                // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
-                // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
-            }
-        }
-
-        // RIFORNIMENTO
-        else if (strcmp(comando, "rifornimento") == 0)
-        {
-            // PROCESSO GLI INGREDIENTI RIFORNITI UNO AD UNO
-            while (separatore != '\n')
-            {
-                controllo = scanf("%s", nome_ingrediente);
-                controllo = scanf("%d", &qta);
-                controllo = scanf("%d", &scadenza);
-                controllo = scanf("%c", &separatore);
-                printf("Rifornimento:%s,qta:%d,scadenza:%d\n", ordine, qta, scadenza);
-                // AGGIUNGO NEL MAGAZZINO
-                // VERIFICO DI AVERE INGREDIENTI IN MAGAZZINO
-            }
-            // HO AGGIORNATO IL MAGAZZINO
-            // VERIFICO SE HO ORDINI IN ATTESA CHE POSSO PROCESSARE
-        }
-
-        // AGGIUSTAMENTI
         comando[0] = 0;
         clock++;
     }
-        clock++;
-    }
-
-    // STAMPO SITUAZIONE CORRIERE
-    printf("Fine, clock:%d", clock);
     return 0;
 }
 
@@ -728,23 +529,6 @@ int hash(char *string)
 
 // Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
 Bucket *ht_cerca(HashTable *ht, char *string)
-// ------- FUNZIONI STRUTTURE DATI -------------
-
-Nodo *crea_nodo(int chiave)
-{
-    // creo il nodo
-    Nodo *nuovo_nodo = (struct Nodo *)malloc(sizeof(struct Nodo));
-    nuovo_nodo->chiave = chiave;
-    nuovo_nodo->ingredienti = &NILL;
-    nuovo_nodo->qta = 0;
-    nuovo_nodo->colore = 'r';
-    nuovo_nodo->dx = &NILL;
-    nuovo_nodo->sx = &NILL;
-    nuovo_nodo->padre = &NILL;
-    return nuovo_nodo;
-}
-
-void inserisci(Nodo **albero, Nodo *nuovo_nodo)
 {
     // calcolo hash
     int indice = hash(string);
@@ -1355,14 +1139,6 @@ Ordine *merge_decrescente_corriere(Ordine *a, Ordine *b)
             testa = b;
             testa->successore = merge_decrescente_corriere(a, b->successore);
         }
-//--------  FUNZIONI PASTICCERIA ---------------
-
-void rimuovi_ricetta(Nodo **ricettario, int codice_ricetta)
-{
-    Nodo *nodo = cerca(*ricettario, codice_ricetta);
-    if (nodo == &NILL)
-    { // se non ce
-        printf("non presente\n");
     }
     else
     {
@@ -1411,9 +1187,5 @@ void merge_sort_corriere(Ordine **testa_indirizzo)
 
     // unisco le due sottoliste
     *testa_indirizzo = merge_decrescente_corriere(a, b);
-        // elimina albero degli ingredienti
-        elimina_nodo(ricettario, nodo);
-        printf("eliminata\n");
-    }
     return;
 }
