@@ -1,443 +1,72 @@
-/** C implementation for
-	Red-Black Tree Insertion
-	This code is provided by
-	costheta_z **/
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#define CMD_LEN 256
 #include <stdio.h>
 #include <stdlib.h>
-#define COUNT 10
-// Structure to represent each
-// node in a red-black tree
-struct node
+
+//-------------------- Liste  semplici (single linked)  -----------------------------------//
+// Definisco la struttura di un Nodo
+typedef struct Nodo
 {
-	int d;			// data
-	int c;			// 1-red, 0-black
-	struct node *p; // p
-	struct node *r; // r-child
-	struct node *l; // l child
-};
+	char nome_ingrediente[CMD_LEN];
+	int qta;
+	int scadenza;
+	struct Nodo *successore;
+} Nodo;
 
-// global root for the entire tree
-struct node *root = NULL;
+// ---------------------------  HASH TABLE ---------------------------------------------//
 
-// function to perform BST insertion of a node
-struct node *bst(struct node *trav,
-				 struct node *temp)
+// Definisco la struttura della hash table
+typedef struct Bucket
 {
-	// If the tree is empty,
-	// return a new node
-	if (trav == NULL)
-		return temp;
+	char string[CMD_LEN];
+	struct Nodo *lista;
+	struct Bucket *successore;
+} Bucket;
 
-	// Otherwise recur down the tree
-	if (temp->d < trav->d)
-	{
-		trav->l = bst(trav->l, temp);
-		trav->l->p = trav;
-	}
-	else if (temp->d > trav->d)
-	{
-		trav->r = bst(trav->r, temp);
-		trav->r->p = trav;
-	}
+typedef struct HashTable
+{
+	int dimensione;
+	int num_buckets_inseriti;
+	Bucket **buckets;
+} HashTable;
 
-	// Return the (unchanged) node pointer
-	return trav;
+// crea HashTable
+void crea_ht(HashTable *ht)
+{
+	ht->dimensione = 1e9 + 9;
+	ht->num_buckets_inseriti = 0;
+	ht->buckets = (Bucket **)malloc(sizeof(struct Bucket *) * ht->dimensione);
 }
 
-// Function performing r rotation
-// of the passed node
-void rightRotate(struct node *temp)
+// crea Bucket
+Bucket *crea_bucket(char *string, Nodo *lista)
 {
-	struct node *l = temp->l;
-	temp->l = l->r;
-	if (temp->l)
-		temp->l->p = temp;
-	l->p = temp->p;
-	if (!temp->p)
-		root = l;
-	else if (temp == temp->p->l)
-		temp->p->l = l;
-	else
-		temp->p->r = l;
-	l->r = temp;
-	temp->p = l;
+	Bucket *nuovo_bucket = (Bucket *)malloc(sizeof(Bucket));
+	nuovo_bucket->successore = NULL;
+	strcpy(nuovo_bucket->string, string);
+	nuovo_bucket->lista = lista;
+	return nuovo_bucket;
 }
 
-// Function performing l rotation
-// of the passed node
-void leftRotate(struct node *temp)
+// funzione di hash: uso rolling polinomial con p = 53 e dimensione = 1e9 + 9
+int hash(char *string)
 {
-	struct node *r = temp->r;
-	temp->r = r->l;
-	if (temp->r)
-		temp->r->p = temp;
-	r->p = temp->p;
-	if (!temp->p)
-		root = r;
-	else if (temp == temp->p->l)
-		temp->p->l = r;
-	else
-		temp->p->r = r;
-	r->l = temp;
-	temp->p = r;
+	// vettore con valori di potenze di p precalcolati per aumentare efficienza. Calcolati fino a p ^CMD_LEN = 256
+	int p_pow[] = {31, 961, 29791, 923521, 28629151, 887503681, 512613868, 891029773, 621922720, 279604149, 667728547, 699584777, 687127898, 300964649, 329904038, 227025088, 37777665, 171107606, 304335741, 434407890, 466644473, 465978537, 445334521, 805370034, 966470838, 960595717, 778466966, 132475730, 106747594, 309175387, 584436916, 117544234, 643871227, 960007866, 760243585, 567550928, 594078615, 416436903, 909543885, 195860183, 71665619, 221634171, 870659247, 990436423, 703528843, 809393944, 91212039, 827573191, 654768696, 297829396, 232711195, 214046982, 635456388, 699147857, 673583378, 881084538, 313620435, 722233404, 389235326, 66294998, 55144920, 709492511, 994267652, 822296942, 491204977, 227354152, 47978649, 487338110, 107481275, 331919498, 289504348, 974634716, 213675926, 623953652, 342563041, 619454181, 203079440, 295462586, 159340085, 939542599, 125820308, 900429521, 913314908, 312761896, 695618695, 564179356, 489559883, 176356238, 467043333, 478343197, 828638981, 687808186, 322053577, 983660806, 493484716, 298026061, 238807810, 403042047, 494303349, 323403684, 25514114, 790937534, 519063338, 90963334, 819863336, 415763191, 888658813, 548422960, 1111607, 34459817, 68254318, 115883840, 592399013, 364369241, 295446372, 158837451, 923960945, 642789043, 926460162, 720264770, 328207672, 174437742, 407569957, 634668559, 674725158, 916479718, 410871006, 737001078, 847033220, 258029586, 998917103, 966429923, 959327352, 739147651, 913576983, 320886221, 947472770, 371655609, 521323780, 161037036, 992148080, 756590210, 454296303, 83185267, 578743259, 941040876, 172266895, 340273700, 548484610, 3022757, 93705467, 904869459, 50952977, 579542278, 965810465, 940124154, 143848513, 459303867, 238419751, 391012218, 121378650, 762738123, 644881606, 991329615, 731217795, 667751447, 700294677, 709134798, 983178549, 478534749, 834577093, 871889658, 28579155, 885953805, 464567712, 401598946, 449567218, 936583641, 34092610, 56870901, 762997922, 652935375, 240996445, 470889732, 597581566, 525028384, 275879760, 552272488, 120446975, 733856198, 749541940, 235799933, 309797860, 603733579, 715740787, 187964199, 826890124, 633593619, 641402018, 883462387, 387333754, 7346266, 227734246, 59761563, 852608444, 430861530, 356707313, 57926604, 795724715, 667465949, 691444239, 434771220, 477907703, 815138667, 269298452, 348251940, 795810050, 670111334, 773451174, 976986187, 286571527, 883717265, 395234972, 252284024, 820804681, 444944886, 793291349, 592031603, 352979531, 942365371, 213326240, 613113386, 6514795, 201958645, 260717941, 82256099, 549939051, 48110428, 491423259, 234120894, 257747651, 990177118, 695490388, 560201839, 366256856, 353962437, 972835457, 157898897, 894865771, 740838658, 965998200, 945943939, 324261848, 52117198, 615633129, 84626828};
+	// long long p = 31;
+	int m = 1e9 + 9;
+	unsigned long long hash = 0;
+	for (int i = 0; i < strlen(string); i++)
+	{
+		hash = (hash + (string[i] - 'a' + 1) * p_pow[i]) % m;
+	}
+	return hash;
 }
 
-// This function fixes violations
-// caused by BST insertion
-void fixup(struct node *root, struct node *pt)
-{
-	struct node *p_pt = NULL;
-	struct node *grand_p_pt = NULL;
-
-	while ((pt != root) && (pt->c != 0) && (pt->p->c == 1))
-	{
-		p_pt = pt->p;
-		grand_p_pt = pt->p->p;
-
-		/* Case : A
-			p of pt is l child
-			of Grand-p of
-		pt */
-		if (p_pt == grand_p_pt->l)
-		{
-
-			struct node *uncle_pt = grand_p_pt->r;
-
-			/* Case : 1
-				The uncle of pt is also red
-				Only Recing required */
-			if (uncle_pt != NULL && uncle_pt->c == 1)
-			{
-				grand_p_pt->c = 1;
-				p_pt->c = 0;
-				uncle_pt->c = 0;
-				pt = grand_p_pt;
-			}
-
-			else
-			{
-
-				/* Case : 2
-					pt is r child of its p
-					l-rotation required */
-				if (pt == p_pt->r)
-				{
-					leftRotate(p_pt);
-					pt = p_pt;
-					p_pt = pt->p;
-				}
-
-				/* Case : 3
-					pt is l child of its p
-					r-rotation required */
-				rightRotate(grand_p_pt);
-				int t = p_pt->c;
-				p_pt->c = grand_p_pt->c;
-				grand_p_pt->c = t;
-				pt = p_pt;
-			}
-		}
-
-		/* Case : B
-			p of pt is r
-			child of Grand-p of
-		pt */
-		else
-		{
-			struct node *uncle_pt = grand_p_pt->l;
-
-			/* Case : 1
-				The uncle of pt is also red
-				Only Recing required */
-			if ((uncle_pt != NULL) && (uncle_pt->c == 1))
-			{
-				grand_p_pt->c = 1;
-				p_pt->c = 0;
-				uncle_pt->c = 0;
-				pt = grand_p_pt;
-			}
-			else
-			{
-				/* Case : 2
-				pt is l child of its p
-				r-rotation required */
-				if (pt == p_pt->l)
-				{
-					rightRotate(p_pt);
-					pt = p_pt;
-					p_pt = pt->p;
-				}
-
-				/* Case : 3
-					pt is r child of its p
-					l-rotation required */
-				leftRotate(grand_p_pt);
-				int t = p_pt->c;
-				p_pt->c = grand_p_pt->c;
-				grand_p_pt->c = t;
-				pt = p_pt;
-			}
-		}
-	}
-}
-
-// Function to print inorder traversal
-// of the fixated tree
-void inorder(struct node *trav)
-{
-	if (trav == NULL)
-		return;
-	inorder(trav->l);
-	printf("%d ", trav->d);
-	inorder(trav->r);
-}
-
-// Function to print binary tree in 2D
-// It does reverse inorder traversal
-void print2DUtil(struct node *root, int space)
-{
-	// Base case
-	if (root == NULL)
-		return;
-
-	// Increase distance between levels
-	space += COUNT;
-
-	// Process r child first
-	print2DUtil(root->r, space);
-
-	// Print current node after space
-	// count
-	printf("\n");
-	for (int i = COUNT; i < space; i++)
-		printf(" ");
-	printf("%d\n", root->d);
-
-	// Process l child
-	print2DUtil(root->l, space);
-}
-
-// Wrapper over print2DUtil()
-void print2D(struct node *root)
-{
-	// Pass initial space count as 0
-	print2DUtil(root, 0);
-}
-
-// For balancing the tree after deletion
-void deleteFix(struct node *x)
-{
-	struct node *s;
-	while (x != root && x->c == 0)
-	{
-		if (x == x->p->l)
-		{
-			s = x->p->r;
-			if (s->c == 1)
-			{
-				s->c = 0;
-				x->p->c = 1;
-				leftRotate(x->p);
-				s = x->p->r;
-			}
-
-			if (s->l->c == 0 && s->r->c == 0)
-			{
-				s->c = 1;
-				x = x->p;
-			}
-			else
-			{
-				if (s->r->c == 0)
-				{
-					s->l->c = 0;
-					s->c = 1;
-					rightRotate(s);
-					s = x->p->r;
-				}
-
-				s->c = x->p->c;
-				x->p->c = 0;
-				s->r->c = 0;
-				leftRotate(x->p);
-				x = root;
-			}
-		}
-		else
-		{
-			s = x->p->l;
-			if (s->c == 1)
-			{
-				s->c = 0;
-				x->p->c = 1;
-				rightRotate(x->p);
-				s = x->p->l;
-			}
-
-			if (s->r->c == 0 && s->r->c == 0)
-			{
-				s->c = 1;
-				x = x->p;
-			}
-			else
-			{
-				if (s->l->c == 0)
-				{
-					s->r->c = 0;
-					s->c = 1;
-					leftRotate(s);
-					s = x->p->l;
-				}
-
-				s->c = x->p->c;
-				x->p->c = 0;
-				s->l->c = 0;
-				rightRotate(x->p);
-				x = root;
-			}
-		}
-	}
-	x->c = 0;
-}
-
-struct node * minimum(struct node * node)
-{
-    while (node->l != NULL)
-    {
-        node = node->l;
-    }
-    return node;
-}
-
-void rbTransplant(struct node *u, struct node *v)
-{
-	if (u->p == NULL)
-	{
-		root = v;
-	}
-	else if (u == u->p->l)
-	{
-		u->p->l = v;
-	}
-	else
-	{
-		u->p->r = v;
-	}
-	v->p = u->p;
-}
-
-
-void deleteNode(struct node *node, int key)
-{
-	struct node *z = NULL;
-	struct node *y;
-	struct node *x;
-	while (node != NULL)
-	{
-		if (node->d == key)
-		{
-			z = node;
-		}
-
-		if (node->d <= key)
-		{
-			node = node->r;
-		}
-		else
-		{
-			node = node->l;
-		}
-	}
-
-	if (z == NULL)
-	{
-		printf("Key not found in the tree\n");
-		return;
-	}
-
-	y = z;
-	int y_original_color = y->c;
-	if (z->l == NULL)
-	{
-		x = z->r;
-		rbTransplant(z, z->r);
-	}
-	else if (z->r == NULL)
-	{
-		x = z->l;
-		rbTransplant(z, z->l);
-	}
-	else
-	{
-		y = minimum(z->r);
-		y_original_color = y->c;
-		x = y->r;
-		if (y->p == z)
-		{
-			x->p = y;
-		}
-		else
-		{
-			rbTransplant(y, y->r);
-			y->r = z->r;
-			y->r->p = y;
-		}
-
-		rbTransplant(z, y);
-		y->l = z->l;
-		y->l->p = y;
-		y->c = z->c;
-	}
-
-	if (y_original_color == 0)
-	{
-		deleteFix(x);
-	}
-}
-
-// driver code
 int main()
 {
-	int n = 12;
-	int a[12] = {7, 6, 5, 4, 3, 2, 1, 10, 20, 26, 14, 18};
-
-	for (int i = 0; i < n; i++)
-	{
-
-		// allocating memory to the node and initializing:
-		// 1. c as red
-		// 2. p, l and r pointers as NULL
-		// 3. data as i-th value in the array
-		struct node *temp = (struct node *)malloc(sizeof(struct node));
-		temp->r = NULL;
-		temp->l = NULL;
-		temp->p = NULL;
-		temp->d = a[i];
-		temp->c = 1;
-
-		// calling function that performs bst insertion of
-		// this newly created node
-		root = bst(root, temp);
-
-		// calling function to preserve properties of rb
-		// tree
-		fixup(root, temp);
-		root->c = 0;
-	}
-
-	printf("Inorder Traversal of Created Tree\n");
-	printf("Root: %d \n", root->d);
-	inorder(root);
-
-	print2D(root);
-
-	deleteNode(root, 3);
-
-	printf("Inorder Traversal of Created Tree\n");
-	printf("Root: %d \n", root->d);
-	inorder(root);
-
-	print2D(root);
-
+	printf("Hash: %d\n", hash("R1sHSjaN7409HULkW_5iL"));
 	return 0;
 }
