@@ -499,7 +499,7 @@ void inizializza_ht(HashTable *ht)
 {
     ht->dimensione = 1e9 + 9;
     ht->num_buckets_inseriti = 0;
-    ht->buckets = (Bucket **)malloc(sizeof(struct Bucket *) * ht->dimensione);
+    ht->buckets = (Bucket **)calloc(ht->dimensione, sizeof(struct Bucket *));
 }
 
 // crea Bucket
