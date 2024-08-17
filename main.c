@@ -423,7 +423,8 @@ int main()
                 bucket_ricetta = ht_cerca(ricettario, temp->nome_ricetta);
                 if (bucket_ricetta == NULL || bucket_ricetta->lista == NULL) // in realta so gia che ce lho di sicuro....
                 {
-                    // attesa = 1; // non ho la ricetta -> metto in attesa
+                    // attesa = 1; // non ho la ricetta --> non dovrebbe mai succedere
+                    printf("errore\n");
                     //  passo al prossimo ordine in attesa
                     temp = temp->successore;
                 }
@@ -492,6 +493,8 @@ int main()
         comando[0] = 0;
         clock++;
     }
+
+    // faccio le free
     return 0;
 }
 
@@ -539,9 +542,6 @@ Bucket *ht_cerca(HashTable *ht, char *string)
     else
     {
         Bucket *temp = ht->buckets[indice];
-        // verifico se e il primo
-        if (strcmp(temp->string, string) == 0)
-            return temp;
 
         while (temp != NULL)
         {
@@ -563,22 +563,13 @@ void ht_inserisci_ricetta(HashTable *ht, Bucket *nuovo_bucket, char *string)
 
     Bucket *temp = ht_cerca(ht, string);
 
-    // non ce quindi inserisco in testa
     if (temp == NULL)
     {
-        // inserimento in testa
-        // Non ci sono altri bucket con stesso hash
-        if (ht->buckets[indice] == NULL)
-        {
-            // Non ci sono altri bucket con stesso hash
-            ht->buckets[indice] = nuovo_bucket;
-        }
-        else
-        {
-            // ci sono gia altri bucket, inserisco in testa
-            nuovo_bucket->successore = ht->buckets[indice];
-            ht->buckets[indice] = nuovo_bucket;
-        }
+        // non ce quindi inserisco in testa
+        // ci sono gia altri bucket, inserisco in testa
+        nuovo_bucket->successore = ht->buckets[indice];
+        ht->buckets[indice] = nuovo_bucket;
+
         printf("aggiunta\n");
     }
     else
@@ -677,6 +668,7 @@ void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
     {
         // altrimenti lo cerco e modifico soltanto la sua lista di lotti aggiungendo lotto in testa.
         Bucket *bucket = ht_cerca(ht, string);
+
         if (bucket == NULL)
         {
             // non ce tra la la lista dei buckets -> lo inserisco in testa
