@@ -87,7 +87,7 @@ void merge_sort_ordini(Ordine **testa_indirizzo);
 
 void merge_sort_corriere(Ordine **testa_indirizzo);
 
-// liste in hashtables
+// liste di Nodi in hashtables
 void sottoliste(Nodo *testa, Nodo **inizio, Nodo **fine);
 
 Nodo *merge_crescente(Nodo *a, Nodo *b);
@@ -102,7 +102,7 @@ void inizializza_ht(HashTable *ht);
 // crea Bucket
 Bucket *crea_bucket(char *string, Nodo *lista);
 
-// funzione di hash: uso rolling polinomial con p = 53 e dimensione = 1e9 + 9
+// funzione di hash: uso rolling polinomial con p = 53 e dimensione = 10000 + 9
 int hash(char *string);
 
 // Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
@@ -513,7 +513,7 @@ Bucket *crea_bucket(char *string, Nodo *lista)
     return nuovo_bucket;
 }
 
-// funzione di hash: uso rolling polinomial con p = 53 e dimensione = 1e9 + 9
+// funzione di hash: uso rolling polinomial con p = 53 e dimensione = 10000 + 7
 int hash(char *string)
 {
     // vettore con valori di potenze di p precalcolati per aumentare efficienza. Calcolati fino a p ^CMD_LEN = 256
@@ -687,8 +687,8 @@ void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
         }
         else
         {
-            //ho gia il bucket devo fare inserimento di lotto nella lista di lotti
-            // faccio inserimento in testa alla lista bucket->lista
+            // ho gia il bucket devo fare inserimento di lotto nella lista di lotti
+            //  faccio inserimento in testa alla lista bucket->lista
             bucket->lista = inserisci_nodo_in_testa(bucket->lista, lotto);
         }
     }
@@ -962,6 +962,8 @@ void elimina_lotto(Bucket **bucket, Nodo *lotto)
     Nodo *temp = (*bucket)->lista;
     (*bucket)->lista = elimina_nodo_ptr(temp, lotto);
     return;
+
+    // se la lista di lotti e' vuota allora elimino il bucket
 
     // // ora devo eliminare il bucket dalla eventuale lista di bucket
     // int indice = hash((*bucket)->string);
