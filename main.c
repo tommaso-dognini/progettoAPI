@@ -26,7 +26,6 @@ typedef struct Bucket
 typedef struct HashTable
 {
     int dimensione;
-    int num_buckets_inseriti;
     Bucket **buckets;
 } HashTable;
 
@@ -53,8 +52,6 @@ Nodo *elimina_nodo_ptr(Nodo *testa, Nodo *nodo);
 Nodo *inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo);
 
 Nodo *crea_nodo(char *nome_ingrediente, int qta, int scadenza);
-
-int calcola_peso(Nodo *testa);
 
 // ---------------------------  ORDINI ---------------------------------------------//
 
@@ -347,7 +344,7 @@ int main()
                             attesa = 1;
                         }
                         else
-                        {   //ho una lista di lotti da controllare: voglio verificare di avere ingredienti non scaduti a sufficienza
+                        { // ho una lista di lotti da controllare: voglio verificare di avere ingredienti non scaduti a sufficienza
                             if (verifica_ingrediente(magazzino, &bucket, nodo_ingrediente->nome_ingrediente, nodo_ingrediente->qta * qta, clock) == 0)
                             {
                                 // ce un ingrediente che manca
@@ -426,28 +423,28 @@ int main()
                 bucket_ricetta = ht_cerca(ricettario, temp->nome_ricetta);
                 if (bucket_ricetta == NULL || bucket_ricetta->lista == NULL) // in realta so gia che ce lho di sicuro....
                 {
-                    //attesa = 1; // non ho la ricetta -> metto in attesa
-                    // passo al prossimo ordine in attesa
+                    // attesa = 1; // non ho la ricetta -> metto in attesa
+                    //  passo al prossimo ordine in attesa
                     temp = temp->successore;
                 }
                 else
                 { // HO LA RICETTA -> VERIFICO DI POTERLA PRODURRE: HO INGREDIENTI NON SCADUTI A SUFFICIENZA
                     // VERIFICO PER OGNI INGREDIENTE:
                     nodo_ingrediente = bucket_ricetta->lista;
-                    while (nodo_ingrediente != NULL && attesa != 1) //scorro la lista di ingredienti della ricetta
+                    while (nodo_ingrediente != NULL && attesa != 1) // scorro la lista di ingredienti della ricetta
                     {
                         // CONTROLLO MAGAZZINO
                         bucket = ht_cerca(magazzino, nodo_ingrediente->nome_ingrediente);
 
-                        if (bucket == NULL || bucket->lista == NULL) 
+                        if (bucket == NULL || bucket->lista == NULL)
                         {
-                            //non ho nessun ingrediente del tipo desiderato
+                            // non ho nessun ingrediente del tipo desiderato
                             attesa = 1;
                         }
                         else
                         {
-                            //ci sono dei lotti dell'ingrediente desiderato verifico di averne abbastanza non scaduto!
-                            if (verifica_ingrediente(magazzino, &bucket, nodo_ingrediente->nome_ingrediente, (nodo_ingrediente->qta)*(temp->qta), clock) == 0)
+                            // ci sono dei lotti dell'ingrediente desiderato verifico di averne abbastanza non scaduto!
+                            if (verifica_ingrediente(magazzino, &bucket, nodo_ingrediente->nome_ingrediente, (nodo_ingrediente->qta) * (temp->qta), clock) == 0)
                             {
                                 // ce un ingrediente che manca
                                 attesa = 1;
@@ -502,8 +499,7 @@ int main()
 // inizializza HashTable
 void inizializza_ht(HashTable *ht)
 {
-    ht->dimensione = 1e9 + 9;
-    ht->num_buckets_inseriti = 0;
+    ht->dimensione = 10000 + 7;
     ht->buckets = (Bucket **)calloc(ht->dimensione, sizeof(struct Bucket *));
 }
 
@@ -521,9 +517,9 @@ Bucket *crea_bucket(char *string, Nodo *lista)
 int hash(char *string)
 {
     // vettore con valori di potenze di p precalcolati per aumentare efficienza. Calcolati fino a p ^CMD_LEN = 256
-    int p_pow[] = {53, 2809, 148877, 7890481, 418195493, 164360931, 711129271, 689851030, 562104266, 791525837, 950868992, 396056126, 990974498, 521647926, 647339835, 309010949, 377580153, 11747929, 622640237, 999932273, 996410001, 809729585, 915667627, 530383799, 110341095, 848077990, 948133074, 251052472, 305780899, 206387503, 938537569, 742490716, 352007597, 656402479, 789331081, 834546924, 230986576, 242288420, 841286152, 588165660, 172779701, 157324072, 338175744, 923314279, 935656355, 589786374, 258677543, 709909662, 625211753, 136222612, 219798373, 649313670, 413624204, 922082623, 870378587, 130064697, 893428887, 351730588, 641721002, 11212800, 594278400, 496754921, 328010579, 384560534, 381708122, 230530286, 218105050, 559567551, 657079942, 825236620, 737540473, 89644718, 751170018, 812010603, 36561572, 937763307, 701454830, 177105657, 386599740, 489786040, 958659895, 808973985, 875620827, 407903417, 618880912, 800688048, 436466166, 132706591, 33449260, 772810771, 958970503, 825436209, 748118690, 650290219, 465381301, 665208737, 256062746, 571325421, 280247043, 853093153, 213936704, 338645213, 948196136, 254394758, 482922057, 594868796, 528045909, 986432934, 280945034, 890086676, 174593405, 253450384, 432870235, 942122257, 932479180, 421396099, 333993049, 701631444, 186466199, 882708466, 783548284, 528058683, 987109956, 316827200, 791841456, 967596799, 282629888, 979383938, 907348255, 89457083, 741225363, 284943888, 102025929, 407374192, 590831987, 314095032, 647036552, 292936950, 525658215, 859885152, 573912651, 417370233, 120622151, 392973949, 827619117, 863812814, 782078737, 450172692, 859152469, 535080452, 359263704, 40976141, 171735455, 101979034, 404888757, 459103932, 332508180, 622933387, 15469214, 819868342, 453021739, 10151951, 538053403, 516830107, 391995428, 775757504, 115147343, 102809125, 448883580, 790829533, 913964880, 440138208, 327324817, 348215148, 455402682, 136341930, 226122227, 984477932, 177329928, 398486103, 119763270, 347453256, 415022406, 996187329, 797927969, 290181979, 379644752, 121171676, 422098774, 371234824, 675445501, 798611238, 326395236, 298947355, 844209680, 743112644, 384969781, 403398213, 380105100, 145570120, 715216297, 906463408, 42560192, 255690158, 551578257, 233647360, 383309972, 315428336, 717701664, 38187850, 23956032, 269669687, 292493285, 502143970, 613630176, 522399040, 687148877, 418890157, 201178123, 662440429, 109342422, 795148321, 142860635, 571613592, 295520106, 662565483, 115970284, 146424998, 760524831, 307815683, 314231055, 654245771, 675025557, 776354206, 146772549, 778945034, 284086433, 56580814, 998783124, 935505104, 581770071, 833813493, 192114733, 182080759, 650280146, 464847432, 636913680, 756424743, 90511019, 797083971, 245450085, 8854388, 469282564, 871975676, 214710414, 379651843};
-    // long long p = 53;
-    long long m = 1e9 + 9;
+    int p_pow[] = {53, 2809, 8779, 4965, 2963, 6934, 7250, 3984, 1005, 3230, 1071, 6728, 6339, 5736, 3798, 1154, 1120, 9325, 3882, 5606, 6915, 6243, 648, 4323, 8965, 4816, 5073, 8687, 89, 4717, 9833, 785, 1577, 3525, 6699, 4802, 4331, 9389, 7274, 5256, 8379, 3779, 147, 7791, 2636, 9617, 9351, 5260, 8591, 5008, 5242, 7637, 4481, 7332, 8330, 1182, 2604, 7921, 9526, 4528, 9823, 255, 3508, 5798, 7084, 5193, 5040, 6938, 7462, 5213, 6100, 3076, 2916, 4443, 5318, 1658, 7818, 4067, 5404, 6216, 9224, 8536, 2093, 852, 5128, 1595, 4479, 7226, 2712, 3638, 2681, 1995, 5665, 35, 1855, 8252, 7055, 3656, 3635, 2522, 3575, 9349, 5154, 2973, 7464, 5319, 1711, 620, 2839, 362, 9179, 6151, 5779, 6077, 1857, 8358, 2666, 1200, 3558, 8448, 7436, 3835, 3115, 4983, 3917, 7461, 5160, 3291, 4304, 7958, 1480, 8391, 4415, 3834, 3062, 2174, 5145, 2496, 2197, 6364, 7061, 3974, 475, 5161, 3344, 7113, 6730, 6445, 1347, 1342, 1077, 7046, 3179, 8375, 3567, 8925, 2696, 2790, 7772, 1629, 6281, 2662, 988, 2329, 3353, 7590, 1990, 5400, 6004, 7995, 3441, 2247, 9014, 7413, 2616, 8557, 3206, 9806, 9361, 5790, 6660, 2735, 4857, 7246, 3772, 9783, 8142, 1225, 4883, 8624, 6757, 7876, 7141, 8214, 5041, 6991, 264, 3985, 1058, 6039, 9850, 1686, 9302, 2663, 1041, 5138, 2125, 2548, 4953, 2327, 3247, 1972, 4446, 5477, 78, 4134, 8955, 4286, 7004, 953, 474, 5108, 535, 8341, 1765, 3482, 4420, 4099, 7100, 6041, 9956, 7304, 6846, 2586, 6967, 8999, 6618, 509, 6963, 8787, 5389, 5421, 7117, 6942, 7674, 6442, 1188, 2922, 4761, 2158, 4297, 7587, 1831, 6980, 9688, 3107};
+    // int p = 53;
+    long long m = 10000 + 7;
     unsigned long long hash = 0;
     for (int i = 0; i < strlen(string); i++)
     {
@@ -655,7 +651,7 @@ void ht_elimina_ricetta(HashTable *ht, char *string)
             else
             {
                 // non ce niente da eliminare
-                printf("Non presente\n");
+                printf("non presente\n");
             }
         }
     }
@@ -669,7 +665,7 @@ void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
     // calcolo hash
     int indice = hash(string);
 
-    // se il bucket non esiste
+    // se la lista di bucket e vuota basta che inserisco in testa
     if (ht->buckets[indice] == NULL)
     {
         // inizializzo il bucket e lo inserisco
@@ -681,8 +677,20 @@ void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string)
     {
         // altrimenti lo cerco e modifico soltanto la sua lista di lotti aggiungendo lotto in testa.
         Bucket *bucket = ht_cerca(ht, string);
-        // faccio inserimento in testa alla lista bucket->lista
-        bucket->lista = inserisci_nodo_in_testa(bucket->lista, lotto);
+        if (bucket == NULL)
+        {
+            // non ce tra la la lista dei buckets -> lo inserisco in testa
+            Bucket *nuovo_bucket = crea_bucket(string, lotto);
+            nuovo_bucket->successore = ht->buckets[indice];
+            ht->buckets[indice] = nuovo_bucket;
+            return;
+        }
+        else
+        {
+            //ho gia il bucket devo fare inserimento di lotto nella lista di lotti
+            // faccio inserimento in testa alla lista bucket->lista
+            bucket->lista = inserisci_nodo_in_testa(bucket->lista, lotto);
+        }
     }
     return;
 }
@@ -950,7 +958,7 @@ int verifica_ingrediente(HashTable *magazzino, Bucket **bucket, char *nome_ingre
 
 void elimina_lotto(Bucket **bucket, Nodo *lotto)
 {
-    // faccio la free della lista di lotti
+    // faccio la free del lotto
     Nodo *temp = (*bucket)->lista;
     (*bucket)->lista = elimina_nodo_ptr(temp, lotto);
     return;
