@@ -169,7 +169,7 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            ricette = inserisci(ricette, hash(nome_ricetta), nome_ricetta);
+            
 
             while (separatore != '\n')
             {
@@ -219,6 +219,8 @@ int main()
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%d", &scadenza);
                 controllo = scanf("%c", &separatore);
+
+                ricette = inserisci(ricette, hash(nome_ingrediente), nome_ingrediente);
             }
         }
 

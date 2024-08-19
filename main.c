@@ -316,7 +316,7 @@ int main()
                 controllo = scanf("%s", nome_ricetta);
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%c", &separatore);
-                // printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
+                printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
 
                 // PRELEVO LA RICETTA DA RICETTARIO
                 bucket_ricetta = ht_cerca(ricettario, nome_ricetta);
@@ -351,7 +351,7 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        // printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
+                        printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
                         //     avanzo all'ingrediente successivo
                         nodo_ingrediente = nodo_ingrediente->successore;
                     }
@@ -377,11 +377,11 @@ int main()
                     }
                 }
             }
-            // printf("ordini_pronti:\n");
-            // stampa_lista_ordini(ordini_pronti);
+            printf("ordini_pronti:\n");
+            stampa_lista_ordini(ordini_pronti);
 
-            // printf("ordini_attesa:\n");
-            // stampa_lista_ordini(ordini_attesa);
+            printf("ordini_attesa:\n");
+            stampa_lista_ordini(ordini_attesa);
         }
 
         // RIFORNIMENTO
@@ -396,7 +396,7 @@ int main()
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%d", &scadenza);
                 controllo = scanf("%c", &separatore);
-                // printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
+                printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
 
                 // AGGIUNGO NEL MAGAZZINO
                 ingrediente = crea_nodo(nome_ingrediente, qta, scadenza);
@@ -451,7 +451,7 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        // printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
+                        printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
                         //     avanzo all'ingrediente successivo
                         nodo_ingrediente = nodo_ingrediente->successore;
                     }
@@ -482,11 +482,11 @@ int main()
                     }
                 }
             }
-            // printf("ordini_pronti:\n");
-            // stampa_lista_ordini(ordini_pronti);
+            printf("ordini_pronti:\n");
+            stampa_lista_ordini(ordini_pronti);
 
-            // printf("ordini_attesa:\n");
-            // stampa_lista_ordini(ordini_attesa);
+            printf("ordini_attesa:\n");
+            stampa_lista_ordini(ordini_attesa);
         }
 
         // AGGIUSTAMENTI
