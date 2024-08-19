@@ -1,20 +1,7 @@
-<<<<<<< HEAD
-5 325
-aggiungi_ricetta torta farina 50 uova 10 zucchero 20
-aggiungi_ricetta ciambella farina 20 uova 5 burro 2
-aggiungi_ricetta profiterole farina 10 uova 2 latte 3
-zucchero 3 cioccolato 4
-rimuovi_ricetta sfogliatella
-rifornimento farina 100 10 uova 100 10 zucchero 100 10 burro 100 10 latte 100 10 cioccolato 100 10
-=======
-5 100
-aggiungi_ricetta recipe0 ingredient0 1
-rifornimento ingredient0 10 6 ingredient0 10 6 ingredient0 10 6 ingredient0 10 7
-ordine recipe0 11
-rifornimento ingredient0 1 6
-aggiungi_ricetta recipe1 ingredient1 1
-ordine recipe1 5
-rifornimento ingredient1 15 15
-ordine recipe1 5
-ordine recipe1 5
->>>>>>> hash
+6 100
+rifornimento UiFjeQ9YdSh 1 10 ptZhtTASCiZ 1 10
+aggiungi_ricetta KwmBaz0usfr UiFjeQ9YdSh 1 ptZhtTASCiZ 1
+aggiungi_ricetta ptZhtTASCG UiFjeQ9YdSh 1
+ordine KwmBaz0usfr 1
+ordine ptZhtTASCG 1
+rifornimento UiFjeQ9YdSh 1 10 ptZhtTASCiZ 1 10
