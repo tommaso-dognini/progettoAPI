@@ -316,7 +316,7 @@ int main()
                 controllo = scanf("%s", nome_ricetta);
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%c", &separatore);
-                printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
+                //printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
 
                 // PRELEVO LA RICETTA DA RICETTARIO
                 bucket_ricetta = ht_cerca(ricettario, nome_ricetta);
@@ -351,7 +351,7 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
+                        //printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
                         //     avanzo all'ingrediente successivo
                         nodo_ingrediente = nodo_ingrediente->successore;
                     }
@@ -377,11 +377,11 @@ int main()
                     }
                 }
             }
-            printf("ordini_pronti:\n");
-            stampa_lista_ordini(ordini_pronti);
+            // printf("ordini_pronti:\n");
+            // stampa_lista_ordini(ordini_pronti);
 
-            printf("ordini_attesa:\n");
-            stampa_lista_ordini(ordini_attesa);
+            // printf("ordini_attesa:\n");
+            // stampa_lista_ordini(ordini_attesa);
         }
 
         // RIFORNIMENTO
@@ -396,7 +396,7 @@ int main()
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%d", &scadenza);
                 controllo = scanf("%c", &separatore);
-                printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
+                //printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
 
                 // AGGIUNGO NEL MAGAZZINO
                 ingrediente = crea_nodo(nome_ingrediente, qta, scadenza);
@@ -451,7 +451,7 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
+                        //printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
                         //     avanzo all'ingrediente successivo
                         nodo_ingrediente = nodo_ingrediente->successore;
                     }
@@ -482,11 +482,11 @@ int main()
                     }
                 }
             }
-            printf("ordini_pronti:\n");
-            stampa_lista_ordini(ordini_pronti);
+            // printf("ordini_pronti:\n");
+            // stampa_lista_ordini(ordini_pronti);
 
-            printf("ordini_attesa:\n");
-            stampa_lista_ordini(ordini_attesa);
+            // printf("ordini_attesa:\n");
+            // stampa_lista_ordini(ordini_attesa);
         }
 
         // AGGIUSTAMENTI
@@ -502,7 +502,7 @@ int main()
 // inizializza HashTable
 void inizializza_ht(HashTable *ht)
 {
-    ht->dimensione = 10000 + 7;
+    ht->dimensione = 10000 + 9;
     ht->buckets = (Bucket **)calloc(ht->dimensione, sizeof(struct Bucket *));
 }
 
@@ -520,9 +520,9 @@ Bucket *crea_bucket(char *string, Nodo *lista)
 int hash(char *string)
 {
     // vettore con valori di potenze di p precalcolati per aumentare efficienza. Calcolati fino a p ^CMD_LEN = 256
-    int p_pow[] = {53, 2809, 8779, 4965, 2963, 6934, 7250, 3984, 1005, 3230, 1071, 6728, 6339, 5736, 3798, 1154, 1120, 9325, 3882, 5606, 6915, 6243, 648, 4323, 8965, 4816, 5073, 8687, 89, 4717, 9833, 785, 1577, 3525, 6699, 4802, 4331, 9389, 7274, 5256, 8379, 3779, 147, 7791, 2636, 9617, 9351, 5260, 8591, 5008, 5242, 7637, 4481, 7332, 8330, 1182, 2604, 7921, 9526, 4528, 9823, 255, 3508, 5798, 7084, 5193, 5040, 6938, 7462, 5213, 6100, 3076, 2916, 4443, 5318, 1658, 7818, 4067, 5404, 6216, 9224, 8536, 2093, 852, 5128, 1595, 4479, 7226, 2712, 3638, 2681, 1995, 5665, 35, 1855, 8252, 7055, 3656, 3635, 2522, 3575, 9349, 5154, 2973, 7464, 5319, 1711, 620, 2839, 362, 9179, 6151, 5779, 6077, 1857, 8358, 2666, 1200, 3558, 8448, 7436, 3835, 3115, 4983, 3917, 7461, 5160, 3291, 4304, 7958, 1480, 8391, 4415, 3834, 3062, 2174, 5145, 2496, 2197, 6364, 7061, 3974, 475, 5161, 3344, 7113, 6730, 6445, 1347, 1342, 1077, 7046, 3179, 8375, 3567, 8925, 2696, 2790, 7772, 1629, 6281, 2662, 988, 2329, 3353, 7590, 1990, 5400, 6004, 7995, 3441, 2247, 9014, 7413, 2616, 8557, 3206, 9806, 9361, 5790, 6660, 2735, 4857, 7246, 3772, 9783, 8142, 1225, 4883, 8624, 6757, 7876, 7141, 8214, 5041, 6991, 264, 3985, 1058, 6039, 9850, 1686, 9302, 2663, 1041, 5138, 2125, 2548, 4953, 2327, 3247, 1972, 4446, 5477, 78, 4134, 8955, 4286, 7004, 953, 474, 5108, 535, 8341, 1765, 3482, 4420, 4099, 7100, 6041, 9956, 7304, 6846, 2586, 6967, 8999, 6618, 509, 6963, 8787, 5389, 5421, 7117, 6942, 7674, 6442, 1188, 2922, 4761, 2158, 4297, 7587, 1831, 6980, 9688, 3107};
+    int p_pow[] = {53,2809,8751,3389,9464,1142,472,4998,4660,6764,8177,2994,8547,2586,6941,7549,9746,6079,1899,557,9503,3209,9933,5981,6714,5527,2670,1384,3289,4164,494,6164,6404,9115,2663,1013,3644,2961,6798,9979,8419,5811,7713,8429,6341,5776,5858,195,326,7269,4915,261,3824,2492,1959,3737,7890,7801,3084,3308,5171,3820,2280,732,8769,4343,9981,8525,1420,5197,5198,5251,8060,6802,182,9646,779,1251,6249,900,7664,5832,8826,7364,9950,6882,4422,4159,229,2128,2685,2179,5388,5312,1284,7998,3516,6186,7570,850,5014,5508,1663,8067,7173,9836,840,4484,7445,4234,4204,2614,8425,6129,4549,881,6657,2506,2701,3027,287,5202,5463,9287,1770,3729,7466,5347,3139,6223,9531,4693,8513,784,1516,276,4619,4591,3107,4527,9724,4913,155,8215,5008,5190,4827,5606,6857,3097,3997,1652,7484,6301,3656,3597,470,4892,9051,9280,1399,4084,6263,1642,6954,8238,6227,9743,5920,3481,4331,9345,4844,6507,4565,1729,1556,2396,6880,4316,8550,2745,5359,3775,9904,4444,5325,1973,4479,7180,198,485,5687,1141,419,2189,5918,3375,8722,1852,8075,7597,2281,785,1569,3085,3361,7980,2562,5669,187,9911,4815,4970,3176,8184,3365,8192,3789,637,3734,7731,9383,6858,3150,6806,394,864,5756,4798,4069,5468,9552,5806,7448,4393,2622,8849,8583,4494,7975,2297,1633,6477,2975,7540,9269,816,3212,83,4399,2940,5685,1035,4810,4705};
     // int p = 53;
-    long long m = 10000 + 7;
+    long long m = 10000 + 9;
     unsigned long long hash = 0;
     for (int i = 0; i < strlen(string); i++)
     {
