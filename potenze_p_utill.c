@@ -8,7 +8,7 @@ int main()
     int i = 0;
     int p = 53;
     long long int p_pow = 1;
-    int m = 10000 + 9;
+    int m = 2003;
     // long long sum = 0;
     // int hash = 0;
 
