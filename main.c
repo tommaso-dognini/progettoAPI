@@ -115,7 +115,6 @@ void inizializza_ht(HashTable *ht);
 // crea Bucket
 Bucket *crea_bucket(char *string, Nodo *lista);
 
-// funzione di hash: uso rolling polinomial con p = 53 e dimensione = 10000 + 9
 int hash(char *string);
 
 // Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
@@ -187,7 +186,7 @@ int main()
 
     while (separatore == '\n' && controllo != -1)
     {
-        printf("CLOCK: %d\n", clock);
+        //printf("CLOCK: %d\n", clock);
 
         // VERIFICA CORRIERE
         if (clock % periodo == 0 && clock != 0)
@@ -255,7 +254,7 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            printf("Nome ricetta:%s\n", nome_ricetta);
+            //printf("Nome ricetta:%s\n", nome_ricetta);
             bucket_temp = ht_cerca(ricettario, nome_ricetta);
 
             if (bucket_temp != NULL)
@@ -303,7 +302,7 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            printf("Nome ricetta:%s\n", nome_ricetta);
+            //printf("Nome ricetta:%s\n", nome_ricetta);
             //     VERIFICO CHE NON SIA IN USO = ordini_attesa e CHE NON E' LA RICETTA DI UN ORDINE CHE NON HO ANCORA SPEDITO = oridini_pronti
             if (cerca_in_lista(ordini_attesa->testa, nome_ricetta) == 1 || cerca_in_lista(ordini_pronti->testa, nome_ricetta) == 1)
             {
@@ -333,7 +332,7 @@ int main()
                 controllo = scanf("%s", nome_ricetta);
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%c", &separatore);
-                printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
+                //printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
 
                 // PRELEVO LA RICETTA DA RICETTARIO
                 bucket_ricetta = ht_cerca(ricettario, nome_ricetta);
@@ -368,7 +367,7 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
+                        //printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
                         //       avanzo all'ingrediente successivo
                         nodo_ingrediente = nodo_ingrediente->successore;
                     }
@@ -394,11 +393,11 @@ int main()
                     }
                 }
             }
-            printf("ordini_pronti:\n");
-            stampa_lista_ordini(ordini_pronti->testa);
+            // printf("ordini_pronti:\n");
+            // stampa_lista_ordini(ordini_pronti->testa);
 
-            printf("ordini_attesa:\n");
-            stampa_lista_ordini(ordini_attesa->testa);
+            // printf("ordini_attesa:\n");
+            // stampa_lista_ordini(ordini_attesa->testa);
         }
 
         // RIFORNIMENTO
@@ -413,7 +412,7 @@ int main()
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%d", &scadenza);
                 controllo = scanf("%c", &separatore);
-                printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
+                //printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
 
                 // AGGIUNGO NEL MAGAZZINO
                 ingrediente = crea_nodo(nome_ingrediente, qta, scadenza);
@@ -469,7 +468,7 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
+                        //printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
                         //       avanzo all'ingrediente successivo
                         nodo_ingrediente = nodo_ingrediente->successore;
                     }
@@ -477,7 +476,7 @@ int main()
                     // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
                     if (attesa == 0)
                     {
-                        //creo ordine
+                        // creo ordine
                         ordine = crea_ordine(temp->nome_ricetta, temp->qta, temp->tempo, temp->peso);
 
                         // se ordine->tempo e' minore ordini_pronti->coda->tempo allora inserisco in coda e poi devo ripristinare ordine crescente in base al tempo di acquisizione
@@ -516,17 +515,17 @@ int main()
                 // devo fare un merge_sort
                 merge_sort_ordini(&(ordini_pronti->testa));
             }
-            printf("ordini_pronti:\n");
-            stampa_lista_ordini(ordini_pronti->testa);
+            // printf("ordini_pronti:\n");
+            // stampa_lista_ordini(ordini_pronti->testa);
 
-            printf("ordini_attesa:\n");
-            stampa_lista_ordini(ordini_attesa->testa);
+            // printf("ordini_attesa:\n");
+            // stampa_lista_ordini(ordini_attesa->testa);
         }
 
         // AGGIUSTAMENTI
         comando[0] = 0;
         clock++;
-        printf("\n");
+        //printf("\n");
     }
 
     // faccio le free
@@ -537,7 +536,7 @@ int main()
 // inizializza HashTable
 void inizializza_ht(HashTable *ht)
 {
-    ht->dimensione = 10000 + 9;
+    ht->dimensione = 5011;
     ht->buckets = (Bucket **)calloc(ht->dimensione, sizeof(struct Bucket *));
 }
 
@@ -554,16 +553,22 @@ Bucket *crea_bucket(char *string, Nodo *lista)
 // funzione di hash: uso rolling polinomial con p = 53 e dimensione = 10000 + 7
 int hash(char *string)
 {
-    // vettore con valori di potenze di p precalcolati per aumentare efficienza. Calcolati fino a p ^CMD_LEN = 256
-    int p_pow[] = {53, 2809, 8751, 3389, 9464, 1142, 472, 4998, 4660, 6764, 8177, 2994, 8547, 2586, 6941, 7549, 9746, 6079, 1899, 557, 9503, 3209, 9933, 5981, 6714, 5527, 2670, 1384, 3289, 4164, 494, 6164, 6404, 9115, 2663, 1013, 3644, 2961, 6798, 9979, 8419, 5811, 7713, 8429, 6341, 5776, 5858, 195, 326, 7269, 4915, 261, 3824, 2492, 1959, 3737, 7890, 7801, 3084, 3308, 5171, 3820, 2280, 732, 8769, 4343, 9981, 8525, 1420, 5197, 5198, 5251, 8060, 6802, 182, 9646, 779, 1251, 6249, 900, 7664, 5832, 8826, 7364, 9950, 6882, 4422, 4159, 229, 2128, 2685, 2179, 5388, 5312, 1284, 7998, 3516, 6186, 7570, 850, 5014, 5508, 1663, 8067, 7173, 9836, 840, 4484, 7445, 4234, 4204, 2614, 8425, 6129, 4549, 881, 6657, 2506, 2701, 3027, 287, 5202, 5463, 9287, 1770, 3729, 7466, 5347, 3139, 6223, 9531, 4693, 8513, 784, 1516, 276, 4619, 4591, 3107, 4527, 9724, 4913, 155, 8215, 5008, 5190, 4827, 5606, 6857, 3097, 3997, 1652, 7484, 6301, 3656, 3597, 470, 4892, 9051, 9280, 1399, 4084, 6263, 1642, 6954, 8238, 6227, 9743, 5920, 3481, 4331, 9345, 4844, 6507, 4565, 1729, 1556, 2396, 6880, 4316, 8550, 2745, 5359, 3775, 9904, 4444, 5325, 1973, 4479, 7180, 198, 485, 5687, 1141, 419, 2189, 5918, 3375, 8722, 1852, 8075, 7597, 2281, 785, 1569, 3085, 3361, 7980, 2562, 5669, 187, 9911, 4815, 4970, 3176, 8184, 3365, 8192, 3789, 637, 3734, 7731, 9383, 6858, 3150, 6806, 394, 864, 5756, 4798, 4069, 5468, 9552, 5806, 7448, 4393, 2622, 8849, 8583, 4494, 7975, 2297, 1633, 6477, 2975, 7540, 9269, 816, 3212, 83, 4399, 2940, 5685, 1035, 4810, 4705};
-    // int p = 53;
-    long long m = 10000 + 9;
-    unsigned long long hash = 0;
-    for (int i = 0; i < strlen(string); i++)
-    {
-        hash = (hash + (string[i] - 'a' + 1) * p_pow[i]) % m;
-    }
-    return hash;
+    unsigned long hash = 5381;
+    long long m = 5011;
+    int c;
+    while ((c = *string++))
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+    return hash % m;
+    // // vettore con valori di potenze di p precalcolati per aumentare efficienza. Calcolati fino a p ^CMD_LEN = 256
+    // int p_pow[] = {53, 2809, 8751, 3389, 9464, 1142, 472, 4998, 4660, 6764, 8177, 2994, 8547, 2586, 6941, 7549, 9746, 6079, 1899, 557, 9503, 3209, 9933, 5981, 6714, 5527, 2670, 1384, 3289, 4164, 494, 6164, 6404, 9115, 2663, 1013, 3644, 2961, 6798, 9979, 8419, 5811, 7713, 8429, 6341, 5776, 5858, 195, 326, 7269, 4915, 261, 3824, 2492, 1959, 3737, 7890, 7801, 3084, 3308, 5171, 3820, 2280, 732, 8769, 4343, 9981, 8525, 1420, 5197, 5198, 5251, 8060, 6802, 182, 9646, 779, 1251, 6249, 900, 7664, 5832, 8826, 7364, 9950, 6882, 4422, 4159, 229, 2128, 2685, 2179, 5388, 5312, 1284, 7998, 3516, 6186, 7570, 850, 5014, 5508, 1663, 8067, 7173, 9836, 840, 4484, 7445, 4234, 4204, 2614, 8425, 6129, 4549, 881, 6657, 2506, 2701, 3027, 287, 5202, 5463, 9287, 1770, 3729, 7466, 5347, 3139, 6223, 9531, 4693, 8513, 784, 1516, 276, 4619, 4591, 3107, 4527, 9724, 4913, 155, 8215, 5008, 5190, 4827, 5606, 6857, 3097, 3997, 1652, 7484, 6301, 3656, 3597, 470, 4892, 9051, 9280, 1399, 4084, 6263, 1642, 6954, 8238, 6227, 9743, 5920, 3481, 4331, 9345, 4844, 6507, 4565, 1729, 1556, 2396, 6880, 4316, 8550, 2745, 5359, 3775, 9904, 4444, 5325, 1973, 4479, 7180, 198, 485, 5687, 1141, 419, 2189, 5918, 3375, 8722, 1852, 8075, 7597, 2281, 785, 1569, 3085, 3361, 7980, 2562, 5669, 187, 9911, 4815, 4970, 3176, 8184, 3365, 8192, 3789, 637, 3734, 7731, 9383, 6858, 3150, 6806, 394, 864, 5756, 4798, 4069, 5468, 9552, 5806, 7448, 4393, 2622, 8849, 8583, 4494, 7975, 2297, 1633, 6477, 2975, 7540, 9269, 816, 3212, 83, 4399, 2940, 5685, 1035, 4810, 4705};
+    // // int p = 53;
+    // long long m = 10000 + 9;
+    // unsigned long long hash = 0;
+    // for (int i = 0; i < strlen(string); i++)
+    // {
+    //     hash = (hash + (string[i] - 'a' + 1) * p_pow[i]) % m;
+    // }
+    // return hash;
 }
 
 // Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
