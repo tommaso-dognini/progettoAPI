@@ -151,11 +151,10 @@ int main()
 
     Coda *ordini_pronti = (Coda *)malloc(sizeof(Coda));
     Coda *ordini_attesa = (Coda *)malloc(sizeof(Coda));
-    Coda *ordini_corriere = (Coda *)malloc(sizeof(Coda));
+    Ordine *ordini_corriere = NULL;
 
     inizializza_coda(&ordini_pronti);
     inizializza_coda(&ordini_attesa);
-    inizializza_coda(&ordini_corriere);
 
     Ordine *ordine = NULL;
     Ordine *ordine_prec;
@@ -186,7 +185,7 @@ int main()
 
     while (separatore == '\n' && controllo != -1)
     {
-        //printf("CLOCK: %d\n", clock);
+        // printf("CLOCK: %d\n", clock);
 
         // VERIFICA CORRIERE
         if (clock % periodo == 0 && clock != 0)
@@ -203,7 +202,7 @@ int main()
                     // creo il nuovo nodo ordine per la lista del corriere
                     ordine_corriere = crea_ordine(ordine->nome_ricetta, ordine->qta, ordine->tempo, ordine->peso);
                     // inserisco nella lista delgi ordini del corriere
-                    ordini_corriere = inserisci_in_coda(ordini_corriere, ordine_corriere);
+                    ordini_corriere = inserisci_nodo_in_testa_ordini(ordini_corriere, ordine_corriere);
 
                     // aggiorno campienza rimasta
                     capienza_rimasta -= ordine->peso;
@@ -220,7 +219,7 @@ int main()
             }
 
             // stampo come da specifica tempo di acquisizione, nome ricetta, qta
-            if (ordini_corriere->testa == NULL)
+            if (ordini_corriere == NULL)
             {
                 printf("camioncino vuoto\n");
             }
@@ -228,10 +227,9 @@ int main()
             {
                 // ordino la lista di ordini del corriere per peso in senso decrescente
                 // dovrei aggiornare il puntatore alla coda dopo il merge tuttavia lo uso solo per stampare poi elimino la coda quindi non lo faccio
-                merge_sort_corriere(&(ordini_corriere->testa));
-                ordini_corriere->coda = NULL;
+                merge_sort_corriere(&(ordini_corriere));
 
-                ordine = ordini_corriere->testa;
+                ordine = ordini_corriere;
                 while (ordine != NULL)
                 {
                     printf("%d %s %d\n", ordine->tempo, ordine->nome_ricetta, ordine->qta);
@@ -239,7 +237,7 @@ int main()
                 }
             }
             // elimino la lista del corriere
-            ordini_corriere->testa = elimina_lista_ordini(ordini_corriere->testa);
+            ordini_corriere = elimina_lista_ordini(ordini_corriere);
         }
 
         //----------------------------- ACQUISISCO COMANDO -------------------//
@@ -254,7 +252,7 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            //printf("Nome ricetta:%s\n", nome_ricetta);
+            // printf("Nome ricetta:%s\n", nome_ricetta);
             bucket_temp = ht_cerca(ricettario, nome_ricetta);
 
             if (bucket_temp != NULL)
@@ -302,8 +300,8 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            //printf("Nome ricetta:%s\n", nome_ricetta);
-            //     VERIFICO CHE NON SIA IN USO = ordini_attesa e CHE NON E' LA RICETTA DI UN ORDINE CHE NON HO ANCORA SPEDITO = oridini_pronti
+            // printf("Nome ricetta:%s\n", nome_ricetta);
+            //      VERIFICO CHE NON SIA IN USO = ordini_attesa e CHE NON E' LA RICETTA DI UN ORDINE CHE NON HO ANCORA SPEDITO = oridini_pronti
             if (cerca_in_lista(ordini_attesa->testa, nome_ricetta) == 1 || cerca_in_lista(ordini_pronti->testa, nome_ricetta) == 1)
             {
                 printf("ordini in sospeso\n");
@@ -332,7 +330,7 @@ int main()
                 controllo = scanf("%s", nome_ricetta);
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%c", &separatore);
-                //printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
+                // printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
 
                 // PRELEVO LA RICETTA DA RICETTARIO
                 bucket_ricetta = ht_cerca(ricettario, nome_ricetta);
@@ -367,8 +365,8 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        //printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
-                        //       avanzo all'ingrediente successivo
+                        // printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
+                        //        avanzo all'ingrediente successivo
                         nodo_ingrediente = nodo_ingrediente->successore;
                     }
                     // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
@@ -412,7 +410,7 @@ int main()
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%d", &scadenza);
                 controllo = scanf("%c", &separatore);
-                //printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
+                // printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
 
                 // AGGIUNGO NEL MAGAZZINO
                 ingrediente = crea_nodo(nome_ingrediente, qta, scadenza);
@@ -468,8 +466,8 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        //printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
-                        //       avanzo all'ingrediente successivo
+                        // printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
+                        //        avanzo all'ingrediente successivo
                         nodo_ingrediente = nodo_ingrediente->successore;
                     }
 
@@ -525,7 +523,7 @@ int main()
         // AGGIUSTAMENTI
         comando[0] = 0;
         clock++;
-        //printf("\n");
+        // printf("\n");
     }
 
     // faccio le free
@@ -550,7 +548,6 @@ Bucket *crea_bucket(char *string, Nodo *lista)
     return nuovo_bucket;
 }
 
-// funzione di hash: uso rolling polinomial con p = 53 e dimensione = 10000 + 7
 int hash(char *string)
 {
     unsigned long hash = 5381;
@@ -1243,6 +1240,29 @@ void merge_sort_corriere(Ordine **testa_indirizzo)
     // unisco le due sottoliste
     *testa_indirizzo = merge_decrescente_corriere(a, b);
     return;
+}
+
+Coda *inserisci_in_ordine_tempo_ordini(Coda *coda, Ordine *ordine)
+{
+    Ordine *temp = coda->testa;
+
+    // verifico il primo
+    if (temp == NULL || temp->tempo >= ordine->tempo)
+    {
+        // inserimento in testa
+        ordine->successore = temp;
+        temp = ordine;
+        coda->testa = temp;
+    }
+    else
+    {
+        // altrimenti
+        while (temp->successore != NULL && temp->successore->tempo < ordine->tempo)
+        {
+            temp = temp->successore;
+        }
+    }
+    return coda;
 }
 
 // ------------------------ CODE ----------------------------------//
