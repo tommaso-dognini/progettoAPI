@@ -39,13 +39,19 @@ typedef struct Ordine
     struct Ordine *successore;
 } Ordine;
 
+typedef struct Coda
+{
+    Ordine *testa;
+    Ordine *coda;
+} Coda;
+
 //----------------- Liste  semplici (single linked) X RICETTARIO E MAGAZZINO ---------//
 
 void stampa_lista(Nodo *testa);
 
-Nodo *min_scadenza(Nodo *testa);
+Nodo *min_scadenza(Nodo *testa); // non usata da eliminare
 
-void *elimina_lista(Nodo *testa);
+void *elimina_lista(Nodo *testa); // non usata da eliminare
 
 Nodo *elimina_nodo_ptr(Nodo *testa, Nodo *nodo);
 
@@ -73,6 +79,13 @@ void produci_ordine(HashTable *magazzino, Bucket *Bucket_ricetta, int qta);
 
 // ritorna 1 se la ricetta e presente nella lista oppure 0 se non e presente
 int cerca_in_lista(Ordine *testa, char *nome_ricetta);
+
+// CODE x ordini
+void inizializza_coda(Coda **coda);
+
+Coda *elimina_ordine_ptr_coda(Coda *coda, Ordine *nodo);
+
+Coda *inserisci_in_coda(Coda *coda, Ordine *ordine);
 
 // --------------------------- FUNZIONI DI ORDINAMENTO LISTE ----------------------------//
 
@@ -133,14 +146,17 @@ int main()
     HashTable *magazzino = (HashTable *)malloc(sizeof(HashTable));
 
     Nodo *ingrediente;
-    // Nodo *nodo_temp;
 
     inizializza_ht(ricettario);
     inizializza_ht(magazzino);
 
-    Ordine *ordini_pronti = NULL;
-    Ordine *ordini_attesa = NULL;
-    Ordine *ordini_corriere = NULL;
+    Coda *ordini_pronti = (Coda *)malloc(sizeof(Coda));
+    Coda *ordini_attesa = (Coda *)malloc(sizeof(Coda));
+    Coda *ordini_corriere = (Coda *)malloc(sizeof(Coda));
+
+    inizializza_coda(&ordini_pronti);
+    inizializza_coda(&ordini_attesa);
+    inizializza_coda(&ordini_corriere);
 
     Ordine *ordine = NULL;
     Ordine *ordine_prec;
@@ -171,7 +187,7 @@ int main()
 
     while (separatore == '\n' && controllo != -1)
     {
-        // printf("CLOCK: %d\n", clock);
+        printf("CLOCK: %d\n", clock);
 
         // VERIFICA CORRIERE
         if (clock % periodo == 0 && clock != 0)
@@ -179,7 +195,7 @@ int main()
             // gestisco il corriere
             // scorro la lista di ordini pronti e metto in lista corriere
             capienza_rimasta = capienza;
-            ordine = ordini_pronti;
+            ordine = ordini_pronti->testa;
             stop = 0;
             while (ordine != NULL && stop == 0)
             {
@@ -188,15 +204,14 @@ int main()
                     // creo il nuovo nodo ordine per la lista del corriere
                     ordine_corriere = crea_ordine(ordine->nome_ricetta, ordine->qta, ordine->tempo, ordine->peso);
                     // inserisco nella lista delgi ordini del corriere
-                    ordini_corriere = inserisci_nodo_in_testa_ordini(ordini_corriere, ordine_corriere);
+                    ordini_corriere = inserisci_in_coda(ordini_corriere, ordine_corriere);
 
                     // aggiorno campienza rimasta
                     capienza_rimasta -= ordine->peso;
 
-                    // rimuovo ordine dalla lista degli ordini
                     ordine_prec = ordine;
                     ordine = ordine->successore;
-                    ordini_pronti = elimina_nodo_ptr_ordini(ordini_pronti, ordine_prec);
+                    ordini_pronti = elimina_ordine_ptr_coda(ordini_pronti, ordine_prec);
                 }
                 else
                 {
@@ -206,16 +221,18 @@ int main()
             }
 
             // stampo come da specifica tempo di acquisizione, nome ricetta, qta
-            if (ordini_corriere == NULL)
+            if (ordini_corriere->testa == NULL)
             {
                 printf("camioncino vuoto\n");
             }
             else
             {
                 // ordino la lista di ordini del corriere per peso in senso decrescente
-                merge_sort_corriere(&ordini_corriere);
+                // dovrei aggiornare il puntatore alla coda dopo il merge tuttavia lo uso solo per stampare poi elimino la coda quindi non lo faccio
+                merge_sort_corriere(&(ordini_corriere->testa));
+                ordini_corriere->coda = NULL;
 
-                ordine = ordini_corriere;
+                ordine = ordini_corriere->testa;
                 while (ordine != NULL)
                 {
                     printf("%d %s %d\n", ordine->tempo, ordine->nome_ricetta, ordine->qta);
@@ -223,7 +240,7 @@ int main()
                 }
             }
             // elimino la lista del corriere
-            ordini_corriere = elimina_lista_ordini(ordini_corriere);
+            ordini_corriere->testa = elimina_lista_ordini(ordini_corriere->testa);
         }
 
         //----------------------------- ACQUISISCO COMANDO -------------------//
@@ -238,7 +255,7 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            // printf("Nome ricetta:%s\n", nome_ricetta);
+            printf("Nome ricetta:%s\n", nome_ricetta);
             bucket_temp = ht_cerca(ricettario, nome_ricetta);
 
             if (bucket_temp != NULL)
@@ -286,9 +303,9 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            // printf("Nome ricetta:%s\n", nome_ricetta);
-            //    VERIFICO CHE NON SIA IN USO = ordini_attesa e CHE NON E' LA RICETTA DI UN ORDINE CHE NON HO ANCORA SPEDITO = oridini_pronti
-            if (cerca_in_lista(ordini_attesa, nome_ricetta) == 1 || cerca_in_lista(ordini_pronti, nome_ricetta) == 1)
+            printf("Nome ricetta:%s\n", nome_ricetta);
+            //     VERIFICO CHE NON SIA IN USO = ordini_attesa e CHE NON E' LA RICETTA DI UN ORDINE CHE NON HO ANCORA SPEDITO = oridini_pronti
+            if (cerca_in_lista(ordini_attesa->testa, nome_ricetta) == 1 || cerca_in_lista(ordini_pronti->testa, nome_ricetta) == 1)
             {
                 printf("ordini in sospeso\n");
             }
@@ -316,7 +333,7 @@ int main()
                 controllo = scanf("%s", nome_ricetta);
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%c", &separatore);
-                //printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
+                printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
 
                 // PRELEVO LA RICETTA DA RICETTARIO
                 bucket_ricetta = ht_cerca(ricettario, nome_ricetta);
@@ -351,37 +368,37 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        //printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
-                        //     avanzo all'ingrediente successivo
+                        printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
+                        //       avanzo all'ingrediente successivo
                         nodo_ingrediente = nodo_ingrediente->successore;
                     }
                     // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
                     if (attesa == 0)
                     {
                         ordine = crea_ordine(nome_ricetta, qta, clock, peso);
-                        ordini_pronti = inserisci_nodo_in_testa_ordini(ordini_pronti, ordine);
+                        ordini_pronti = inserisci_in_coda(ordini_pronti, ordine);
 
                         // produco ordine
                         produci_ordine(magazzino, bucket_ricetta, qta);
 
                         // ordino lotti in senso crescente per tempo di acquisizione (tempo)
-                        merge_sort_ordini(&ordini_pronti);
+                        // merge_sort_ordini(&ordini_pronti);
                     }
                     else
                     { // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
                         ordine = crea_ordine(nome_ricetta, qta, clock, peso);
-                        ordini_attesa = inserisci_nodo_in_testa_ordini(ordini_attesa, ordine);
+                        ordini_attesa = inserisci_in_coda(ordini_attesa, ordine);
 
                         // ordino lotti in senso crescente per tempo di acquisizione (tempo)
-                        merge_sort_ordini(&ordini_attesa);
+                        // merge_sort_ordini(&ordini_attesa);
                     }
                 }
             }
-            // printf("ordini_pronti:\n");
-            // stampa_lista_ordini(ordini_pronti);
+            printf("ordini_pronti:\n");
+            stampa_lista_ordini(ordini_pronti->testa);
 
-            // printf("ordini_attesa:\n");
-            // stampa_lista_ordini(ordini_attesa);
+            printf("ordini_attesa:\n");
+            stampa_lista_ordini(ordini_attesa->testa);
         }
 
         // RIFORNIMENTO
@@ -396,7 +413,7 @@ int main()
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%d", &scadenza);
                 controllo = scanf("%c", &separatore);
-                //printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
+                printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
 
                 // AGGIUNGO NEL MAGAZZINO
                 ingrediente = crea_nodo(nome_ingrediente, qta, scadenza);
@@ -410,10 +427,11 @@ int main()
             printf("rifornito\n");
 
             // VERIFICO SE HO ORDINI IN ATTESA CHE POSSO PROCESSARE
-            Ordine *temp = ordini_attesa;
+            Ordine *temp = ordini_attesa->testa;
             Ordine *prec_temp;
             Bucket *bucket_ricetta;
             Nodo *nodo_ingrediente;
+            int merge = 0;
 
             while (temp != NULL) // scorro tutta la lista di ordini in attesa
             {
@@ -451,29 +469,40 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        //printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
-                        //     avanzo all'ingrediente successivo
+                        printf("%s, attesa=%d\n", nodo_ingrediente->nome_ingrediente, attesa);
+                        //       avanzo all'ingrediente successivo
                         nodo_ingrediente = nodo_ingrediente->successore;
                     }
 
                     // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
                     if (attesa == 0)
                     {
+                        //creo ordine
                         ordine = crea_ordine(temp->nome_ricetta, temp->qta, temp->tempo, temp->peso);
-                        ordini_pronti = inserisci_nodo_in_testa_ordini(ordini_pronti, ordine);
+
+                        // se ordine->tempo e' minore ordini_pronti->coda->tempo allora inserisco in coda e poi devo ripristinare ordine crescente in base al tempo di acquisizione
+                        if (ordini_pronti->coda != NULL && ordine->tempo < ordini_pronti->coda->tempo)
+                        {
+                            // so che devo fare merge_sort per ripristinare ordine
+                            merge = 1;
+                            // inserisco ordine in coda
+                            // ordini_pronti = inserisci_in_coda(ordini_pronti, ordine);
+                            // ripristino ordine della coda -> non devo aggiornare puntatore a coda perche rimane lo stesso
+                            // merge_sort_ordini(&(ordini_pronti->testa));
+                        }
+
+                        // inserisco ordine in coda
+                        ordini_pronti = inserisci_in_coda(ordini_pronti, ordine);
 
                         // produco ordine
                         produci_ordine(magazzino, bucket_ricetta, ordine->qta);
-
-                        // ordino lotti in senso crescente per tempo di acquisizione (tempo)
-                        merge_sort_ordini(&ordini_pronti);
 
                         prec_temp = temp;
                         // passo al prossimo ordine in attesa
                         temp = temp->successore;
 
                         // elimino l'ordine dalla lista di attesa e non devo riordinare nulla perche la proprieta si preserva
-                        ordini_attesa = elimina_nodo_ptr_ordini(ordini_attesa, prec_temp);
+                        ordini_attesa = elimina_ordine_ptr_coda(ordini_attesa, prec_temp);
                     }
                     else
                     {
@@ -482,16 +511,22 @@ int main()
                     }
                 }
             }
-            // printf("ordini_pronti:\n");
-            // stampa_lista_ordini(ordini_pronti);
+            if (merge == 1)
+            {
+                // devo fare un merge_sort
+                merge_sort_ordini(&(ordini_pronti->testa));
+            }
+            printf("ordini_pronti:\n");
+            stampa_lista_ordini(ordini_pronti->testa);
 
-            // printf("ordini_attesa:\n");
-            // stampa_lista_ordini(ordini_attesa);
+            printf("ordini_attesa:\n");
+            stampa_lista_ordini(ordini_attesa->testa);
         }
 
         // AGGIUSTAMENTI
         comando[0] = 0;
         clock++;
+        printf("\n");
     }
 
     // faccio le free
@@ -520,7 +555,7 @@ Bucket *crea_bucket(char *string, Nodo *lista)
 int hash(char *string)
 {
     // vettore con valori di potenze di p precalcolati per aumentare efficienza. Calcolati fino a p ^CMD_LEN = 256
-    int p_pow[] = {53,2809,8751,3389,9464,1142,472,4998,4660,6764,8177,2994,8547,2586,6941,7549,9746,6079,1899,557,9503,3209,9933,5981,6714,5527,2670,1384,3289,4164,494,6164,6404,9115,2663,1013,3644,2961,6798,9979,8419,5811,7713,8429,6341,5776,5858,195,326,7269,4915,261,3824,2492,1959,3737,7890,7801,3084,3308,5171,3820,2280,732,8769,4343,9981,8525,1420,5197,5198,5251,8060,6802,182,9646,779,1251,6249,900,7664,5832,8826,7364,9950,6882,4422,4159,229,2128,2685,2179,5388,5312,1284,7998,3516,6186,7570,850,5014,5508,1663,8067,7173,9836,840,4484,7445,4234,4204,2614,8425,6129,4549,881,6657,2506,2701,3027,287,5202,5463,9287,1770,3729,7466,5347,3139,6223,9531,4693,8513,784,1516,276,4619,4591,3107,4527,9724,4913,155,8215,5008,5190,4827,5606,6857,3097,3997,1652,7484,6301,3656,3597,470,4892,9051,9280,1399,4084,6263,1642,6954,8238,6227,9743,5920,3481,4331,9345,4844,6507,4565,1729,1556,2396,6880,4316,8550,2745,5359,3775,9904,4444,5325,1973,4479,7180,198,485,5687,1141,419,2189,5918,3375,8722,1852,8075,7597,2281,785,1569,3085,3361,7980,2562,5669,187,9911,4815,4970,3176,8184,3365,8192,3789,637,3734,7731,9383,6858,3150,6806,394,864,5756,4798,4069,5468,9552,5806,7448,4393,2622,8849,8583,4494,7975,2297,1633,6477,2975,7540,9269,816,3212,83,4399,2940,5685,1035,4810,4705};
+    int p_pow[] = {53, 2809, 8751, 3389, 9464, 1142, 472, 4998, 4660, 6764, 8177, 2994, 8547, 2586, 6941, 7549, 9746, 6079, 1899, 557, 9503, 3209, 9933, 5981, 6714, 5527, 2670, 1384, 3289, 4164, 494, 6164, 6404, 9115, 2663, 1013, 3644, 2961, 6798, 9979, 8419, 5811, 7713, 8429, 6341, 5776, 5858, 195, 326, 7269, 4915, 261, 3824, 2492, 1959, 3737, 7890, 7801, 3084, 3308, 5171, 3820, 2280, 732, 8769, 4343, 9981, 8525, 1420, 5197, 5198, 5251, 8060, 6802, 182, 9646, 779, 1251, 6249, 900, 7664, 5832, 8826, 7364, 9950, 6882, 4422, 4159, 229, 2128, 2685, 2179, 5388, 5312, 1284, 7998, 3516, 6186, 7570, 850, 5014, 5508, 1663, 8067, 7173, 9836, 840, 4484, 7445, 4234, 4204, 2614, 8425, 6129, 4549, 881, 6657, 2506, 2701, 3027, 287, 5202, 5463, 9287, 1770, 3729, 7466, 5347, 3139, 6223, 9531, 4693, 8513, 784, 1516, 276, 4619, 4591, 3107, 4527, 9724, 4913, 155, 8215, 5008, 5190, 4827, 5606, 6857, 3097, 3997, 1652, 7484, 6301, 3656, 3597, 470, 4892, 9051, 9280, 1399, 4084, 6263, 1642, 6954, 8238, 6227, 9743, 5920, 3481, 4331, 9345, 4844, 6507, 4565, 1729, 1556, 2396, 6880, 4316, 8550, 2745, 5359, 3775, 9904, 4444, 5325, 1973, 4479, 7180, 198, 485, 5687, 1141, 419, 2189, 5918, 3375, 8722, 1852, 8075, 7597, 2281, 785, 1569, 3085, 3361, 7980, 2562, 5669, 187, 9911, 4815, 4970, 3176, 8184, 3365, 8192, 3789, 637, 3734, 7731, 9383, 6858, 3150, 6806, 394, 864, 5756, 4798, 4069, 5468, 9552, 5806, 7448, 4393, 2622, 8849, 8583, 4494, 7975, 2297, 1633, 6477, 2975, 7540, 9269, 816, 3212, 83, 4399, 2940, 5685, 1035, 4810, 4705};
     // int p = 53;
     long long m = 10000 + 9;
     unsigned long long hash = 0;
@@ -1202,5 +1237,74 @@ void merge_sort_corriere(Ordine **testa_indirizzo)
 
     // unisco le due sottoliste
     *testa_indirizzo = merge_decrescente_corriere(a, b);
+    return;
+}
+
+// ------------------------ CODE ----------------------------------//
+
+Coda *inserisci_in_coda(Coda *coda, Ordine *ordine)
+{
+
+    if (coda->testa == NULL)
+    {
+        coda->testa = ordine;
+        coda->coda = ordine;
+    }
+    else
+    {
+        ordine->successore = NULL;
+        coda->coda->successore = ordine;
+        coda->coda = ordine;
+    }
+    return coda;
+}
+
+Coda *elimina_ordine_ptr_coda(Coda *coda, Ordine *nodo)
+{
+    Ordine *temp = coda->testa;
+
+    // se e il primo e non e' anche dall'ultimo
+    if (coda->testa == nodo && coda->coda != nodo)
+    { // non devo aggiornare la coda
+        coda->testa = coda->testa->successore;
+        free(temp);
+        return coda;
+    }
+    else if (coda->testa == nodo && coda->coda == nodo)
+    { // se e' il primo e coincide anche con l'ultimo
+        // devo aggiornare anche la coda
+        coda->testa = coda->testa->successore;
+        coda->coda = coda->testa;
+        free(temp);
+        return coda;
+    }
+
+    // altrimenti lo cerco
+    while (temp->successore != nodo && temp->successore != NULL)
+    {
+        temp = temp->successore;
+    }
+
+    // verifico se l'ho trovato e in tal caso lo elimino
+    if (temp->successore != NULL && temp->successore == coda->coda)
+    {
+        // l'ho trovato e coincide con la coda -> lo elimino e aggiorno la coda
+        temp->successore = temp->successore->successore;
+        coda->coda = temp;
+        free(nodo);
+    }
+    else if (temp->successore != NULL && temp->successore != coda->coda)
+    {
+        // l'ho trovato e coincide con la coda -> lo elimino e aggiorno la coda
+        temp->successore = temp->successore->successore;
+        free(nodo);
+    }
+    return coda;
+}
+
+void inizializza_coda(Coda **coda)
+{
+    (*coda)->coda = NULL;
+    (*coda)->testa = NULL;
     return;
 }
