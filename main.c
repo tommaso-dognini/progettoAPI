@@ -27,7 +27,7 @@ typedef struct BucketMagazzino
 {
     char string[CMD_LEN];
     struct Lotto *lista;
-    struct Bucket *successore;
+    struct BucketMagazzino *successore;
 } BucketMagazzino;
 
 // Definisco la struttura dei buckets delle hash tables
@@ -35,7 +35,7 @@ typedef struct BucketRicettario
 {
     char string[CMD_LEN];
     struct Ingrediente *lista;
-    struct Bucket *successore;
+    struct BucketRicettario *successore;
 } BucketRicettario;
 
 // Definisco la struttura delle Hash tables
@@ -58,7 +58,7 @@ typedef struct Ordine
     int qta;
     int tempo;
     int peso;
-    struct Ingrediente *lista_ingredienti;
+    struct BucketRicettario *bucket_ricetta;
     struct Ordine *successore;
 } Ordine;
 
@@ -70,17 +70,20 @@ typedef struct Coda
 
 //----------------- Liste  semplici (single linked) X RICETTARIO E MAGAZZINO ---------//
 
-void stampa_lista(Nodo *testa);
+void stampa_lista_ingredienti(Ingrediente *testa);
+void stampa_lista_lotti(Lotto *testa);
 
-Nodo *min_scadenza(Nodo *testa); // non usata da eliminare
+// Nodo *min_scadenza(Nodo *testa); // non usata da eliminare
 
-void *elimina_lista(Nodo *testa); // non usata da eliminare
+void *elimina_lista_ingredienti(Ingrediente *testa);
 
-Nodo *elimina_nodo_ptr(Nodo *testa, Nodo *nodo);
+Lotto *elimina_lotto_ptr(Lotto *testa, Lotto *nodo);
 
-Nodo *inserisci_nodo_in_testa(Nodo *testa, Nodo *nodo);
+Ingrediente *inserisci_ingrediente(Ingrediente *testa, Ingrediente *nodo);
+Lotto *inserisci_lotto(Lotto *testa, Lotto *nodo);
 
-Nodo *crea_nodo(char *nome_ingrediente, int qta, int scadenza);
+Ingrediente *crea_nodo_ricettario(char *nome_ingrediente, int qta);
+Lotto *crea_nodo_magazzino(int qta, int scadenza);
 
 // ---------------------------  ORDINI ---------------------------------------------//
 
@@ -92,7 +95,7 @@ Ordine *elimina_nodo_ptr_ordini(Ordine *testa, Ordine *nodo);
 
 Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo);
 
-Ordine *crea_ordine(char *nome_ricetta, Ingrediente *lista_ingredienti, int qta, int tempo, int peso);
+Ordine *crea_ordine(char *nome_ricetta, BucketRicettario *bucket_ricetta, int qta, int tempo, int peso);
 
 // verifica se un ingrediente e presente in quantita sufficiente (non scaduto) per la ricetta desiderata
 int verifica_ingrediente(BucketMagazzino **bucket, char *nome_ingrediente, int qta_necessaria, int clock);
@@ -109,6 +112,8 @@ void inizializza_coda(Coda **coda);
 Coda *elimina_ordine_ptr_coda(Coda *coda, Ordine *nodo);
 
 Coda *inserisci_in_coda(Coda *coda, Ordine *ordine);
+
+Coda *inserisci_inordine_ordini(Coda *coda, Ordine *ordine);
 
 // --------------------------- FUNZIONI DI ORDINAMENTO LISTE ----------------------------//
 
@@ -133,26 +138,29 @@ void merge_sort_corriere(Ordine **testa_indirizzo);
 // ---------------------------  HASH TABLE ---------------------------------------------//
 
 // crea HashTable
-void inizializza_ht(HashTable *ht);
+void inizializza_ricettario(Ricettario *ricettario);
+void inizializza_magazzino(Magazzino *magazzino);
 
 // crea Bucket
-Bucket *crea_bucket(char *string, Nodo *lista);
+BucketMagazzino *crea_bucket_magazzino(char *string, Lotto *lista);
+BucketRicettario *crea_bucket_ricettario(char *string, Ingrediente *lista);
 
 int hash(char *string);
 
 // Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
-Bucket *ht_cerca(HashTable *ht, char *string);
+BucketMagazzino *cerca_magazzino(Magazzino *ht, char *string);
+BucketRicettario *cerca_ricettario(Ricettario *ht, char *string);
 
 // ---------------------------  RICETTARIO  ---------------------------------------------//
 
-void ht_inserisci_ricetta(HashTable *ht, Bucket *nuovo_bucket, char *string);
+void inserisci_ricetta(Ricettario *ht, BucketRicettario *nuovo_bucket, char *string);
 
-void ht_elimina_ricetta(HashTable *ht, char *string);
+void elimina_ricetta(Ricettario *ht, char *string);
 
-void elimina_lotto(Bucket **bucket, Nodo *lotto);
+void elimina_lotto(BucketMagazzino **bucket, Lotto *lotto);
 
 // ---------------------------  MAGAZZINO ---------------------------------------------//
-void ht_inserisci_lotto(HashTable *ht, Nodo *lotto, char *string);
+void inserisci_bucket_magazzino(Magazzino *ht, Lotto *lotto, char *string);
 
 //-----------------------------------------------------------------------------------------
 //--------  MAIN --------------------------------------------------------------------------
@@ -204,7 +212,7 @@ int main()
 
     while (separatore == '\n' && controllo != -1)
     {
-        // printf("CLOCK: %d\n", clock);
+        //printf("CLOCK: %d\n", clock);
 
         // VERIFICA CORRIERE
         if (clock % periodo == 0 && clock != 0)
@@ -219,7 +227,7 @@ int main()
                 if (ordine->peso <= capienza_rimasta)
                 {
                     // creo il nuovo nodo ordine per la lista del corriere
-                    ordine_corriere = crea_ordine(ordine->nome_ricetta, ordine->qta, ordine->tempo, ordine->peso);
+                    ordine_corriere = crea_ordine(ordine->nome_ricetta, NULL, ordine->qta, ordine->tempo, ordine->peso);
                     // inserisco nella lista delgi ordini del corriere
                     ordini_corriere = inserisci_nodo_in_testa_ordini(ordini_corriere, ordine_corriere);
 
@@ -271,8 +279,8 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            // printf("Nome ricetta:%s\n", nome_ricetta);
-            BucketRicettario *ricetta = ht_cerca(ricettario, nome_ricetta);
+            //printf("Nome ricetta:%s\n", nome_ricetta);
+            BucketRicettario *ricetta = cerca_ricettario(ricettario, nome_ricetta);
 
             if (ricetta != NULL)
             {
@@ -297,7 +305,7 @@ int main()
                     controllo = scanf("%s", nome_ingrediente);
                     controllo = scanf("%d", &qta);
                     controllo = scanf("%c", &separatore);
-                    // printf("Ingrediente:%s,qta:%d\n", nome_ingrediente, qta);
+                    //printf("Ingrediente:%s,qta:%d\n", nome_ingrediente, qta);
 
                     // AGGIUNGO INGREDIENTE ALLA NODO RICETTA
                     ingrediente = crea_nodo_ricettario(nome_ingrediente, qta);
@@ -306,7 +314,7 @@ int main()
 
                 // AGGIUNGO IL NODO RICETTA AL RICETTARIO
                 inserisci_ricetta(ricettario, ricetta, ricetta->string);
-                // stampa_lista_ingredienti(ricetta->lista);
+                //stampa_lista_ingredienti(ricetta->lista);
             }
 
             nome_ricetta[0] = 0;
@@ -319,7 +327,7 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            // printf("Nome ricetta:%s\n", nome_ricetta);
+            //printf("Nome ricetta:%s\n", nome_ricetta);
             // VERIFICO CHE NON SIA IN USO = ordini_attesa e CHE NON E' LA RICETTA DI UN ORDINE CHE NON HO ANCORA SPEDITO = oridini_pronti
             if (cerca_in_lista(ordini_attesa->testa, nome_ricetta) == 1 || cerca_in_lista(ordini_pronti->testa, nome_ricetta) == 1)
             {
@@ -328,7 +336,7 @@ int main()
             else
             {
                 // ALTRIMENTI RIMUOVO RICETTA DA RICETTARIO
-                ht_elimina_ricetta(ricettario, nome_ricetta);
+                elimina_ricetta(ricettario, nome_ricetta);
             }
         }
 
@@ -349,7 +357,7 @@ int main()
                 controllo = scanf("%s", nome_ricetta);
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%c", &separatore);
-                // printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
+                //printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
 
                 // PRELEVO LA RICETTA DA RICETTARIO
                 ricetta = cerca_ricettario(ricettario, nome_ricetta);
@@ -384,7 +392,7 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        // printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
+                        //printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
                         //        avanzo all'ingrediente successivo
                         ingrediente = ingrediente->successore;
                     }
@@ -430,17 +438,15 @@ int main()
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%d", &scadenza);
                 controllo = scanf("%c", &separatore);
-                // printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
+                //printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
 
                 // AGGIUNGO NEL MAGAZZINO
 
                 // creo il lotto
                 lotto = crea_nodo_magazzino(qta, scadenza);
                 // inserisco lotto nel magazzino (inserimento e in ordine di data di scadenza crescente)
-                inserisci_lotto(magazzino, lotto, nome_ingrediente);
-
-                // ripristino ordine crescente per data di scadenza in lista di lotti
-                // merge_sort(&(magazzino->buckets[hash(nome_ingrediente)]->lista));
+                inserisci_bucket_magazzino(magazzino, lotto, nome_ingrediente);
+                //stampa_lista_lotti(magazzino->buckets[hash(nome_ingrediente)]->lista);
             }
 
             // HO AGGIORNATO IL MAGAZZINO
@@ -448,18 +454,18 @@ int main()
 
             // VERIFICO SE HO ORDINI IN ATTESA CHE POSSO PROCESSARE
             Ordine *ordine = ordini_attesa->testa;
+            Ordine * nuovo_ordine;
             Ordine *prec_ordine;
             BucketRicettario *ricetta;
             BucketMagazzino *bucket;
             Ingrediente *ingrediente;
-            int merge = 0;
 
             while (ordine != NULL) // scorro tutta la lista di ordini in attesa
             {
                 attesa = 0;
 
                 // PRELEVO LA RICETTA DA RICETTARIO
-                ricetta = cerca_ricettario(ricettario, ordine->nome_ricetta);
+                ricetta = ordine->bucket_ricetta;
                 if (ricetta == NULL || ricetta->lista == NULL) // in realta so gia che ce lho di sicuro....
                 {
                     // attesa = 1; // non ho la ricetta --> non dovrebbe mai succedere
@@ -474,7 +480,7 @@ int main()
                     while (ingrediente != NULL && attesa != 1) // scorro la lista di ingredienti della ricetta
                     {
                         // CONTROLLO MAGAZZINO
-                        bucket = ht_cerca(magazzino, ingrediente->nome_ingrediente);
+                        bucket = cerca_magazzino(magazzino, ingrediente->nome_ingrediente);
 
                         if (bucket == NULL || bucket->lista == NULL)
                         {
@@ -490,8 +496,8 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        // printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
-                        //        avanzo all'ingrediente successivo
+                        //printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
+                        // avanzo all'ingrediente successivo
                         ingrediente = ingrediente->successore;
                     }
 
@@ -499,21 +505,24 @@ int main()
                     if (attesa == 0)
                     {
                         // creo ordine
-                        ordine = crea_ordine(ordine->nome_ricetta, ricetta, ordine->qta, ordine->tempo, ordine->peso);
+                        nuovo_ordine = crea_ordine(ordine->nome_ricetta, ricetta, ordine->qta, ordine->tempo, ordine->peso);
 
-                        if (ordine->tempo < ordini_pronti->coda)
+                        // PRODUCO ORDINE
+                        produci_ordine(magazzino, ricetta, nuovo_ordine->qta);
+
+                        // INSERISCO ORDINE IN ORDINI_PRONTI
+                        if (ordini_pronti->testa == NULL || nuovo_ordine->tempo < ordini_pronti->coda->tempo)
                         {
                             // inserimento in ordine
+                            ordini_pronti = inserisci_inordine_ordini(ordini_pronti, nuovo_ordine);
                         }
                         else
                         {
                             // inserisco ordine in coda
-                            ordini_pronti = inserisci_in_coda(ordini_pronti, ordine);
+                            ordini_pronti = inserisci_in_coda(ordini_pronti, nuovo_ordine);
                         }
 
-                        // produco ordine
-                        produci_ordine(magazzino, ricetta, ordine->qta);
-
+                        // ELIMINO ORDINE DA LISTA DI ATTESA
                         prec_ordine = ordine;
                         // passo al prossimo ordine in attesa
                         ordine = ordine->successore;
@@ -528,7 +537,6 @@ int main()
                     }
                 }
             }
-
             // printf("ordini_pronti:\n");
             // stampa_lista_ordini(ordini_pronti->testa);
 
@@ -539,7 +547,7 @@ int main()
         // AGGIUSTAMENTI
         comando[0] = 0;
         clock++;
-        // printf("\n");
+        //printf("\n");
     }
 
     // faccio le free
@@ -548,14 +556,14 @@ int main()
 
 // ------------------------------------- HASH TABLES ------------------------------------//
 // inizializza Ricettario
-void inizializza_ht(Ricettario *ricettario)
+void inizializza_ricettario(Ricettario *ricettario)
 {
     ricettario->dimensione = 5011;
     ricettario->buckets = (BucketRicettario **)calloc(ricettario->dimensione, sizeof(struct BucketRicettario *));
 }
 
 // inizializza Magazzino
-void inizializza_ht(Magazzino *magazzino)
+void inizializza_magazzino(Magazzino *magazzino)
 {
     magazzino->dimensione = 5011;
     magazzino->buckets = (BucketMagazzino **)calloc(magazzino->dimensione, sizeof(struct BucketMagazzino *));
@@ -734,7 +742,7 @@ void elimina_ricetta(Ricettario *ht, char *string)
 
 //-------------------------------------- MAGAZZINO -----------------------------------//
 
-void inserisci_lotto(Magazzino *ht, Lotto *lotto, char *string)
+void inserisci_bucket_magazzino(Magazzino *ht, Lotto *lotto, char *string)
 {
     // calcolo hash
     int indice = hash(string);
@@ -762,9 +770,8 @@ void inserisci_lotto(Magazzino *ht, Lotto *lotto, char *string)
         }
         else
         {
-            // ho gia il bucket devo fare inserimento di lotto nella lista di lotti
-            //  faccio inserimento in testa alla lista bucket->lista
-            bucket->lista = inserisci_nodo_in_testa(bucket->lista, lotto);
+            // ho gia il bucket devo fare inserimento ORDINATO di lotto nella lista di lotti
+            bucket->lista = inserisci_lotto(bucket->lista, lotto);
         }
     }
     return;
@@ -811,18 +818,24 @@ Ingrediente *inserisci_ingrediente(Ingrediente *testa, Ingrediente *nodo)
 // implementare inserimento ordinato per data di scadenza
 Lotto *inserisci_lotto(Lotto *testa, Lotto *nodo)
 {
-    if (testa == NULL)
+    Lotto *temp = testa;
+    Lotto *temp_prec = NULL;
+
+    while (temp != NULL && nodo->scadenza > temp->scadenza)
     {
-        return nodo;
+        temp_prec = temp;
+        temp = temp->successore;
+    }
+    nodo->successore = temp;
+    if (temp_prec != NULL)
+    {
+        // inserimento interno alla lista
+        temp_prec->successore = nodo;
+        return testa;
     }
     else
     {
-        Lotto *temp = nodo;
-        while (temp->successore != NULL)
-        {
-            temp = temp->successore;
-        }
-        temp->successore = testa;
+        // inserimento in testa -> aggiorno la coda
         return nodo;
     }
 }
@@ -1073,7 +1086,7 @@ void elimina_lotto(BucketMagazzino **bucket, Lotto *lotto)
 {
     // faccio la free del lotto
     Lotto *temp = (*bucket)->lista;
-    (*bucket)->lista = elimina_nodo_ptr(temp, lotto);
+    (*bucket)->lista = elimina_lotto_ptr(temp, lotto);
     return;
 }
 
@@ -1143,12 +1156,12 @@ Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo)
     }
 }
 
-Ordine *crea_ordine(char *nome_ricetta, Ingrediente *lista_ingredienti, int qta, int tempo, int peso)
+Ordine *crea_ordine(char *nome_ricetta, BucketRicettario *bucket_ricetta, int qta, int tempo, int peso)
 {
     Ordine *nuovo_nodo = (Ordine *)malloc(sizeof(Ordine));
     strcpy(nuovo_nodo->nome_ricetta, nome_ricetta);
     nuovo_nodo->qta = qta;
-    nuovo_nodo->lista_ingredienti = lista_ingredienti;
+    nuovo_nodo->bucket_ricetta = bucket_ricetta;
     nuovo_nodo->tempo = tempo;
     nuovo_nodo->peso = peso;
     nuovo_nodo->successore = NULL;
@@ -1295,30 +1308,39 @@ void merge_sort_corriere(Ordine **testa_indirizzo)
     return;
 }
 
-Coda *inserisci_in_ordine_tempo_ordini(Coda *coda, Ordine *ordine)
+// ------------------------ CODE ----------------------------------//
+Coda *inserisci_inordine_ordini(Coda *coda, Ordine *ordine)
 {
     Ordine *temp = coda->testa;
+    Ordine *temp_prec = NULL;
 
-    // verifico il primo
-    if (temp == NULL || temp->tempo >= ordine->tempo)
+    while (temp != NULL && ordine->tempo > temp->tempo)
     {
-        // inserimento in testa
-        ordine->successore = temp;
-        temp = ordine;
-        coda->testa = temp;
+        temp_prec = temp;
+        temp = temp->successore;
+    }
+    ordine->successore = temp;
+    if (temp_prec != NULL)
+    { // inserimento interno alla lista
+        if (temp_prec->successore == NULL)
+        {
+            // sto inserendo alla fine -> aggiorno la coda
+            temp_prec->successore = ordine;
+            coda->coda = ordine;
+        }
+        else
+        {
+            // sto inserendo in mezzo -> non faccio niente
+            temp_prec->successore = ordine;
+        }
     }
     else
     {
-        // altrimenti
-        while (temp->successore != NULL && temp->successore->tempo < ordine->tempo)
-        {
-            temp = temp->successore;
-        }
+        // inserimento in testa -> aggiorno la coda
+        coda->testa = ordine;
     }
     return coda;
 }
-
-// ------------------------ CODE ----------------------------------//
 
 Coda *inserisci_in_coda(Coda *coda, Ordine *ordine)
 {
@@ -1341,43 +1363,72 @@ Coda *elimina_ordine_ptr_coda(Coda *coda, Ordine *nodo)
 {
     Ordine *temp = coda->testa;
 
-    // se e il primo e non e' anche dall'ultimo
-    if (coda->testa == nodo && coda->coda != nodo)
-    { // non devo aggiornare la coda
+    // se e' il primo
+    if (temp == nodo)
+    {
         coda->testa = coda->testa->successore;
+        if (coda->coda == nodo)
+        { // se e' anche ultimo
+            coda->coda = NULL;
+        }
         free(temp);
         return coda;
     }
-    else if (coda->testa == nodo && coda->coda == nodo)
-    { // se e' il primo e coincide anche con l'ultimo
-        // devo aggiornare anche la coda
-        coda->testa = coda->testa->successore;
-        coda->coda = coda->testa;
-        free(temp);
-        return coda;
-    }
-
     // altrimenti lo cerco
     while (temp->successore != nodo && temp->successore != NULL)
     {
         temp = temp->successore;
     }
-
-    // verifico se l'ho trovato e in tal caso lo elimino
-    if (temp->successore != NULL && temp->successore == coda->coda)
+    if (temp->successore != NULL)
     {
-        // l'ho trovato e coincide con la coda -> lo elimino e aggiorno la coda
         temp->successore = temp->successore->successore;
-        coda->coda = temp;
-        free(nodo);
-    }
-    else if (temp->successore != NULL && temp->successore != coda->coda)
-    {
-        // l'ho trovato e coincide con la coda -> lo elimino e aggiorno la coda
-        temp->successore = temp->successore->successore;
+        if (temp->successore == NULL)
+        {
+            // se e' l'ultimo
+            coda->coda = temp;
+        }
         free(nodo);
     }
     return coda;
+
+    // // se e' il primo e non e' anche dall'ultimo
+    // if (coda->testa == nodo && coda->coda != nodo)
+    // { // non devo aggiornare la coda
+    //     coda->testa = coda->testa->successore;
+    //     free(nodo);
+    //     return coda;
+    // }
+    // else if (coda->testa == nodo && coda->coda == nodo)
+    // { // se e' il primo e coincide anche con l'ultimo -> ce un solo elemento ed e' quello che devo eliminare
+    //     // devo aggiornare anche la coda
+    //     coda->testa = NULL;
+    //     coda->coda = NULL;
+    //     free(nodo);
+    //     return coda;
+    // }
+
+    // // altrimenti lo cerco
+    // while (temp->successore != nodo && temp->successore != NULL)
+    // {
+    //     temp = temp->successore;
+    // }
+
+    // // verifico se l'ho trovato e in tal caso lo elimino
+    // if (temp->successore == nodo && temp->successore == coda->coda)
+    // {
+    //     // l'ho trovato e coincide con la coda -> lo elimino e aggiorno la coda
+    //     temp->successore = temp->successore->successore;
+    //     coda->coda = temp;
+    //     free(nodo);
+    // }
+    // else if (temp->successore == nodo && temp->successore != coda->coda)
+    // {
+    //     // l'ho trovato NON e' la coda -> lo elimino
+    //     temp->successore = temp->successore->successore;
+    //     free(nodo);
+    // }
+    // // altrimenti non ce!
+    // return coda;
 }
 
 void inizializza_coda(Coda **coda)
