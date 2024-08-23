@@ -224,7 +224,7 @@ int main()
             stop = 0;
             while (ordine != NULL && stop == 0)
             {
-                if (ordine->peso <= capienza_rimasta && ordine->attesa == 0)
+                if (ordine->peso <= capienza_rimasta)
                 {
                     // creo il nuovo nodo ordine per la lista del corriere
                     ordine_corriere = crea_ordine(ordine->nome_ricetta, NULL, ordine->qta, ordine->tempo, ordine->peso);
@@ -238,13 +238,9 @@ int main()
                     ordine = ordine->successore;
                     ordini_pronti = elimina_ordine_ptr_coda(ordini_pronti, ordine_prec);
                 }
-                else if (ordine->peso > capienza_rimasta && ordine->attesa == 0)
-                {
-                    stop = 1;
-                    ordine = ordine->successore;
-                }
                 else
                 {
+                    stop = 1;
                     ordine = ordine->successore;
                 }
             }
@@ -1172,7 +1168,6 @@ Ordine *crea_ordine(char *nome_ricetta, BucketRicettario *bucket_ricetta, int qt
     nuovo_nodo->bucket_ricetta = bucket_ricetta;
     nuovo_nodo->tempo = tempo;
     nuovo_nodo->peso = peso;
-    nuovo_nodo->attesa = attesa;
     nuovo_nodo->successore = NULL;
     return nuovo_nodo;
 }
