@@ -401,7 +401,7 @@ int main()
                     {
                         ordine = crea_ordine(nome_ricetta, ricetta, qta, clock, peso);
                         ordini_pronti = inserisci_inordine_ordini(ordini_pronti, ordine);
-                        //ordini_pronti = inserisci_in_coda(ordini_pronti, ordine);
+                        // ordini_pronti = inserisci_in_coda(ordini_pronti, ordine);
 
                         // produco ordine
                         produci_ordine(magazzino, ricetta, qta);
@@ -456,8 +456,8 @@ int main()
 
             // VERIFICO SE HO ORDINI IN ATTESA CHE POSSO PROCESSARE
             Ordine *ordine = ordini_attesa->testa;
+            Ordine *prec_ordine = NULL;
             Ordine *nuovo_ordine;
-            Ordine *prec_ordine;
             BucketRicettario *ricetta;
             BucketMagazzino *bucket;
             Ingrediente *ingrediente;
@@ -470,9 +470,10 @@ int main()
                 ricetta = ordine->bucket_ricetta;
                 if (ricetta == NULL || ricetta->lista == NULL) // in realta so gia che ce lho di sicuro....
                 {
-                    // attesa = 1; // non ho la ricetta --> non dovrebbe mai succedere
+                    // non dovrebbe mai succedere
                     printf("errore\n");
                     //  passo al prossimo ordine in attesa
+                    prec_ordine = ordine;
                     ordine = ordine->successore;
                 }
                 else
@@ -512,19 +513,8 @@ int main()
                         // PRODUCO ORDINE
                         produci_ordine(magazzino, ricetta, nuovo_ordine->qta);
 
-                        // // INSERISCO ORDINE IN ORDINI_PRONTI
-
+                        // INSERISCO ORDINE IN ORDINI_PRONTI
                         ordini_pronti = inserisci_inordine_ordini(ordini_pronti, nuovo_ordine);
-                        // if (ordini_pronti->testa == NULL || nuovo_ordine->tempo < ordini_pronti->coda->tempo)
-                        // {
-                        //     // inserimento in ordine
-                        //     ordini_pronti = inserisci_inordine_ordini(ordini_pronti, nuovo_ordine);
-                        // }
-                        // else
-                        // {
-                        //     // inserisco ordine in coda
-                        //     ordini_pronti = inserisci_in_coda(ordini_pronti, nuovo_ordine);
-                        // }
 
                         // ELIMINO ORDINE DA LISTA DI ATTESA
                         prec_ordine = ordine;
@@ -533,10 +523,56 @@ int main()
 
                         // elimino l'ordine dalla lista di attesa e non devo riordinare nulla perche la proprieta si preserva
                         ordini_attesa = elimina_ordine_ptr_coda(ordini_attesa, prec_ordine);
+
+                        // // devo produrre ordine che sto verificando: lo tolgo dalla lista di attesa, lo produco, lo metto nella lista di ordini pronti
+                        // nuovo_ordine = ordine;
+                        // produci_ordine(magazzino, nuovo_ordine->bucket_ricetta, nuovo_ordine->qta);
+
+                        // // sfilo dalla lista degli ordini in attesa e aggiorno testa e coda
+                        // if (prec_ordine == NULL)
+                        // {
+                        //     // e' il primo della lista di attesa ->aggiorno la testa della coda
+                        //     if (ordine->successore == NULL)
+                        //     {
+                        //         // e il primo e anche ultimo aggiorno anche la coda
+                        //         ordini_attesa->testa = NULL;
+                        //         ordini_attesa->coda = NULL;
+                        //     }
+                        //     else
+                        //     {
+                        //         // e il primo ma non ultimo aggiorno solo la testa
+                        //         ordini_attesa->testa = ordine->successore;
+                        //     }
+                        //     // setto ordine precedente per operazioni successive
+                        //     prec_ordine = NULL;
+                        //     ordine = ordine->successore;
+                        // }
+                        // else if (ordine->successore == NULL)
+                        // {
+                        //     // e l'ultimo aggiorno la coda
+                        //     ordini_attesa->coda = prec_ordine;
+
+                        //     // ordine precedente rimane lo stesso
+                        //     //avanzo al successivo
+                        //     ordine = ordine->successore;
+                        // }
+                        // else
+                        // {
+                        //     // sono dentro la coda posso avanzare senza dover modificare testa o coda
+                        //     prec_ordine->successore = ordine->successore;
+
+                        //     // ordine precedente rimane lo stesso
+                        //     //avanzo al successivo
+                        //     ordine = ordine->successore;
+                        // }
+
+                        // // inserisco in lista di ordini pronti
+                        // ordini_pronti = inserisci_inordine_ordini(ordini_pronti, nuovo_ordine);
                     }
                     else
                     {
                         // passo al prossimo ordine in attesa
+                        prec_ordine = ordine;
                         ordine = ordine->successore;
                     }
                 }
@@ -923,75 +959,6 @@ void stampa_lista_lotti(Lotto *testa)
     return;
 }
 
-// void sottoliste(Nodo *testa, Nodo **inizio, Nodo **fine)
-// {
-//     Nodo *lepre;
-//     Nodo *tartaruga;
-
-//     tartaruga = testa;
-//     lepre = testa->successore;
-
-//     // la lepre avanza due nodi e la tartaruga uno solo
-//     while (lepre != NULL)
-//     {
-//         lepre = lepre->successore;
-//         if (lepre != NULL)
-//         {
-//             tartaruga = tartaruga->successore;
-//             lepre = lepre->successore;
-//         }
-//     }
-
-//     *inizio = testa;
-//     *fine = tartaruga->successore;
-//     tartaruga->successore = NULL;
-//     return;
-// }
-
-// Nodo *merge_crescente(Nodo *a, Nodo *b)
-// {
-//     Nodo *testa = NULL;
-
-//     // casi base
-//     if (a == NULL)
-//         return b;
-//     else if (b == NULL)
-//         return a;
-
-//     if (a->scadenza <= b->scadenza)
-//     {
-//         testa = a;
-//         testa->successore = merge_crescente(a->successore, b);
-//     }
-//     else
-//     {
-//         testa = b;
-//         testa->successore = merge_crescente(a, b->successore);
-//     }
-//     return testa;
-// }
-
-// void merge_sort(Nodo **testa_indirizzo)
-// {
-//     Nodo *testa = *testa_indirizzo;
-//     Nodo *a;
-//     Nodo *b;
-
-//     // caso base
-//     if (testa == NULL || testa->successore == NULL)
-//         return;
-
-//     // divido la lista testa in due sottoliste a e b
-//     sottoliste(testa, &a, &b);
-//     // ordino le due sottoliste
-//     merge_sort(&a);
-//     merge_sort(&b);
-
-//     // unisco le due sottoliste
-//     *testa_indirizzo = merge_crescente(a, b);
-//     return;
-// }
-
 //--------------------------------- ORDINI ------------------------------------------//
 
 // se chiamata gia verificato che ogni ingrediente e presente per poter produrre ordine
@@ -1211,29 +1178,6 @@ void sottoliste_ordini(Ordine *testa, Ordine **inizio, Ordine **fine)
     return;
 }
 
-Ordine *merge_crescente_ordini(Ordine *a, Ordine *b)
-{
-    Ordine *testa = NULL;
-
-    // casi base
-    if (a == NULL)
-        return b;
-    else if (b == NULL)
-        return a;
-
-    if (a->tempo <= b->tempo)
-    {
-        testa = a;
-        testa->successore = merge_crescente_ordini(a->successore, b);
-    }
-    else
-    {
-        testa = b;
-        testa->successore = merge_crescente_ordini(a, b->successore);
-    }
-    return testa;
-}
-
 Ordine *merge_decrescente_corriere(Ordine *a, Ordine *b)
 {
     Ordine *testa = NULL;
@@ -1268,27 +1212,6 @@ Ordine *merge_decrescente_corriere(Ordine *a, Ordine *b)
         testa->successore = merge_decrescente_corriere(a, b->successore);
     }
     return testa;
-}
-
-void merge_sort_ordini(Ordine **testa_indirizzo)
-{
-    Ordine *testa = *testa_indirizzo;
-    Ordine *a;
-    Ordine *b;
-
-    // caso base
-    if (testa == NULL || testa->successore == NULL)
-        return;
-
-    // divido la lista testa in due sottoliste a e b
-    sottoliste_ordini(testa, &a, &b);
-    // ordino le due sottoliste
-    merge_sort_ordini(&a);
-    merge_sort_ordini(&b);
-
-    // unisco le due sottoliste
-    *testa_indirizzo = merge_crescente_ordini(a, b);
-    return;
 }
 
 void merge_sort_corriere(Ordine **testa_indirizzo)
@@ -1408,45 +1331,37 @@ Coda *elimina_ordine_ptr_coda(Coda *coda, Ordine *nodo)
         free(nodo);
     }
     return coda;
+}
 
-    // // se e' il primo e non e' anche dall'ultimo
-    // if (coda->testa == nodo && coda->coda != nodo)
-    // { // non devo aggiornare la coda
-    //     coda->testa = coda->testa->successore;
-    //     free(nodo);
-    //     return coda;
-    // }
-    // else if (coda->testa == nodo && coda->coda == nodo)
-    // { // se e' il primo e coincide anche con l'ultimo -> ce un solo elemento ed e' quello che devo eliminare
-    //     // devo aggiornare anche la coda
-    //     coda->testa = NULL;
-    //     coda->coda = NULL;
-    //     free(nodo);
-    //     return coda;
-    // }
+Coda *sfila_ordine_ptr_coda(Coda *coda, Ordine *nodo)
+{
+    Ordine *temp = coda->testa;
 
-    // // altrimenti lo cerco
-    // while (temp->successore != nodo && temp->successore != NULL)
-    // {
-    //     temp = temp->successore;
-    // }
-
-    // // verifico se l'ho trovato e in tal caso lo elimino
-    // if (temp->successore == nodo && temp->successore == coda->coda)
-    // {
-    //     // l'ho trovato e coincide con la coda -> lo elimino e aggiorno la coda
-    //     temp->successore = temp->successore->successore;
-    //     coda->coda = temp;
-    //     free(nodo);
-    // }
-    // else if (temp->successore == nodo && temp->successore != coda->coda)
-    // {
-    //     // l'ho trovato NON e' la coda -> lo elimino
-    //     temp->successore = temp->successore->successore;
-    //     free(nodo);
-    // }
-    // // altrimenti non ce!
-    // return coda;
+    // se e' il primo
+    if (temp == nodo)
+    {
+        coda->testa = coda->testa->successore;
+        if (coda->coda == nodo)
+        { // se e' anche ultimo
+            coda->coda = NULL;
+        }
+        return coda;
+    }
+    // altrimenti lo cerco
+    while (temp->successore != nodo && temp->successore != NULL)
+    {
+        temp = temp->successore;
+    }
+    if (temp->successore != NULL)
+    {
+        temp->successore = temp->successore->successore;
+        if (temp->successore == NULL)
+        {
+            // se e' l'ultimo
+            coda->coda = temp;
+        }
+    }
+    return coda;
 }
 
 void inizializza_coda(Coda **coda)
