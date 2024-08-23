@@ -1,0 +1,866 @@
+desc: (none)
+cmd: ./main
+time_unit: i
+#-----------
+snapshot=0
+#-----------
+time=0
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=1
+#-----------
+time=397870003
+mem_heap_B=9127312
+mem_heap_extra_B=295616
+mem_stacks_B=0
+heap_tree=detailed
+n4: 9127312 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 7816464 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 7816464 0x4107EB: main (main.c:311)
+ n2: 861696 0x41162F: crea_ordine (main.c:1163)
+  n0: 796608 0x41063F: main (main.c:413)
+  n0: 65088 in 2 places, all below massif's threshold (1.00%)
+ n1: 268736 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 268736 0x41078F: main (main.c:300)
+ n0: 180416 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=2
+#-----------
+time=822254141
+mem_heap_B=13893680
+mem_heap_extra_B=453288
+mem_stacks_B=0
+heap_tree=detailed
+n4: 13893680 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 11992752 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 11992752 0x4107EB: main (main.c:311)
+ n2: 1307808 0x41162F: crea_ordine (main.c:1163)
+  n0: 1277280 0x41063F: main (main.c:413)
+  n0: 30528 in 2 places, all below massif's threshold (1.00%)
+ n1: 407184 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 407184 0x41078F: main (main.c:300)
+ n0: 185936 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=3
+#-----------
+time=1102876432
+mem_heap_B=15927936
+mem_heap_extra_B=521616
+mem_stacks_B=0
+heap_tree=detailed
+n4: 15927936 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 13803184 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 13803184 0x4107EB: main (main.c:311)
+ n2: 1470816 0x41162F: crea_ordine (main.c:1163)
+  n0: 1466208 0x41063F: main (main.c:413)
+  n0: 4608 in 2 places, all below massif's threshold (1.00%)
+ n1: 467840 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 467840 0x41078F: main (main.c:300)
+ n0: 186096 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=4
+#-----------
+time=1488118175
+mem_heap_B=18477776
+mem_heap_extra_B=604824
+mem_stacks_B=0
+heap_tree=detailed
+n4: 18477776 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 16007744 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 16007744 0x4107EB: main (main.c:311)
+ n2: 1740384 0x41162F: crea_ordine (main.c:1163)
+  n0: 1724256 0x41063F: main (main.c:413)
+  n0: 16128 in 2 places, all below massif's threshold (1.00%)
+ n1: 544272 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 544272 0x41078F: main (main.c:300)
+ n0: 185376 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=5
+#-----------
+time=1803480799
+mem_heap_B=20210016
+mem_heap_extra_B=660048
+mem_stacks_B=0
+heap_tree=detailed
+n4: 20210016 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 17500752 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 17500752 0x4107EB: main (main.c:311)
+ n2: 1931040 0x41162F: crea_ordine (main.c:1163)
+  n0: 1867968 0x41063F: main (main.c:413)
+  n0: 63072 in 2 places, all below massif's threshold (1.00%)
+ n1: 594048 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 594048 0x41078F: main (main.c:300)
+ n0: 184176 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=6
+#-----------
+time=2221743389
+mem_heap_B=23118400
+mem_heap_extra_B=752568
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=7
+#-----------
+time=2459012094
+mem_heap_B=24365808
+mem_heap_extra_B=793528
+mem_stacks_B=0
+heap_tree=detailed
+n4: 24365808 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 21070752 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 21070752 0x4107EB: main (main.c:311)
+ n2: 2397600 0x41162F: crea_ordine (main.c:1163)
+  n0: 2306880 0x41063F: main (main.c:413)
+  n0: 90720 in 2 places, all below massif's threshold (1.00%)
+ n1: 714544 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 714544 0x41078F: main (main.c:300)
+ n0: 182912 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=8
+#-----------
+time=2764343773
+mem_heap_B=26075328
+mem_heap_extra_B=851800
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=9
+#-----------
+time=3236893032
+mem_heap_B=28290992
+mem_heap_extra_B=927232
+mem_stacks_B=0
+heap_tree=detailed
+n4: 28290992 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 24530592 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 24530592 0x4107EB: main (main.c:311)
+ n2: 2744640 0x41162F: crea_ordine (main.c:1163)
+  n0: 2736000 0x41063F: main (main.c:413)
+  n0: 8640 in 2 places, all below massif's threshold (1.00%)
+ n1: 829600 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 829600 0x41078F: main (main.c:300)
+ n0: 186160 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=10
+#-----------
+time=3546815922
+mem_heap_B=29952064
+mem_heap_extra_B=977176
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=11
+#-----------
+time=3876932343
+mem_heap_B=32477312
+mem_heap_extra_B=1057104
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=12
+#-----------
+time=4350791789
+mem_heap_B=34673200
+mem_heap_extra_B=1127512
+mem_stacks_B=0
+heap_tree=detailed
+n4: 34673200 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 30008400 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 30008400 0x4107EB: main (main.c:311)
+ n2: 3472992 0x41162F: crea_ordine (main.c:1163)
+  n0: 3396096 0x41063F: main (main.c:413)
+  n0: 76896 in 2 places, all below massif's threshold (1.00%)
+ n1: 1010480 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 1010480 0x41078F: main (main.c:300)
+ n0: 181328 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=13
+#-----------
+time=4750457658
+mem_heap_B=36326160
+mem_heap_extra_B=1181336
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=14
+#-----------
+time=5076843654
+mem_heap_B=38020496
+mem_heap_extra_B=1235936
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=15
+#-----------
+time=5531459139
+mem_heap_B=39950384
+mem_heap_extra_B=1301512
+mem_stacks_B=0
+heap_tree=detailed
+n4: 39950384 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 34642464 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 34642464 0x4107EB: main (main.c:311)
+ n2: 3964320 0x41162F: crea_ordine (main.c:1163)
+  n0: 3963168 0x41063F: main (main.c:413)
+  n0: 1152 in 2 places, all below massif's threshold (1.00%)
+ n1: 1166064 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 1166064 0x41078F: main (main.c:300)
+ n0: 177536 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=16
+#-----------
+time=5813564714
+mem_heap_B=40786928
+mem_heap_extra_B=1325112
+mem_stacks_B=0
+heap_tree=detailed
+n4: 40786928 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 35331168 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 35331168 0x4107EB: main (main.c:311)
+ n2: 4091616 0x41162F: crea_ordine (main.c:1163)
+  n0: 4008096 0x41063F: main (main.c:413)
+  n0: 83520 in 2 places, all below massif's threshold (1.00%)
+ n1: 1188368 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 1188368 0x41078F: main (main.c:300)
+ n0: 175776 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=17
+#-----------
+time=6203912701
+mem_heap_B=42167328
+mem_heap_extra_B=1371464
+mem_stacks_B=0
+heap_tree=detailed
+n4: 42167328 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 36512736 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 36512736 0x4107EB: main (main.c:311)
+ n2: 4250304 0x41162F: crea_ordine (main.c:1163)
+  n0: 4165632 0x41063F: main (main.c:413)
+  n0: 84672 in 2 places, all below massif's threshold (1.00%)
+ n1: 1227808 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 1227808 0x41078F: main (main.c:300)
+ n0: 176480 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=18
+#-----------
+time=6432205581
+mem_heap_B=42663456
+mem_heap_extra_B=1390928
+mem_stacks_B=0
+heap_tree=detailed
+n4: 42663456 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 36996896 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 36996896 0x4107EB: main (main.c:311)
+ n2: 4245408 0x41162F: crea_ordine (main.c:1163)
+  n0: 4192416 0x41063F: main (main.c:413)
+  n0: 52992 in 2 places, all below massif's threshold (1.00%)
+ n1: 1243856 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 1243856 0x41078F: main (main.c:300)
+ n0: 177296 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=19
+#-----------
+time=6855760506
+mem_heap_B=44634864
+mem_heap_extra_B=1452088
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=20
+#-----------
+time=7155469170
+mem_heap_B=45641024
+mem_heap_extra_B=1484232
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=21
+#-----------
+time=7362668774
+mem_heap_B=46099264
+mem_heap_extra_B=1502232
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=22
+#-----------
+time=7716691177
+mem_heap_B=48129728
+mem_heap_extra_B=1566288
+mem_stacks_B=0
+heap_tree=detailed
+n4: 48129728 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 41663328 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 41663328 0x4107EB: main (main.c:311)
+ n2: 4888800 0x41162F: crea_ordine (main.c:1163)
+  n0: 4849056 0x41063F: main (main.c:413)
+  n0: 39744 in 2 places, all below massif's threshold (1.00%)
+ n1: 1401072 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 1401072 0x41078F: main (main.c:300)
+ n0: 176528 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=23
+#-----------
+time=8171957593
+mem_heap_B=50219280
+mem_heap_extra_B=1630856
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=24
+#-----------
+time=8481252006
+mem_heap_B=51280896
+mem_heap_extra_B=1665200
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=25
+#-----------
+time=8754180952
+mem_heap_B=52013616
+mem_heap_extra_B=1685416
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=26
+#-----------
+time=9050338424
+mem_heap_B=53115184
+mem_heap_extra_B=1723080
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=27
+#-----------
+time=9265417304
+mem_heap_B=53525232
+mem_heap_extra_B=1738656
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=28
+#-----------
+time=9648657536
+mem_heap_B=55338528
+mem_heap_extra_B=1795760
+mem_stacks_B=0
+heap_tree=detailed
+n4: 55338528 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 47825760 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 47825760 0x4107EB: main (main.c:311)
+ n2: 5732064 0x41162F: crea_ordine (main.c:1163)
+  n0: 5696352 0x41063F: main (main.c:413)
+  n0: 35712 in 2 places, all below massif's threshold (1.00%)
+ n1: 1606432 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 1606432 0x41078F: main (main.c:300)
+ n0: 174272 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=29
+#-----------
+time=9897250569
+mem_heap_B=56106512
+mem_heap_extra_B=1820688
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=30
+#-----------
+time=10180371605
+mem_heap_B=56843680
+mem_heap_extra_B=1841072
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=31
+#-----------
+time=10501414920
+mem_heap_B=57709744
+mem_heap_extra_B=1870936
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=32
+#-----------
+time=10725078653
+mem_heap_B=58223824
+mem_heap_extra_B=1886384
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=33
+#-----------
+time=11065715906
+mem_heap_B=59277088
+mem_heap_extra_B=1922248
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=34
+#-----------
+time=11358429303
+mem_heap_B=60324832
+mem_heap_extra_B=1958016
+mem_stacks_B=0
+heap_tree=detailed
+n4: 60324832 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 52189184 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 52189184 0x4107EB: main (main.c:311)
+ n2: 6213600 0x41162F: crea_ordine (main.c:1163)
+  n0: 6178464 0x41063F: main (main.c:413)
+  n0: 35136 in 2 places, all below massif's threshold (1.00%)
+ n1: 1750320 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 1750320 0x41078F: main (main.c:300)
+ n0: 171728 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=35
+#-----------
+time=11728287163
+mem_heap_B=60927120
+mem_heap_extra_B=1974968
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=36
+#-----------
+time=12154312473
+mem_heap_B=62117104
+mem_heap_extra_B=2015824
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=37
+#-----------
+time=12557030091
+mem_heap_B=63257248
+mem_heap_extra_B=2052800
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=38
+#-----------
+time=12813087328
+mem_heap_B=63887872
+mem_heap_extra_B=2075072
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=39
+#-----------
+time=13159095796
+mem_heap_B=65063728
+mem_heap_extra_B=2114840
+mem_stacks_B=0
+heap_tree=detailed
+n4: 65063728 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 56303184 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 56303184 0x4107EB: main (main.c:311)
+ n2: 6700896 0x41162F: crea_ordine (main.c:1163)
+  n0: 6668640 0x41063F: main (main.c:413)
+  n0: 32256 in 2 places, all below massif's threshold (1.00%)
+ n1: 1886048 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 1886048 0x41078F: main (main.c:300)
+ n0: 173600 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=40
+#-----------
+time=13640228880
+mem_heap_B=66441392
+mem_heap_extra_B=2160016
+mem_stacks_B=0
+heap_tree=detailed
+n4: 66441392 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 57523920 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 57523920 0x4107EB: main (main.c:311)
+ n2: 6818112 0x41162F: crea_ordine (main.c:1163)
+  n0: 6808896 0x41063F: main (main.c:413)
+  n0: 9216 in 2 places, all below massif's threshold (1.00%)
+ n1: 1926848 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 1926848 0x41078F: main (main.c:300)
+ n0: 172512 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=41
+#-----------
+time=13934945284
+mem_heap_B=67361440
+mem_heap_extra_B=2187048
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=42
+#-----------
+time=14136888615
+mem_heap_B=67841888
+mem_heap_extra_B=2203216
+mem_stacks_B=0
+heap_tree=detailed
+n4: 67841888 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 58684272 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 58684272 0x4107EB: main (main.c:311)
+ n2: 7021152 0x41162F: crea_ordine (main.c:1163)
+  n0: 6976224 0x41063F: main (main.c:413)
+  n0: 44928 in 2 places, all below massif's threshold (1.00%)
+ n1: 1964656 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 1964656 0x41078F: main (main.c:300)
+ n0: 171808 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=43
+#-----------
+time=14569971801
+mem_heap_B=68784704
+mem_heap_extra_B=2234120
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=44
+#-----------
+time=14870303037
+mem_heap_B=69451312
+mem_heap_extra_B=2254456
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=45
+#-----------
+time=15198917035
+mem_heap_B=70454192
+mem_heap_extra_B=2289800
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=46
+#-----------
+time=15486487009
+mem_heap_B=70841632
+mem_heap_extra_B=2301008
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=47
+#-----------
+time=15876886902
+mem_heap_B=72178080
+mem_heap_extra_B=2345832
+mem_stacks_B=0
+heap_tree=detailed
+n4: 72178080 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 62419376 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 62419376 0x4107EB: main (main.c:311)
+ n2: 7496064 0x41162F: crea_ordine (main.c:1163)
+  n0: 7452864 0x41063F: main (main.c:413)
+  n0: 43200 in 2 places, all below massif's threshold (1.00%)
+ n1: 2087328 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2087328 0x41078F: main (main.c:300)
+ n0: 175312 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=48
+#-----------
+time=16165384214
+mem_heap_B=72952864
+mem_heap_extra_B=2370472
+mem_stacks_B=0
+heap_tree=detailed
+n4: 72952864 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 63100464 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 63100464 0x4107EB: main (main.c:311)
+ n2: 7570368 0x41162F: crea_ordine (main.c:1163)
+  n0: 7543008 0x41063F: main (main.c:413)
+  n0: 27360 in 2 places, all below massif's threshold (1.00%)
+ n1: 2108544 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2108544 0x41078F: main (main.c:300)
+ n0: 173488 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=49
+#-----------
+time=16288852533
+mem_heap_B=73154032
+mem_heap_extra_B=2378376
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=50
+#-----------
+time=16482916885
+mem_heap_B=73685424
+mem_heap_extra_B=2393632
+mem_stacks_B=0
+heap_tree=detailed
+n4: 73685424 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 63678464 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 63678464 0x4107EB: main (main.c:311)
+ n2: 7701120 0x41162F: crea_ordine (main.c:1163)
+  n0: 7632288 0x41063F: main (main.c:413)
+  n0: 68832 in 2 places, all below massif's threshold (1.00%)
+ n1: 2128672 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2128672 0x41078F: main (main.c:300)
+ n0: 177168 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=51
+#-----------
+time=16691115595
+mem_heap_B=74132496
+mem_heap_extra_B=2410488
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=52
+#-----------
+time=16827170621
+mem_heap_B=74451248
+mem_heap_extra_B=2421984
+mem_stacks_B=0
+heap_tree=detailed
+n4: 74451248 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 64347312 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 64347312 0x4107EB: main (main.c:311)
+ n2: 7769664 0x41162F: crea_ordine (main.c:1163)
+  n0: 7726752 0x41063F: main (main.c:413)
+  n0: 42912 in 2 places, all below massif's threshold (1.00%)
+ n1: 2151248 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2151248 0x41078F: main (main.c:300)
+ n0: 183024 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=53
+#-----------
+time=17032141564
+mem_heap_B=74929968
+mem_heap_extra_B=2435192
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=54
+#-----------
+time=17181351916
+mem_heap_B=75219552
+mem_heap_extra_B=2448864
+mem_stacks_B=0
+heap_tree=detailed
+n4: 75219552 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 65033296 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 65033296 0x4107EB: main (main.c:311)
+ n2: 7827552 0x41162F: crea_ordine (main.c:1163)
+  n0: 7815168 0x41063F: main (main.c:413)
+  n0: 12384 in 2 places, all below massif's threshold (1.00%)
+ n1: 2174368 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2174368 0x41078F: main (main.c:300)
+ n0: 184336 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=55
+#-----------
+time=17383296197
+mem_heap_B=75808160
+mem_heap_extra_B=2464984
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=56
+#-----------
+time=17432649180
+mem_heap_B=75979040
+mem_heap_extra_B=2470472
+mem_stacks_B=0
+heap_tree=detailed
+n4: 75979040 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 65658352 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 65658352 0x4107EB: main (main.c:311)
+ n2: 7943040 0x41162F: crea_ordine (main.c:1163)
+  n0: 7902720 0x41063F: main (main.c:413)
+  n0: 40320 in 2 places, all below massif's threshold (1.00%)
+ n1: 2194496 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2194496 0x41078F: main (main.c:300)
+ n0: 183152 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=57
+#-----------
+time=17636762035
+mem_heap_B=76702784
+mem_heap_extra_B=2494312
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=58
+#-----------
+time=17637361929
+mem_heap_B=76743616
+mem_heap_extra_B=2495488
+mem_stacks_B=0
+heap_tree=detailed
+n4: 76743616 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 66319040 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 66319040 0x4107EB: main (main.c:311)
+ n2: 8023392 0x41162F: crea_ordine (main.c:1163)
+  n0: 8006688 0x41063F: main (main.c:413)
+  n0: 16704 in 2 places, all below massif's threshold (1.00%)
+ n1: 2217072 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2217072 0x41078F: main (main.c:300)
+ n0: 184112 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=59
+#-----------
+time=17839322283
+mem_heap_B=77060048
+mem_heap_extra_B=2506688
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=60
+#-----------
+time=18041265797
+mem_heap_B=77480560
+mem_heap_extra_B=2520168
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=61
+#-----------
+time=18065005927
+mem_heap_B=77532064
+mem_heap_extra_B=2521152
+mem_stacks_B=0
+heap_tree=detailed
+n4: 77532064 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 66952800 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 66952800 0x4107EB: main (main.c:311)
+ n2: 8151264 0x41162F: crea_ordine (main.c:1163)
+  n0: 8099424 0x41063F: main (main.c:413)
+  n0: 51840 in 2 places, all below massif's threshold (1.00%)
+ n1: 2238288 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2238288 0x41078F: main (main.c:300)
+ n0: 189712 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=62
+#-----------
+time=18266950601
+mem_heap_B=78012176
+mem_heap_extra_B=2538656
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=63
+#-----------
+time=18392176936
+mem_heap_B=78310784
+mem_heap_extra_B=2548032
+mem_stacks_B=0
+heap_tree=detailed
+n4: 78310784 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 67630896 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 67630896 0x4107EB: main (main.c:311)
+ n2: 8227296 0x41162F: crea_ordine (main.c:1163)
+  n0: 8208288 0x41063F: main (main.c:413)
+  n0: 19008 in 2 places, all below massif's threshold (1.00%)
+ n1: 2259504 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2259504 0x41078F: main (main.c:300)
+ n0: 193088 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=64
+#-----------
+time=18532650543
+mem_heap_B=79128672
+mem_heap_extra_B=2573368
+mem_stacks_B=0
+heap_tree=detailed
+n4: 79128672 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 68303824 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 68303824 0x4107EB: main (main.c:311)
+ n2: 8347392 0x41162F: crea_ordine (main.c:1163)
+  n0: 8318592 0x41063F: main (main.c:413)
+  n0: 28800 in 2 places, all below massif's threshold (1.00%)
+ n1: 2281536 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2281536 0x41078F: main (main.c:300)
+ n0: 195920 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=65
+#-----------
+time=18734810928
+mem_heap_B=79460048
+mem_heap_extra_B=2586064
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=66
+#-----------
+time=18824423823
+mem_heap_B=79922560
+mem_heap_extra_B=2600928
+mem_stacks_B=0
+heap_tree=detailed
+n4: 79922560 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 68959888 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 68959888 0x4107EB: main (main.c:311)
+ n2: 8455968 0x41162F: crea_ordine (main.c:1163)
+  n0: 8440992 0x41063F: main (main.c:413)
+  n0: 14976 in 2 places, all below massif's threshold (1.00%)
+ n1: 2303840 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2303840 0x41078F: main (main.c:300)
+ n0: 202864 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=67
+#-----------
+time=19027735929
+mem_heap_B=80330896
+mem_heap_extra_B=2612152
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=68
+#-----------
+time=19231303117
+mem_heap_B=80607536
+mem_heap_extra_B=2621552
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=69
+#-----------
+time=19276809415
+mem_heap_B=80725584
+mem_heap_extra_B=2624704
+mem_stacks_B=0
+heap_tree=detailed
+n4: 80725584 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 69627920 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 69627920 0x4107EB: main (main.c:311)
+ n2: 8569728 0x41162F: crea_ordine (main.c:1163)
+  n0: 8563392 0x41063F: main (main.c:413)
+  n0: 6336 in 2 places, all below massif's threshold (1.00%)
+ n1: 2326960 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2326960 0x41078F: main (main.c:300)
+ n0: 200976 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=70
+#-----------
+time=19479524758
+mem_heap_B=81038000
+mem_heap_extra_B=2633904
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=71
+#-----------
+time=19655918504
+mem_heap_B=81545168
+mem_heap_extra_B=2645168
+mem_stacks_B=0
+heap_tree=peak
+n4: 81545168 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 70301392 0x4107EB: crea_nodo_ricettario (main.c:786)
+  n0: 70301392 0x4107EB: main (main.c:311)
+ n2: 8700480 0x41162F: crea_ordine (main.c:1163)
+  n0: 8686368 0x41063F: main (main.c:413)
+  n0: 14112 in 2 places, all below massif's threshold (1.00%)
+ n1: 2349536 0x410BA7: crea_bucket_ricettario (main.c:587)
+  n0: 2349536 0x41078F: main (main.c:300)
+ n0: 193760 in 11 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=72
+#-----------
+time=19857864212
+mem_heap_B=82129472
+mem_heap_extra_B=2652464
+mem_stacks_B=0
+heap_tree=empty
