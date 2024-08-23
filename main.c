@@ -400,7 +400,7 @@ int main()
                     if (attesa == 0)
                     {
                         ordine = crea_ordine(nome_ricetta, ricetta, qta, clock, peso);
-                        ordini_pronti = inserisci_in_coda(ordini_pronti, ordine);
+                        ordini_pronti = inserisci_inordine_ordini(ordini_pronti, ordine);
 
                         // produco ordine
                         produci_ordine(magazzino, ricetta, qta);
