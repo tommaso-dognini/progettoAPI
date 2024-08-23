@@ -401,6 +401,7 @@ int main()
                     {
                         ordine = crea_ordine(nome_ricetta, ricetta, qta, clock, peso);
                         ordini_pronti = inserisci_inordine_ordini(ordini_pronti, ordine);
+                        //ordini_pronti = inserisci_in_coda(ordini_pronti, ordine);
 
                         // produco ordine
                         produci_ordine(magazzino, ricetta, qta);
@@ -411,7 +412,8 @@ int main()
                     else
                     { // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
                         ordine = crea_ordine(nome_ricetta, ricetta, qta, clock, peso);
-                        ordini_attesa = inserisci_in_coda(ordini_attesa, ordine);
+                        ordini_attesa = inserisci_inordine_ordini(ordini_attesa, ordine);
+                        // ordini_attesa = inserisci_in_coda(ordini_attesa, ordine);
 
                         // ordino lotti in senso crescente per tempo di acquisizione (tempo)
                         // merge_sort_ordini(&ordini_attesa);
@@ -1316,6 +1318,20 @@ Coda *inserisci_inordine_ordini(Coda *coda, Ordine *ordine)
     Ordine *temp = coda->testa;
     Ordine *temp_prec = NULL;
 
+    // se devo inserire in fondo: inserimento in coda (pu veloce)
+    if (coda->coda != NULL)
+    {
+        if (ordine->tempo >= coda->coda->tempo)
+        {
+            // inserimento in coda -> risparmio tempo
+            ordine->successore = NULL;
+            coda->coda->successore = ordine;
+            coda->coda = ordine;
+            return coda;
+        }
+    }
+
+    // altrimenti: inserimento in ordine
     while (temp != NULL && ordine->tempo > temp->tempo)
     {
         temp_prec = temp;
