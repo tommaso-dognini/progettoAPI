@@ -101,7 +101,7 @@ Ordine *crea_ordine(char *nome_ricetta, BucketRicettario *bucket_ricetta, int qt
 int verifica_ingrediente(BucketMagazzino **bucket, char *nome_ingrediente, int qta_necessaria, int clock);
 
 // modifica le quantita nel ricettario sottraendo quelle utilizzate per produrre la ricetta
-void produci_ordine(Magazzino *magazzino, BucketRicettario *bucket_ricetta, int qta);
+void produci_ordine(Magazzino *magazzino, BucketRicettario *bucket_ricetta, int qta, BucketMagazzino **array);
 
 // ritorna 1 se la ricetta e presente nella lista oppure 0 se non e presente
 int cerca_in_lista(Ordine *testa, char *nome_ricetta);
@@ -209,9 +209,9 @@ int main()
     int stop;
 
     int cont = 0;
-    //int array_size = 500;
-    //BucketMagazzino **array = (BucketMagazzino **)calloc(array_size, sizeof(BucketMagazzino *));
-   //BucketMagazzino **ptr_controllo;
+    int array_size = 500;
+    BucketMagazzino **array = (BucketMagazzino **)calloc(array_size, sizeof(BucketMagazzino *));
+    BucketMagazzino **ptr_controllo;
 
     controllo = scanf("%d %d", &periodo, &capienza);
     // printf("Il periodo e: %d \nLa capienza del corriere e: %d \n", periodo, capienza);
@@ -386,62 +386,61 @@ int main()
                         peso += (ingrediente->qta) * qta;
 
                         // CONTROLLO MAGAZZINO
-                        if (attesa == 0)
+                        // cerco ingrediente in magazzino e salvo puntatore in array statico per avveloccizare produci ordine
+                        bucket = cerca_magazzino(magazzino, ingrediente->nome_ingrediente);
+                        if (cont >= array_size)
                         {
-                            // cerco ingrediente in magazzino e salvo puntatore in array statico per avveloccizare produci ordine
-                            bucket = cerca_magazzino(magazzino, ingrediente->nome_ingrediente);
-                            // if (cont >= array_size)
-                            // {
-                            //     ptr_controllo = realloc(array, array_size + array_size * 2);
-                            //     if (ptr_controllo == NULL)
-                            //         printf("errore realloc!\n");
-                            // }
-                            // else
-                            // {
-                            //     array[cont] = bucket;
-                            // }
+                            ptr_controllo = realloc(array, array_size + array_size * 2);
+                            if (ptr_controllo == NULL)
+                                printf("errore realloc!\n");
+                        }
+                        else
+                        {
+                            array[cont] = bucket;
+                        }
 
-                            if (bucket == NULL || bucket->lista == NULL)
-                            {
-                                // non ci sono ingredinti in magazzino
-                                attesa = 1;
-                            }
-                            else
-                            { // ho una lista di lotti da controllare: voglio verificare di avere ingredienti non scaduti a sufficienza
-
+                        if (bucket == NULL || bucket->lista == NULL)
+                        {
+                            // non ci sono ingredinti in magazzino
+                            attesa = 1;
+                        }
+                        else
+                        { // ho una lista di lotti da controllare: voglio verificare di avere ingredienti non scaduti a sufficienza
+                            if (attesa == 0)
+                            {// se so gia che va in attesa e inutile verificare altri ingredienti
                                 if (verifica_ingrediente(&bucket, ingrediente->nome_ingrediente, ingrediente->qta * qta, clock) == 0)
                                 {
                                     // ce un ingrediente che manca
                                     attesa = 1;
                                 }
                             }
-                            // printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
-                            //         avanzo all'ingrediente successivo
-                            ingrediente = ingrediente->successore;
-                            cont++;
                         }
-                        // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
-                        if (attesa == 0)
-                        {
-                            ordine = crea_ordine(nome_ricetta, ricetta, qta, clock, peso);
-                            ordini_pronti = inserisci_inordine_ordini(ordini_pronti, ordine);
-                            // ordini_pronti = inserisci_in_coda(ordini_pronti, ordine);
+                        // printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
+                        //         avanzo all'ingrediente successivo
+                        ingrediente = ingrediente->successore;
+                        cont++;
+                    }
+                    // SE SI PRODUCO L'ORDINE E METTO IN LISTA DI ORDINI PRONTI
+                    if (attesa == 0)
+                    {
+                        ordine = crea_ordine(nome_ricetta, ricetta, qta, clock, peso);
+                        ordini_pronti = inserisci_inordine_ordini(ordini_pronti, ordine);
+                        // ordini_pronti = inserisci_in_coda(ordini_pronti, ordine);
 
-                            // produco ordine
-                            produci_ordine(magazzino, ricetta, qta);
+                        // produco ordine
+                        produci_ordine(magazzino, ricetta, qta, array);
 
-                            // ordino lotti in senso crescente per tempo di acquisizione (tempo)
-                            // merge_sort_ordini(&ordini_pronti);
-                        }
-                        else
-                        { // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
-                            ordine = crea_ordine(nome_ricetta, ricetta, qta, clock, peso);
-                            ordini_attesa = inserisci_inordine_ordini(ordini_attesa, ordine);
-                            // ordini_attesa = inserisci_in_coda(ordini_attesa, ordine);
+                        // ordino lotti in senso crescente per tempo di acquisizione (tempo)
+                        // merge_sort_ordini(&ordini_pronti);
+                    }
+                    else
+                    { // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
+                        ordine = crea_ordine(nome_ricetta, ricetta, qta, clock, peso);
+                        ordini_attesa = inserisci_inordine_ordini(ordini_attesa, ordine);
+                        // ordini_attesa = inserisci_in_coda(ordini_attesa, ordine);
 
-                            // ordino lotti in senso crescente per tempo di acquisizione (tempo)
-                            // merge_sort_ordini(&ordini_attesa);
-                        }
+                        // ordino lotti in senso crescente per tempo di acquisizione (tempo)
+                        // merge_sort_ordini(&ordini_attesa);
                     }
                 }
             }
@@ -510,16 +509,16 @@ int main()
                     {
                         // CONTROLLO MAGAZZINO
                         bucket = cerca_magazzino(magazzino, ingrediente->nome_ingrediente);
-                        // if (cont >= array_size)
-                        // {
-                        //     ptr_controllo = realloc(array, array_size + array_size * 2);
-                        //     if (ptr_controllo == NULL)
-                        //         printf("errore realloc!\n");
-                        // }
-                        // else
-                        // {
-                        //     array[cont] = bucket;
-                        // }
+                        if (cont >= array_size)
+                        {
+                            ptr_controllo = realloc(array, array_size + array_size * 2);
+                            if (ptr_controllo == NULL)
+                                printf("errore realloc!\n");
+                        }
+                        else
+                        {
+                            array[cont] = bucket;
+                        }
 
                         if (bucket == NULL || bucket->lista == NULL)
                         {
@@ -549,7 +548,7 @@ int main()
                         // nuovo_ordine = ordine;
 
                         // PRODUCO ORDINE
-                        produci_ordine(magazzino, ricetta, nuovo_ordine->qta);
+                        produci_ordine(magazzino, ricetta, nuovo_ordine->qta, array);
 
                         // INSERISCO ORDINE IN ORDINI_PRONTI
                         ordini_pronti = inserisci_inordine_ordini(ordini_pronti, nuovo_ordine);
@@ -1001,7 +1000,7 @@ void stampa_lista_lotti(Lotto *testa)
 //--------------------------------- ORDINI ------------------------------------------//
 
 // se chiamata gia verificato che ogni ingrediente e presente per poter produrre ordine
-void produci_ordine(Magazzino *magazzino, BucketRicettario *bucket_ricetta, int qta)
+void produci_ordine(Magazzino *magazzino, BucketRicettario *bucket_ricetta, int qta, BucketMagazzino **array)
 {
     Ingrediente *nodo_ingrediente = bucket_ricetta->lista;
     Lotto *lotto;
@@ -1017,8 +1016,7 @@ void produci_ordine(Magazzino *magazzino, BucketRicettario *bucket_ricetta, int 
     while (nodo_ingrediente != NULL)
     {
         // bucket_magazzino = cerca_magazzino(magazzino, nodo_ingrediente->nome_ingrediente);
-        bucket_magazzino = cerca_magazzino(magazzino,nodo_ingrediente->nome_ingrediente);
-
+        bucket_magazzino = array[cont];
         lotto = bucket_magazzino->lista;
         qta_necessaria = qta * nodo_ingrediente->qta;
 
