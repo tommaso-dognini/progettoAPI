@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#define CMD_LEN 50
+#define CMD_LEN 30
 //-----------------------------------------------------------------------------------------
 //--------  FUNZIONI STRUTTURE DATI ----------------------------------------------------------
 //-----------------------------------------------------------------------------------------
@@ -110,6 +110,8 @@ int cerca_in_lista(Ordine *testa, char *nome_ricetta);
 void inizializza_coda(Coda **coda);
 
 Coda *elimina_ordine_ptr_coda(Coda *coda, Ordine *nodo);
+
+Coda *sfila_ordine_ptr_coda(Coda *coda, Ordine *nodo);
 
 Coda *inserisci_in_coda(Coda *coda, Ordine *ordine);
 
@@ -404,10 +406,13 @@ int main()
                         }
                         else
                         { // ho una lista di lotti da controllare: voglio verificare di avere ingredienti non scaduti a sufficienza
-                            if (verifica_ingrediente(&bucket, ingrediente->nome_ingrediente, ingrediente->qta * qta, clock) == 0)
-                            {
-                                // ce un ingrediente che manca
-                                attesa = 1;
+                            if (attesa == 0)
+                            {// se so gia che va in attesa e inutile verificare altri ingredienti
+                                if (verifica_ingrediente(&bucket, ingrediente->nome_ingrediente, ingrediente->qta * qta, clock) == 0)
+                                {
+                                    // ce un ingrediente che manca
+                                    attesa = 1;
+                                }
                             }
                         }
                         // printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
@@ -540,6 +545,7 @@ int main()
                     {
                         // creo ordine
                         nuovo_ordine = crea_ordine(ordine->nome_ricetta, ricetta, ordine->qta, ordine->tempo, ordine->peso);
+                        // nuovo_ordine = ordine;
 
                         // PRODUCO ORDINE
                         produci_ordine(magazzino, ricetta, nuovo_ordine->qta, array);
@@ -554,10 +560,11 @@ int main()
 
                         // elimino l'ordine dalla lista di attesa e non devo riordinare nulla perche la proprieta si preserva
                         ordini_attesa = elimina_ordine_ptr_coda(ordini_attesa, prec_ordine);
+                        // ordini_attesa = sfila_ordine_ptr_coda(ordini_attesa, prec_ordine);
 
                         // // devo produrre ordine che sto verificando: lo tolgo dalla lista di attesa, lo produco, lo metto nella lista di ordini pronti
                         // nuovo_ordine = ordine;
-                        // produci_ordine(magazzino, nuovo_ordine->bucket_ricetta, nuovo_ordine->qta);
+                        // produci_ordine(magazzino, nuovo_ordine->bucket_ricetta, nuovo_ordine->qta, array);
 
                         // // sfilo dalla lista degli ordini in attesa e aggiorno testa e coda
                         // if (prec_ordine == NULL)
@@ -629,14 +636,14 @@ int main()
 // inizializza Ricettario
 void inizializza_ricettario(Ricettario *ricettario)
 {
-    ricettario->dimensione = 5011;
+    ricettario->dimensione = 10007;
     ricettario->buckets = (BucketRicettario **)calloc(ricettario->dimensione, sizeof(struct BucketRicettario *));
 }
 
 // inizializza Magazzino
 void inizializza_magazzino(Magazzino *magazzino)
 {
-    magazzino->dimensione = 5011;
+    magazzino->dimensione = 10007;
     magazzino->buckets = (BucketMagazzino **)calloc(magazzino->dimensione, sizeof(struct BucketMagazzino *));
 }
 
@@ -663,7 +670,7 @@ BucketRicettario *crea_bucket_ricettario(char *string, Ingrediente *lista)
 int hash(char *string)
 {
     unsigned long hash = 5381;
-    long long m = 5011;
+    long long m = 10007;
     int c;
     while ((c = *string++))
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
