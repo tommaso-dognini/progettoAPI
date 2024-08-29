@@ -391,7 +391,7 @@ int main()
                         if (cont >= array_size)
                         {
                             ptr_controllo = realloc(array, array_size + array_size * 2);
-                            if(ptr_controllo == NULL)
+                            if (ptr_controllo == NULL)
                                 printf("errore realloc!\n");
                         }
                         else
@@ -406,10 +406,13 @@ int main()
                         }
                         else
                         { // ho una lista di lotti da controllare: voglio verificare di avere ingredienti non scaduti a sufficienza
-                            if (verifica_ingrediente(&bucket, ingrediente->nome_ingrediente, ingrediente->qta * qta, clock) == 0)
-                            {
-                                // ce un ingrediente che manca
-                                attesa = 1;
+                            if (attesa == 0)
+                            {// se so gia che va in attesa e inutile verificare altri ingredienti
+                                if (verifica_ingrediente(&bucket, ingrediente->nome_ingrediente, ingrediente->qta * qta, clock) == 0)
+                                {
+                                    // ce un ingrediente che manca
+                                    attesa = 1;
+                                }
                             }
                         }
                         // printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
@@ -509,7 +512,7 @@ int main()
                         if (cont >= array_size)
                         {
                             ptr_controllo = realloc(array, array_size + array_size * 2);
-                            if(ptr_controllo == NULL)
+                            if (ptr_controllo == NULL)
                                 printf("errore realloc!\n");
                         }
                         else
@@ -542,10 +545,10 @@ int main()
                     {
                         // creo ordine
                         nuovo_ordine = crea_ordine(ordine->nome_ricetta, ricetta, ordine->qta, ordine->tempo, ordine->peso);
-                        //nuovo_ordine = ordine;
+                        // nuovo_ordine = ordine;
 
                         // PRODUCO ORDINE
-                        produci_ordine(magazzino, ricetta, nuovo_ordine->qta,array);
+                        produci_ordine(magazzino, ricetta, nuovo_ordine->qta, array);
 
                         // INSERISCO ORDINE IN ORDINI_PRONTI
                         ordini_pronti = inserisci_inordine_ordini(ordini_pronti, nuovo_ordine);
@@ -557,7 +560,7 @@ int main()
 
                         // elimino l'ordine dalla lista di attesa e non devo riordinare nulla perche la proprieta si preserva
                         ordini_attesa = elimina_ordine_ptr_coda(ordini_attesa, prec_ordine);
-                        //ordini_attesa = sfila_ordine_ptr_coda(ordini_attesa, prec_ordine);
+                        // ordini_attesa = sfila_ordine_ptr_coda(ordini_attesa, prec_ordine);
 
                         // // devo produrre ordine che sto verificando: lo tolgo dalla lista di attesa, lo produco, lo metto nella lista di ordini pronti
                         // nuovo_ordine = ordine;
