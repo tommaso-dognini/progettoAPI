@@ -234,7 +234,7 @@ int main()
                     // creo il nuovo nodo ordine per la lista del corriere
                     ordine_corriere = crea_ordine(ordine->nome_ricetta, NULL, ordine->qta, ordine->tempo, ordine->peso);
                     // inserisco nella lista delgi ordini del corriere
-                    ordini_corriere = inserisci_nodo_in_testa_ordini(ordini_corriere, ordine_corriere);
+                    ordini_corriere = inserisci_nodo_in_testa_ordini(ordini_corriere, ordine);
 
                     // aggiorno campienza rimasta
                     capienza_rimasta -= ordine->peso;
@@ -384,7 +384,7 @@ int main()
                         peso += (ingrediente->qta) * qta;
 
                         // CONTROLLO MAGAZZINO
-                        // cerco ingrediente in magazzino e salvo puntatore in array statico per avveloccizare produci ordine
+                        //salvo bucket in array statico con inidirizzo di bucket di tutti ingredienti --> avvelocizzo produci ordine (non devo fare cerca_magazzino);
                         bucket = cerca_magazzino(magazzino, ingrediente->nome_ingrediente);
                         if (cont >= array_size)
                         {
@@ -504,6 +504,7 @@ int main()
                     {
                         // CONTROLLO MAGAZZINO
                         bucket = cerca_magazzino(magazzino, ingrediente->nome_ingrediente);
+                        //salvo bucket in array statico con inidirizzo di bucket di tutti ingredienti --> avvelocizzo produci ordine (non devo fare cerca_magazzino);
                         if (cont >= array_size)
                         {
                             ptr_controllo = realloc(array, array_size + array_size * 2);
@@ -554,51 +555,6 @@ int main()
 
                         // elimino l'ordine dalla lista di attesa e non devo riordinare nulla perche la proprieta si preserva
                         ordini_attesa = elimina_ordine_ptr_coda(ordini_attesa, prec_ordine);
-
-                        // // devo produrre ordine che sto verificando: lo tolgo dalla lista di attesa, lo produco, lo metto nella lista di ordini pronti
-                        // nuovo_ordine = ordine;
-                        // produci_ordine(magazzino, nuovo_ordine->bucket_ricetta, nuovo_ordine->qta);
-
-                        // // sfilo dalla lista degli ordini in attesa e aggiorno testa e coda
-                        // if (prec_ordine == NULL)
-                        // {
-                        //     // e' il primo della lista di attesa ->aggiorno la testa della coda
-                        //     if (ordine->successore == NULL)
-                        //     {
-                        //         // e il primo e anche ultimo aggiorno anche la coda
-                        //         ordini_attesa->testa = NULL;
-                        //         ordini_attesa->coda = NULL;
-                        //     }
-                        //     else
-                        //     {
-                        //         // e il primo ma non ultimo aggiorno solo la testa
-                        //         ordini_attesa->testa = ordine->successore;
-                        //     }
-                        //     // setto ordine precedente per operazioni successive
-                        //     prec_ordine = NULL;
-                        //     ordine = ordine->successore;
-                        // }
-                        // else if (ordine->successore == NULL)
-                        // {
-                        //     // e l'ultimo aggiorno la coda
-                        //     ordini_attesa->coda = prec_ordine;
-
-                        //     // ordine precedente rimane lo stesso
-                        //     //avanzo al successivo
-                        //     ordine = ordine->successore;
-                        // }
-                        // else
-                        // {
-                        //     // sono dentro la coda posso avanzare senza dover modificare testa o coda
-                        //     prec_ordine->successore = ordine->successore;
-
-                        //     // ordine precedente rimane lo stesso
-                        //     //avanzo al successivo
-                        //     ordine = ordine->successore;
-                        // }
-
-                        // // inserisco in lista di ordini pronti
-                        // ordini_pronti = inserisci_inordine_ordini(ordini_pronti, nuovo_ordine);
                     }
                     else
                     {
