@@ -219,7 +219,7 @@ int main()
 
     while (separatore == '\n' && controllo != -1)
     {
-        // printf("CLOCK: %d\n", clock);
+        printf("CLOCK: %d\n", clock);
 
         // VERIFICA CORRIERE
         if (clock % periodo == 0 && clock != 0)
@@ -286,7 +286,7 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            // printf("Nome ricetta:%s\n", nome_ricetta);
+            printf("Nome ricetta:%s\n", nome_ricetta);
             BucketRicettario *ricetta = cerca_ricettario(ricettario, nome_ricetta);
 
             if (ricetta != NULL)
@@ -312,7 +312,7 @@ int main()
                     controllo = scanf("%s", nome_ingrediente);
                     controllo = scanf("%d", &qta);
                     controllo = scanf("%c", &separatore);
-                    // printf("Ingrediente:%s,qta:%d\n", nome_ingrediente, qta);
+                    printf("Ingrediente:%s,qta:%d\n", nome_ingrediente, qta);
 
                     // AGGIUNGO INGREDIENTE ALLA NODO RICETTA
                     ingrediente = crea_nodo_ricettario(nome_ingrediente, qta);
@@ -321,7 +321,7 @@ int main()
 
                 // AGGIUNGO IL NODO RICETTA AL RICETTARIO
                 inserisci_ricetta(ricettario, ricetta, ricetta->string);
-                // stampa_lista_ingredienti(ricetta->lista);
+                stampa_lista_ingredienti(ricetta->lista);
             }
 
             nome_ricetta[0] = 0;
@@ -334,7 +334,7 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            // printf("Nome ricetta:%s\n", nome_ricetta);
+            printf("Nome ricetta:%s\n", nome_ricetta);
             //  VERIFICO CHE NON SIA IN USO = ordini_attesa e CHE NON E' LA RICETTA DI UN ORDINE CHE NON HO ANCORA SPEDITO = oridini_pronti
             if (cerca_in_lista(ordini_attesa->testa, nome_ricetta) == 1 || cerca_in_lista(ordini_pronti->testa, nome_ricetta) == 1)
             {
@@ -364,7 +364,7 @@ int main()
                 controllo = scanf("%s", nome_ricetta);
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%c", &separatore);
-                // printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
+                printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
 
                 // PRELEVO LA RICETTA DA RICETTARIO
                 ricetta = cerca_ricettario(ricettario, nome_ricetta);
@@ -415,7 +415,7 @@ int main()
                                 }
                             }
                         }
-                        // printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
+                        printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
                         //         avanzo all'ingrediente successivo
                         ingrediente = ingrediente->successore;
                         cont++;
@@ -444,11 +444,11 @@ int main()
                     }
                 }
             }
-            // printf("ordini_pronti:\n");
-            // stampa_lista_ordini(ordini_pronti->testa);
+            printf("ordini_pronti:\n");
+            stampa_lista_ordini(ordini_pronti->testa);
 
-            // printf("ordini_attesa:\n");
-            // stampa_lista_ordini(ordini_attesa->testa);
+            printf("ordini_attesa:\n");
+            stampa_lista_ordini(ordini_attesa->testa);
         }
 
         // RIFORNIMENTO
@@ -464,7 +464,7 @@ int main()
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%d", &scadenza);
                 controllo = scanf("%c", &separatore);
-                // printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
+                printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
 
                 // AGGIUNGO NEL MAGAZZINO
 
@@ -472,7 +472,7 @@ int main()
                 lotto = crea_nodo_magazzino(qta, scadenza);
                 // inserisco lotto nel magazzino (inserimento e in ordine di data di scadenza crescente)
                 inserisci_bucket_magazzino(magazzino, lotto, nome_ingrediente);
-                // stampa_lista_lotti(magazzino->buckets[hash(nome_ingrediente)]->lista);
+                stampa_lista_lotti(magazzino->buckets[hash(nome_ingrediente)]->lista);
             }
 
             // HO AGGIORNATO IL MAGAZZINO
@@ -534,7 +534,7 @@ int main()
                                 attesa = 1;
                             }
                         }
-                        // printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
+                        printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
                         //  avanzo all'ingrediente successivo
                         ingrediente = ingrediente->successore;
                         cont++;
@@ -615,17 +615,17 @@ int main()
                     }
                 }
             }
-            // printf("ordini_pronti:\n");
-            // stampa_lista_ordini(ordini_pronti->testa);
+            printf("ordini_pronti:\n");
+            stampa_lista_ordini(ordini_pronti->testa);
 
-            // printf("ordini_attesa:\n");
-            // stampa_lista_ordini(ordini_attesa->testa);
+            printf("ordini_attesa:\n");
+            stampa_lista_ordini(ordini_attesa->testa);
         }
 
         // AGGIUSTAMENTI
         comando[0] = 0;
         clock++;
-        // printf("\n");
+        printf("\n");
     }
 
     // faccio le free
