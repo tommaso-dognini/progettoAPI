@@ -5,15 +5,6 @@
 //-----------------------------------------------------------------------------------------
 //--------  FUNZIONI STRUTTURE DATI ----------------------------------------------------------
 //-----------------------------------------------------------------------------------------
-
-// Definisco la struttura di un Nodo
-typedef struct Ingrediente
-{
-    char nome_ingrediente[CMD_LEN];
-    int qta;
-    struct Ingrediente *successore;
-} Ingrediente;
-
 // Definisco la struttura di un Lotto
 typedef struct Lotto
 {
@@ -31,9 +22,25 @@ typedef struct BucketMagazzino
 } BucketMagazzino;
 
 // Definisco la struttura dei buckets delle hash tables
+typedef struct BucketIngredienti
+{
+    char nome_ingrediente[CMD_LEN];
+    struct BucketMagazzino *bucket_magazzino;
+    struct BucketIngredienti *successore;
+} BucketIngredienti;
+
+// Definisco la struttura di un Nodo
+typedef struct Ingrediente
+{
+    BucketIngredienti *bucket_ingrediente;
+    int qta;
+    struct Ingrediente *successore;
+} Ingrediente;
+
+// Definisco la struttura dei buckets delle hash tables
 typedef struct BucketRicettario
 {
-    char string[CMD_LEN];
+    char nome_ricetta[CMD_LEN];
     struct Ingrediente *lista;
     struct BucketRicettario *successore;
 } BucketRicettario;
@@ -50,6 +57,12 @@ typedef struct Ricettario
     int dimensione;
     BucketRicettario **buckets;
 } Ricettario;
+
+typedef struct Ht_Ingredienti
+{
+    int dimensione;
+    BucketIngredienti **buckets;
+} Ht_Ingredienti;
 
 // Definisco la struttura di un Nodo Ordine
 typedef struct Ordine
@@ -82,7 +95,7 @@ Lotto *elimina_lotto_ptr(Lotto *testa, Lotto *nodo);
 Ingrediente *inserisci_ingrediente(Ingrediente *testa, Ingrediente *nodo);
 Lotto *inserisci_lotto(Lotto *testa, Lotto *nodo);
 
-Ingrediente *crea_nodo_ricettario(char *nome_ingrediente, int qta);
+Ingrediente *crea_nodo_ricettario(int qta, BucketIngredienti *bucket_ingredienti);
 Lotto *crea_nodo_magazzino(int qta, int scadenza);
 
 // ---------------------------  ORDINI ---------------------------------------------//
@@ -101,7 +114,7 @@ Ordine *crea_ordine(char *nome_ricetta, BucketRicettario *bucket_ricetta, int qt
 int verifica_ingrediente(BucketMagazzino **bucket, char *nome_ingrediente, int qta_necessaria, int clock);
 
 // modifica le quantita nel ricettario sottraendo quelle utilizzate per produrre la ricetta
-void produci_ordine(Magazzino *magazzino, BucketRicettario *bucket_ricetta, int qta, BucketMagazzino **array);
+void produci_ordine(Magazzino *magazzino, BucketRicettario *bucket_ricetta, int qta);
 
 // ritorna 1 se la ricetta e presente nella lista oppure 0 se non e presente
 int cerca_in_lista(Ordine *testa, char *nome_ricetta);
@@ -142,16 +155,21 @@ void merge_sort_corriere(Ordine **testa_indirizzo);
 // crea HashTable
 void inizializza_ricettario(Ricettario *ricettario);
 void inizializza_magazzino(Magazzino *magazzino);
+void inizializza_ht_ingredienti(Ht_Ingredienti *ht_ingredienti);
 
 // crea Bucket
 BucketMagazzino *crea_bucket_magazzino(char *string, Lotto *lista);
-BucketRicettario *crea_bucket_ricettario(char *string, Ingrediente *lista);
+BucketRicettario *crea_bucket_ricettario(char *nome_ricetta, Ingrediente *lista);
+BucketIngredienti *crea_bucket_ht_ingredienti(char *nome_ingrediente, BucketMagazzino *bucket_magazzino);
 
 int hash(char *string);
 
 // Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
 BucketMagazzino *cerca_magazzino(Magazzino *ht, char *string);
 BucketRicettario *cerca_ricettario(Ricettario *ht, char *string);
+BucketIngredienti *cerca_ht_ingredienti(Ht_Ingredienti *ht_ingredienti, char *nome_ingrediente);
+
+void inserisci_bucket_ht_ingredienti(Ht_Ingredienti *ht_ingredienti, BucketIngredienti *nuovo_bucket);
 
 // ---------------------------  RICETTARIO  ---------------------------------------------//
 
@@ -176,11 +194,13 @@ int main()
 
     Ricettario *ricettario = (Ricettario *)malloc(sizeof(Ricettario));
     Magazzino *magazzino = (Magazzino *)malloc(sizeof(Magazzino));
+    Ht_Ingredienti *ht_ingredienti = (Ht_Ingredienti *)malloc(sizeof(Ht_Ingredienti));
 
     Ingrediente *ingrediente;
 
     inizializza_ricettario(ricettario);
     inizializza_magazzino(magazzino);
+    inizializza_ht_ingredienti(ht_ingredienti);
 
     Coda *ordini_pronti = (Coda *)malloc(sizeof(Coda));
     Coda *ordini_attesa = (Coda *)malloc(sizeof(Coda));
@@ -209,9 +229,6 @@ int main()
     int stop;
 
     int cont = 0;
-    int array_size = 500;
-    BucketMagazzino **array = (BucketMagazzino **)calloc(array_size, sizeof(BucketMagazzino *));
-    BucketMagazzino **ptr_controllo;
 
     controllo = scanf("%d %d", &periodo, &capienza);
     // printf("Il periodo e: %d \nLa capienza del corriere e: %d \n", periodo, capienza);
@@ -219,7 +236,7 @@ int main()
 
     while (separatore == '\n' && controllo != -1)
     {
-        // printf("CLOCK: %d\n", clock);
+        printf("CLOCK: %d\n", clock);
 
         // VERIFICA CORRIERE
         if (clock % periodo == 0 && clock != 0)
@@ -286,7 +303,7 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            // printf("Nome ricetta:%s\n", nome_ricetta);
+            printf("Nome ricetta:%s\n", nome_ricetta);
             BucketRicettario *ricetta = cerca_ricettario(ricettario, nome_ricetta);
 
             if (ricetta != NULL)
@@ -305,6 +322,7 @@ int main()
             {
                 // CREO IL NODO RICETTA
                 ricetta = crea_bucket_ricettario(nome_ricetta, NULL);
+                BucketIngredienti *bucket_ingrediente;
 
                 // ACQUISISCO INGREDIENTI E CREO LISTA INGREDIENTI
                 while (separatore != '\n')
@@ -312,16 +330,30 @@ int main()
                     controllo = scanf("%s", nome_ingrediente);
                     controllo = scanf("%d", &qta);
                     controllo = scanf("%c", &separatore);
-                    // printf("Ingrediente:%s,qta:%d\n", nome_ingrediente, qta);
+                    printf("Ingrediente:%s,qta:%d\n", nome_ingrediente, qta);
+
+                    // AGGIUNGO INGREDIENTE IN HASH TABLE INGREDIENTI
+                    bucket_ingrediente = cerca_ht_ingredienti(ht_ingredienti, nome_ingrediente);
+                    if (bucket_ingrediente == NULL)
+                    {
+                        // creo bucket e inserisco in ht ingredienti
+                        bucket_ingrediente = crea_bucket_ht_ingredienti(nome_ingrediente, cerca_magazzino(magazzino, nome_ingrediente));
+                        inserisci_bucket_ht_ingredienti(ht_ingredienti, bucket_ingrediente);
+                    }
+                    else if (bucket_ingrediente->bucket_magazzino == NULL)
+                    {
+                        // se ce gia ma puntatore a magazzino e NULL provo a cercare nel magazzino se ora ce ingrediente (potrei averlo inserito)
+                        bucket_ingrediente->bucket_magazzino = cerca_magazzino(magazzino, nome_ingrediente);
+                    }
 
                     // AGGIUNGO INGREDIENTE ALLA NODO RICETTA
-                    ingrediente = crea_nodo_ricettario(nome_ingrediente, qta);
+                    ingrediente = crea_nodo_ricettario(qta, bucket_ingrediente);
                     ricetta->lista = inserisci_ingrediente(ricetta->lista, ingrediente);
                 }
 
                 // AGGIUNGO IL NODO RICETTA AL RICETTARIO
-                inserisci_ricetta(ricettario, ricetta, ricetta->string);
-                // stampa_lista_ingredienti(ricetta->lista);
+                inserisci_ricetta(ricettario, ricetta, nome_ricetta);
+                stampa_lista_ingredienti(ricetta->lista);
             }
 
             nome_ricetta[0] = 0;
@@ -334,7 +366,7 @@ int main()
             controllo = scanf("%s", nome_ricetta);
             controllo = scanf("%c", &separatore);
 
-            // printf("Nome ricetta:%s\n", nome_ricetta);
+            printf("Nome ricetta:%s\n", nome_ricetta);
             //  VERIFICO CHE NON SIA IN USO = ordini_attesa e CHE NON E' LA RICETTA DI UN ORDINE CHE NON HO ANCORA SPEDITO = oridini_pronti
             if (cerca_in_lista(ordini_attesa->testa, nome_ricetta) == 1 || cerca_in_lista(ordini_pronti->testa, nome_ricetta) == 1)
             {
@@ -364,7 +396,7 @@ int main()
                 controllo = scanf("%s", nome_ricetta);
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%c", &separatore);
-                // printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
+                printf("Ordine:%s,qta:%d\n", nome_ricetta, qta);
 
                 // PRELEVO LA RICETTA DA RICETTARIO
                 ricetta = cerca_ricettario(ricettario, nome_ricetta);
@@ -387,17 +419,7 @@ int main()
 
                         // CONTROLLO MAGAZZINO
                         // cerco ingrediente in magazzino e salvo puntatore in array statico per avveloccizare produci ordine
-                        bucket = cerca_magazzino(magazzino, ingrediente->nome_ingrediente);
-                        if (cont >= array_size)
-                        {
-                            ptr_controllo = realloc(array, array_size + array_size * 2);
-                            if (ptr_controllo == NULL)
-                                printf("errore realloc!\n");
-                        }
-                        else
-                        {
-                            array[cont] = bucket;
-                        }
+                        bucket = ingrediente->bucket_ingrediente->bucket_magazzino;
 
                         if (bucket == NULL || bucket->lista == NULL)
                         {
@@ -407,15 +429,15 @@ int main()
                         else
                         { // ho una lista di lotti da controllare: voglio verificare di avere ingredienti non scaduti a sufficienza
                             if (attesa == 0)
-                            {// se so gia che va in attesa e inutile verificare altri ingredienti
-                                if (verifica_ingrediente(&bucket, ingrediente->nome_ingrediente, ingrediente->qta * qta, clock) == 0)
+                            { // se so gia che va in attesa e inutile verificare altri ingredienti
+                                if (verifica_ingrediente(&bucket, ingrediente->bucket_ingrediente->nome_ingrediente, ingrediente->qta * qta, clock) == 0)
                                 {
                                     // ce un ingrediente che manca
                                     attesa = 1;
                                 }
                             }
                         }
-                        // printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
+                        printf("%s, attesa=%d\n", ingrediente->bucket_ingrediente->nome_ingrediente, attesa);
                         //         avanzo all'ingrediente successivo
                         ingrediente = ingrediente->successore;
                         cont++;
@@ -428,27 +450,20 @@ int main()
                         // ordini_pronti = inserisci_in_coda(ordini_pronti, ordine);
 
                         // produco ordine
-                        produci_ordine(magazzino, ricetta, qta, array);
-
-                        // ordino lotti in senso crescente per tempo di acquisizione (tempo)
-                        // merge_sort_ordini(&ordini_pronti);
+                        produci_ordine(magazzino, ricetta, qta);
                     }
                     else
                     { // SE NO MARCO ORDINE COME IN ATTESA E CONTINUO
                         ordine = crea_ordine(nome_ricetta, ricetta, qta, clock, peso);
                         ordini_attesa = inserisci_inordine_ordini(ordini_attesa, ordine);
-                        // ordini_attesa = inserisci_in_coda(ordini_attesa, ordine);
-
-                        // ordino lotti in senso crescente per tempo di acquisizione (tempo)
-                        // merge_sort_ordini(&ordini_attesa);
                     }
                 }
             }
-            // printf("ordini_pronti:\n");
-            // stampa_lista_ordini(ordini_pronti->testa);
+            printf("ordini_pronti:\n");
+            stampa_lista_ordini(ordini_pronti->testa);
 
-            // printf("ordini_attesa:\n");
-            // stampa_lista_ordini(ordini_attesa->testa);
+            printf("ordini_attesa:\n");
+            stampa_lista_ordini(ordini_attesa->testa);
         }
 
         // RIFORNIMENTO
@@ -464,7 +479,7 @@ int main()
                 controllo = scanf("%d", &qta);
                 controllo = scanf("%d", &scadenza);
                 controllo = scanf("%c", &separatore);
-                // printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
+                printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
 
                 // AGGIUNGO NEL MAGAZZINO
 
@@ -472,7 +487,7 @@ int main()
                 lotto = crea_nodo_magazzino(qta, scadenza);
                 // inserisco lotto nel magazzino (inserimento e in ordine di data di scadenza crescente)
                 inserisci_bucket_magazzino(magazzino, lotto, nome_ingrediente);
-                // stampa_lista_lotti(magazzino->buckets[hash(nome_ingrediente)]->lista);
+                stampa_lista_lotti(magazzino->buckets[hash(nome_ingrediente)]->lista);
             }
 
             // HO AGGIORNATO IL MAGAZZINO
@@ -508,17 +523,7 @@ int main()
                     while (ingrediente != NULL && attesa != 1) // scorro la lista di ingredienti della ricetta
                     {
                         // CONTROLLO MAGAZZINO
-                        bucket = cerca_magazzino(magazzino, ingrediente->nome_ingrediente);
-                        if (cont >= array_size)
-                        {
-                            ptr_controllo = realloc(array, array_size + array_size * 2);
-                            if (ptr_controllo == NULL)
-                                printf("errore realloc!\n");
-                        }
-                        else
-                        {
-                            array[cont] = bucket;
-                        }
+                        bucket = ingrediente->bucket_ingrediente->bucket_magazzino;
 
                         if (bucket == NULL || bucket->lista == NULL)
                         {
@@ -528,13 +533,13 @@ int main()
                         else
                         {
                             // ci sono dei lotti dell'ingrediente desiderato verifico di averne abbastanza non scaduto!
-                            if (verifica_ingrediente(&bucket, ingrediente->nome_ingrediente, (ingrediente->qta) * (ordine->qta), clock) == 0)
+                            if (verifica_ingrediente(&bucket, ingrediente->bucket_ingrediente->nome_ingrediente, (ingrediente->qta) * (ordine->qta), clock) == 0)
                             {
                                 // ce un ingrediente che manca
                                 attesa = 1;
                             }
                         }
-                        // printf("%s, attesa=%d\n", ingrediente->nome_ingrediente, attesa);
+                        printf("%s, attesa=%d\n", ingrediente->bucket_ingrediente->nome_ingrediente, attesa);
                         //  avanzo all'ingrediente successivo
                         ingrediente = ingrediente->successore;
                         cont++;
@@ -548,7 +553,7 @@ int main()
                         // nuovo_ordine = ordine;
 
                         // PRODUCO ORDINE
-                        produci_ordine(magazzino, ricetta, nuovo_ordine->qta, array);
+                        produci_ordine(magazzino, ricetta, nuovo_ordine->qta);
 
                         // INSERISCO ORDINE IN ORDINI_PRONTI
                         ordini_pronti = inserisci_inordine_ordini(ordini_pronti, nuovo_ordine);
@@ -615,17 +620,17 @@ int main()
                     }
                 }
             }
-            // printf("ordini_pronti:\n");
-            // stampa_lista_ordini(ordini_pronti->testa);
+            printf("ordini_pronti:\n");
+            stampa_lista_ordini(ordini_pronti->testa);
 
-            // printf("ordini_attesa:\n");
-            // stampa_lista_ordini(ordini_attesa->testa);
+            printf("ordini_attesa:\n");
+            stampa_lista_ordini(ordini_attesa->testa);
         }
 
         // AGGIUSTAMENTI
         comando[0] = 0;
         clock++;
-        // printf("\n");
+        printf("\n");
     }
 
     // faccio le free
@@ -647,6 +652,13 @@ void inizializza_magazzino(Magazzino *magazzino)
     magazzino->buckets = (BucketMagazzino **)calloc(magazzino->dimensione, sizeof(struct BucketMagazzino *));
 }
 
+// inizializza Magazzino
+void inizializza_ht_ingredienti(Ht_Ingredienti *ht_ingredienti)
+{
+    ht_ingredienti->dimensione = 10007;
+    ht_ingredienti->buckets = (BucketIngredienti **)calloc(ht_ingredienti->dimensione, sizeof(struct BucketIngredienti *));
+}
+
 // crea Bucket
 BucketMagazzino *crea_bucket_magazzino(char *string, Lotto *lista)
 {
@@ -658,12 +670,22 @@ BucketMagazzino *crea_bucket_magazzino(char *string, Lotto *lista)
 }
 
 // crea Bucket
-BucketRicettario *crea_bucket_ricettario(char *string, Ingrediente *lista)
+BucketRicettario *crea_bucket_ricettario(char *nome_ricetta, Ingrediente *lista)
 {
     BucketRicettario *nuovo_bucket = (BucketRicettario *)malloc(sizeof(BucketRicettario));
     nuovo_bucket->successore = NULL;
-    strcpy(nuovo_bucket->string, string);
+    strcpy(nuovo_bucket->nome_ricetta, nome_ricetta);
     nuovo_bucket->lista = lista;
+    return nuovo_bucket;
+}
+
+// crea Bucket
+BucketIngredienti *crea_bucket_ht_ingredienti(char *nome_ingrediente, BucketMagazzino *bucket_magazzino)
+{
+    BucketIngredienti *nuovo_bucket = (BucketIngredienti *)malloc(sizeof(BucketIngredienti));
+    nuovo_bucket->successore = NULL;
+    nuovo_bucket->bucket_magazzino = bucket_magazzino;
+    strcpy(nuovo_bucket->nome_ingrediente, nome_ingrediente);
     return nuovo_bucket;
 }
 
@@ -701,20 +723,20 @@ BucketMagazzino *cerca_magazzino(Magazzino *ht, char *string)
 }
 
 // Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
-BucketRicettario *cerca_ricettario(Ricettario *ht, char *string)
+BucketRicettario *cerca_ricettario(Ricettario *ricettario, char *nome_ricetta)
 {
     // calcolo hash
-    int indice = hash(string);
+    int indice = hash(nome_ricetta);
 
-    if (ht->buckets[indice] == NULL)
+    if (ricettario->buckets[indice] == NULL)
         return NULL;
     else
     {
-        BucketRicettario *temp = ht->buckets[indice];
+        BucketRicettario *temp = ricettario->buckets[indice];
 
         while (temp != NULL)
         {
-            if (strcmp(temp->string, string) == 0)
+            if (strcmp(temp->nome_ricetta, nome_ricetta) == 0)
                 return temp;
             else
                 temp = temp->successore;
@@ -723,21 +745,66 @@ BucketRicettario *cerca_ricettario(Ricettario *ht, char *string)
     }
 }
 
-// ------------------------------- RICETTARIO -----------------------------------------//
-
-void inserisci_ricetta(Ricettario *ht, BucketRicettario *nuovo_bucket, char *string)
+// Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
+BucketIngredienti *cerca_ht_ingredienti(Ht_Ingredienti *ht_ingredienti, char *nome_ingrediente)
 {
     // calcolo hash
-    int indice = hash(string);
+    int indice = hash(nome_ingrediente);
 
-    BucketRicettario *ricetta = cerca_ricettario(ht, string);
+    if (ht_ingredienti->buckets[indice] == NULL)
+        return NULL;
+    else
+    {
+        BucketIngredienti *temp = ht_ingredienti->buckets[indice];
+
+        while (temp != NULL)
+        {
+            if (strcmp(temp->nome_ingrediente, nome_ingrediente) == 0)
+                return temp;
+            else
+                temp = temp->successore;
+        }
+        return NULL;
+    }
+}
+
+void inserisci_bucket_ht_ingredienti(Ht_Ingredienti *ht_ingredienti, BucketIngredienti *nuovo_bucket)
+{
+    // calcolo hash
+    int indice = hash(nuovo_bucket->nome_ingrediente);
+
+    BucketIngredienti *ingrediente = cerca_ht_ingredienti(ht_ingredienti, nuovo_bucket->nome_ingrediente);
+
+    if (ingrediente == NULL)
+    {
+        // non ce quindi inserisco in testa
+        nuovo_bucket->successore = ht_ingredienti->buckets[indice];
+        ht_ingredienti->buckets[indice] = nuovo_bucket;
+    }
+    else
+    {
+        // significa che ce gia quindi non faccio nulla.
+    }
+    return;
+}
+
+// elimina ingrediente -> chiamo solo quando elimino una ricetta, ingrediente viene eliminato solo se cont = 0 cioe non serve in nesun altra ricetta.
+
+// ------------------------------- RICETTARIO -----------------------------------------//
+
+void inserisci_ricetta(Ricettario *ricettario, BucketRicettario *nuovo_bucket, char *nome_ricetta)
+{
+    // calcolo hash
+    int indice = hash(nome_ricetta);
+
+    BucketRicettario *ricetta = cerca_ricettario(ricettario, nome_ricetta);
 
     if (ricetta == NULL)
     {
         // non ce quindi inserisco in testa
         // ci sono gia altri bucket, inserisco in testa
-        nuovo_bucket->successore = ht->buckets[indice];
-        ht->buckets[indice] = nuovo_bucket;
+        nuovo_bucket->successore = ricettario->buckets[indice];
+        ricettario->buckets[indice] = nuovo_bucket;
 
         printf("aggiunta\n");
     }
@@ -749,11 +816,11 @@ void inserisci_ricetta(Ricettario *ht, BucketRicettario *nuovo_bucket, char *str
     return;
 }
 
-void elimina_ricetta(Ricettario *ht, char *string)
+void elimina_ricetta(Ricettario *ricettario, char *nome_ricetta)
 {
-    int indice = hash(string);
+    int indice = hash(nome_ricetta);
 
-    if (ht->buckets[indice] == NULL)
+    if (ricettario->buckets[indice] == NULL)
     {
         // non ce niente da eliminare
         printf("non presente\n");
@@ -761,11 +828,11 @@ void elimina_ricetta(Ricettario *ht, char *string)
     }
     else
     {
-        BucketRicettario *temp = ht->buckets[indice];
-        BucketRicettario *prec = ht->buckets[indice];
+        BucketRicettario *temp = ricettario->buckets[indice];
+        BucketRicettario *prec = ricettario->buckets[indice];
 
         // verifico se e' il primo
-        if (strcmp(temp->string, string) == 0)
+        if (strcmp(temp->nome_ricetta, nome_ricetta) == 0)
         {
             // elimino la lista di ingredienti di temp
             Ingrediente *nodo = temp->lista;
@@ -777,7 +844,7 @@ void elimina_ricetta(Ricettario *ht, char *string)
                 free(nodo_prec);
             }
             // modifico testa della lista
-            ht->buckets[indice] = temp->successore;
+            ricettario->buckets[indice] = temp->successore;
             // elimino temp
             free(temp);
             printf("rimossa\n");
@@ -785,12 +852,12 @@ void elimina_ricetta(Ricettario *ht, char *string)
         else
         {
             // altrimenti cerco il bucket e lo elimino
-            while (strcmp(temp->string, string) != 0 && temp->successore != NULL)
+            while (strcmp(temp->nome_ricetta, nome_ricetta) != 0 && temp->successore != NULL)
             {
                 prec = temp;
                 temp = temp->successore;
             }
-            if (strcmp(temp->string, string) == 0)
+            if (strcmp(temp->nome_ricetta, nome_ricetta) == 0)
             {
                 prec->successore = temp->successore;
 
@@ -820,28 +887,28 @@ void elimina_ricetta(Ricettario *ht, char *string)
 
 //-------------------------------------- MAGAZZINO -----------------------------------//
 
-void inserisci_bucket_magazzino(Magazzino *ht, Lotto *lotto, char *string)
+void inserisci_bucket_magazzino(Magazzino *ht, Lotto *lotto, char *nome_ricetta)
 {
     // calcolo hash
-    int indice = hash(string);
+    int indice = hash(nome_ricetta);
 
     // se la lista di bucket e vuota basta che inserisco in testa
     if (ht->buckets[indice] == NULL)
     {
         // inizializzo il bucket e lo inserisco
-        BucketMagazzino *nuovo_bucket = crea_bucket_magazzino(string, lotto);
+        BucketMagazzino *nuovo_bucket = crea_bucket_magazzino(nome_ricetta, lotto);
         ht->buckets[indice] = nuovo_bucket;
         return;
     }
     else
     {
         // altrimenti lo cerco e modifico soltanto la sua lista di lotti aggiungendo lotto in testa.
-        BucketMagazzino *bucket = cerca_magazzino(ht, string);
+        BucketMagazzino *bucket = cerca_magazzino(ht, nome_ricetta);
 
         if (bucket == NULL)
         {
             // non ce tra la la lista dei buckets -> lo inserisco in testa
-            BucketMagazzino *nuovo_bucket = crea_bucket_magazzino(string, lotto);
+            BucketMagazzino *nuovo_bucket = crea_bucket_magazzino(nome_ricetta, lotto);
             nuovo_bucket->successore = ht->buckets[indice];
             ht->buckets[indice] = nuovo_bucket;
             return;
@@ -857,11 +924,11 @@ void inserisci_bucket_magazzino(Magazzino *ht, Lotto *lotto, char *string)
 
 //------------------------LISTE -----------------------------------------------------//
 
-Ingrediente *crea_nodo_ricettario(char *nome_ingrediente, int qta)
+Ingrediente *crea_nodo_ricettario(int qta, BucketIngredienti *bucket_ingredienti)
 {
     Ingrediente *nuovo_nodo = (Ingrediente *)malloc(sizeof(Ingrediente));
-    strcpy(nuovo_nodo->nome_ingrediente, nome_ingrediente);
     nuovo_nodo->qta = qta;
+    nuovo_nodo->bucket_ingrediente = bucket_ingredienti;
     nuovo_nodo->successore = NULL;
     return nuovo_nodo;
 }
@@ -954,31 +1021,12 @@ void *elimina_lista_ingredienti(Ingrediente *testa)
     return NULL;
 }
 
-// Nodo *min_scadenza(Nodo *testa)
-// {
-//     Nodo *min = testa;
-//     Nodo *temp = testa;
-
-//     if (testa == NULL)
-//         return testa;
-
-//     while (temp != NULL)
-//     {
-//         if (temp->scadenza < min->scadenza)
-//         {
-//             min = temp;
-//         }
-//         temp = temp->successore;
-//     }
-//     return min;
-// }
-
 void stampa_lista_ingredienti(Ingrediente *testa)
 {
     Ingrediente *temp = testa;
     while (temp != NULL)
     {
-        printf("%s, %d -> ", temp->nome_ingrediente, temp->qta);
+        printf("%s, %d -> ", temp->bucket_ingrediente->nome_ingrediente, temp->qta);
         temp = temp->successore;
     }
     printf("\n");
@@ -1000,7 +1048,7 @@ void stampa_lista_lotti(Lotto *testa)
 //--------------------------------- ORDINI ------------------------------------------//
 
 // se chiamata gia verificato che ogni ingrediente e presente per poter produrre ordine
-void produci_ordine(Magazzino *magazzino, BucketRicettario *bucket_ricetta, int qta, BucketMagazzino **array)
+void produci_ordine(Magazzino *magazzino, BucketRicettario *bucket_ricetta, int qta)
 {
     Ingrediente *nodo_ingrediente = bucket_ricetta->lista;
     Lotto *lotto;
@@ -1016,7 +1064,7 @@ void produci_ordine(Magazzino *magazzino, BucketRicettario *bucket_ricetta, int 
     while (nodo_ingrediente != NULL)
     {
         // bucket_magazzino = cerca_magazzino(magazzino, nodo_ingrediente->nome_ingrediente);
-        bucket_magazzino = array[cont];
+        bucket_magazzino = nodo_ingrediente->bucket_ingrediente->bucket_magazzino;
         lotto = bucket_magazzino->lista;
         qta_necessaria = qta * nodo_ingrediente->qta;
 
