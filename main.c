@@ -111,7 +111,7 @@ Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo);
 Ordine *crea_ordine(char *nome_ricetta, BucketRicettario *bucket_ricetta, int qta, int tempo, int peso);
 
 // verifica se un ingrediente e presente in quantita sufficiente (non scaduto) per la ricetta desiderata
-int verifica_ingrediente(BucketMagazzino **bucket, char *nome_ingrediente, int qta_necessaria, int clock);
+int verifica_ingrediente(BucketMagazzino **bucket, int qta_necessaria, int clock);
 
 // modifica le quantita nel ricettario sottraendo quelle utilizzate per produrre la ricetta
 void produci_ordine(Magazzino *magazzino, BucketRicettario *bucket_ricetta, int qta);
@@ -430,7 +430,7 @@ int main()
                         { // ho una lista di lotti da controllare: voglio verificare di avere ingredienti non scaduti a sufficienza
                             if (attesa == 0)
                             { // se so gia che va in attesa e inutile verificare altri ingredienti
-                                if (verifica_ingrediente(&bucket, ingrediente->bucket_ingrediente->nome_ingrediente, ingrediente->qta * qta, clock) == 0)
+                                if (verifica_ingrediente(&bucket, ingrediente->qta * qta, clock) == 0)
                                 {
                                     // ce un ingrediente che manca
                                     attesa = 1;
@@ -533,7 +533,7 @@ int main()
                         else
                         {
                             // ci sono dei lotti dell'ingrediente desiderato verifico di averne abbastanza non scaduto!
-                            if (verifica_ingrediente(&bucket, ingrediente->bucket_ingrediente->nome_ingrediente, (ingrediente->qta) * (ordine->qta), clock) == 0)
+                            if (verifica_ingrediente(&bucket, (ingrediente->qta) * (ordine->qta), clock) == 0)
                             {
                                 // ce un ingrediente che manca
                                 attesa = 1;
@@ -1102,7 +1102,7 @@ void produci_ordine(Magazzino *magazzino, BucketRicettario *bucket_ricetta, int 
 }
 
 // ritorna 0 se ingrediente mancante, 1 se ingrediente presente
-int verifica_ingrediente(BucketMagazzino **bucket, char *nome_ingrediente, int qta_necessaria, int clock)
+int verifica_ingrediente(BucketMagazzino **bucket, int qta_necessaria, int clock)
 {
     BucketMagazzino *bucket_magazzino = *bucket;
     Lotto *lotto = bucket_magazzino->lista;
