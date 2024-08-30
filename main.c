@@ -420,6 +420,12 @@ int main()
                         // CONTROLLO MAGAZZINO
                         // cerco ingrediente in magazzino e salvo puntatore in array statico per avveloccizare produci ordine
                         bucket = ingrediente->bucket_ingrediente->bucket_magazzino;
+                        if (bucket == NULL)
+                        {
+                            // potrebbe essere NULL perche ho inserito ricetta prima che venisse registrato ingrediente nel magazzino
+                            // lo aggiorno e poi se rimane NUll significa che l'ingrediente non ce per davvero
+                            ingrediente->bucket_ingrediente->bucket_magazzino = cerca_magazzino(magazzino, ingrediente->bucket_ingrediente->nome_ingrediente);
+                        }
 
                         if (bucket == NULL || bucket->lista == NULL)
                         {
@@ -447,7 +453,6 @@ int main()
                     {
                         ordine = crea_ordine(nome_ricetta, ricetta, qta, clock, peso);
                         ordini_pronti = inserisci_inordine_ordini(ordini_pronti, ordine);
-                        // ordini_pronti = inserisci_in_coda(ordini_pronti, ordine);
 
                         // produco ordine
                         produci_ordine(magazzino, ricetta, qta);
@@ -470,6 +475,7 @@ int main()
         else if (strcmp(comando, "rifornimento") == 0)
         {
             Lotto *lotto;
+            BucketIngredienti *bucket_ingrediente;
             controllo = scanf("%c", &separatore);
 
             // PROCESSO GLI INGREDIENTI RIFORNITI UNO AD UNO
@@ -482,12 +488,25 @@ int main()
                 //printf("Rifornimento:%s,qta:%d,scadenza:%d\n", nome_ingrediente, qta, scadenza);
 
                 // AGGIUNGO NEL MAGAZZINO
-
                 // creo il lotto
                 lotto = crea_nodo_magazzino(qta, scadenza);
                 // inserisco lotto nel magazzino (inserimento e in ordine di data di scadenza crescente)
                 inserisci_bucket_magazzino(magazzino, lotto, nome_ingrediente);
                 //stampa_lista_lotti(magazzino->buckets[hash(nome_ingrediente)]->lista);
+
+                // AGGIORNO RIFERIMENTI A MAGAZZINO IN HT_INGREDIENTI
+                bucket_ingrediente = cerca_ht_ingredienti(ht_ingredienti, nome_ingrediente);
+                if (bucket_ingrediente == NULL)
+                {
+                    // creo bucket e inserisco in ht ingredienti
+                    bucket_ingrediente = crea_bucket_ht_ingredienti(nome_ingrediente, cerca_magazzino(magazzino, nome_ingrediente));
+                    inserisci_bucket_ht_ingredienti(ht_ingredienti, bucket_ingrediente);
+                }
+                else if (bucket_ingrediente->bucket_magazzino == NULL)
+                {
+                    // se ce gia ma puntatore a magazzino e NULL provo a cercare nel magazzino se ora ce ingrediente (potrei averlo inserito)
+                    bucket_ingrediente->bucket_magazzino = cerca_magazzino(magazzino, nome_ingrediente);
+                }
             }
 
             // HO AGGIORNATO IL MAGAZZINO
@@ -524,6 +543,12 @@ int main()
                     {
                         // CONTROLLO MAGAZZINO
                         bucket = ingrediente->bucket_ingrediente->bucket_magazzino;
+                        if (bucket == NULL)
+                        {
+                            // potrebbe essere NULL perche ho inserito ricetta prima che venisse registrato ingrediente nel magazzino
+                            // lo aggiorno e poi se rimane NUll significa che l'ingrediente non ce per davvero
+                            ingrediente->bucket_ingrediente->bucket_magazzino = cerca_magazzino(magazzino, ingrediente->bucket_ingrediente->nome_ingrediente);
+                        }
 
                         if (bucket == NULL || bucket->lista == NULL)
                         {
