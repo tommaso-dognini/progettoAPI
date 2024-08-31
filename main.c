@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#define CMD_LEN 30
+#define CMD_LEN 256
 //-----------------------------------------------------------------------------------------
 //--------  FUNZIONI STRUTTURE DATI ----------------------------------------------------------
 //-----------------------------------------------------------------------------------------
@@ -16,7 +16,7 @@ typedef struct Lotto
 // Definisco la struttura della hash table
 typedef struct BucketMagazzino
 {
-    char string[CMD_LEN];
+    char nome_ingrediente[CMD_LEN];
     struct Lotto *lista;
     struct BucketMagazzino *successore;
 } BucketMagazzino;
@@ -32,7 +32,7 @@ typedef struct BucketIngredienti
 // Definisco la struttura di un Nodo
 typedef struct Ingrediente
 {
-    BucketIngredienti *bucket_ingrediente;
+    struct BucketIngredienti *bucket_ingrediente;
     int qta;
     struct Ingrediente *successore;
 } Ingrediente;
@@ -67,7 +67,6 @@ typedef struct Ht_Ingredienti
 // Definisco la struttura di un Nodo Ordine
 typedef struct Ordine
 {
-    char nome_ricetta[CMD_LEN];
     int qta;
     int tempo;
     int peso;
@@ -158,7 +157,7 @@ void inizializza_magazzino(Magazzino *magazzino);
 void inizializza_ht_ingredienti(Ht_Ingredienti *ht_ingredienti);
 
 // crea Bucket
-BucketMagazzino *crea_bucket_magazzino(char *string, Lotto *lista);
+BucketMagazzino *crea_bucket_magazzino(char *nome_ingrediente, Lotto *lista);
 BucketRicettario *crea_bucket_ricettario(char *nome_ricetta, Ingrediente *lista);
 BucketIngredienti *crea_bucket_ht_ingredienti(char *nome_ingrediente, BucketMagazzino *bucket_magazzino);
 
@@ -180,7 +179,7 @@ void elimina_ricetta(Ricettario *ht, char *string);
 void elimina_lotto(BucketMagazzino **bucket, Lotto *lotto);
 
 // ---------------------------  MAGAZZINO ---------------------------------------------//
-void inserisci_bucket_magazzino(Magazzino *ht, Lotto *lotto, char *string);
+void inserisci_bucket_magazzino(Magazzino *ht, Lotto *lotto, char *nome_ricetta);
 
 //-----------------------------------------------------------------------------------------
 //--------  MAIN --------------------------------------------------------------------------
@@ -251,7 +250,7 @@ int main()
                 if (ordine->peso <= capienza_rimasta)
                 {
                     // creo il nuovo nodo ordine per la lista del corriere
-                    ordine_corriere = crea_ordine(ordine->nome_ricetta, NULL, ordine->qta, ordine->tempo, ordine->peso);
+                    ordine_corriere = crea_ordine(ordine->bucket_ricetta->nome_ricetta, ordine->bucket_ricetta, ordine->qta, ordine->tempo, ordine->peso);
                     // inserisco nella lista delgi ordini del corriere
                     ordini_corriere = inserisci_nodo_in_testa_ordini(ordini_corriere, ordine_corriere);
 
@@ -277,13 +276,13 @@ int main()
             else
             {
                 // ordino la lista di ordini del corriere per peso in senso decrescente
-                // dovrei aggiornare il puntatore alla coda dopo il merge tuttavia lo uso solo per stampare poi elimino la coda quindi non lo faccio
                 merge_sort_corriere(&(ordini_corriere));
 
+                // STAMPO LA LISTA DEL CORRIERE
                 ordine = ordini_corriere;
                 while (ordine != NULL)
                 {
-                    printf("%d %s %d\n", ordine->tempo, ordine->nome_ricetta, ordine->qta);
+                    printf("%d %s %d\n", ordine->tempo, ordine->bucket_ricetta->nome_ricetta, ordine->qta);
                     ordine = ordine->successore;
                 }
             }
@@ -291,11 +290,11 @@ int main()
             ordini_corriere = elimina_lista_ordini(ordini_corriere);
         }
 
-        //----------------------------- ACQUISISCO COMANDO -------------------//
+        //----------------------------- ACQUISISCO COMANDO ----------------------------------------------------------------------//
 
         controllo = scanf("%s", comando);
 
-        //----------------------------- GESTIONE COMANDI -------------------//
+        //----------------------------- GESTIONE COMANDI ------------------------------------------------------------------------//
 
         // AGGIUNGI_RICETTA
         if (strcmp(comando, "aggiungi_ricetta") == 0)
@@ -339,11 +338,6 @@ int main()
                         // creo bucket e inserisco in ht ingredienti
                         bucket_ingrediente = crea_bucket_ht_ingredienti(nome_ingrediente, cerca_magazzino(magazzino, nome_ingrediente));
                         inserisci_bucket_ht_ingredienti(ht_ingredienti, bucket_ingrediente);
-                    }
-                    else if (bucket_ingrediente->bucket_magazzino == NULL)
-                    {
-                        // se ce gia ma puntatore a magazzino e NULL provo a cercare nel magazzino se ora ce ingrediente (potrei averlo inserito)
-                        bucket_ingrediente->bucket_magazzino = cerca_magazzino(magazzino, nome_ingrediente);
                     }
 
                     // AGGIUNGO INGREDIENTE ALLA NODO RICETTA
@@ -492,7 +486,6 @@ int main()
                 lotto = crea_nodo_magazzino(qta, scadenza);
                 // inserisco lotto nel magazzino (inserimento e in ordine di data di scadenza crescente)
                 inserisci_bucket_magazzino(magazzino, lotto, nome_ingrediente);
-                // stampa_lista_lotti(magazzino->buckets[hash(nome_ingrediente)]->lista);
 
                 // AGGIORNO RIFERIMENTI A MAGAZZINO IN HT_INGREDIENTI
                 bucket_ingrediente = cerca_ht_ingredienti(ht_ingredienti, nome_ingrediente);
@@ -574,8 +567,7 @@ int main()
                     if (attesa == 0)
                     {
                         // creo ordine
-                        nuovo_ordine = crea_ordine(ordine->nome_ricetta, ricetta, ordine->qta, ordine->tempo, ordine->peso);
-                        // nuovo_ordine = ordine;
+                        nuovo_ordine = crea_ordine(ordine->bucket_ricetta->nome_ricetta, ricetta, ordine->qta, ordine->tempo, ordine->peso);
 
                         // PRODUCO ORDINE
                         produci_ordine(magazzino, ricetta, nuovo_ordine->qta);
@@ -590,52 +582,6 @@ int main()
 
                         // elimino l'ordine dalla lista di attesa e non devo riordinare nulla perche la proprieta si preserva
                         ordini_attesa = elimina_ordine_ptr_coda(ordini_attesa, prec_ordine);
-                        // ordini_attesa = sfila_ordine_ptr_coda(ordini_attesa, prec_ordine);
-
-                        // // devo produrre ordine che sto verificando: lo tolgo dalla lista di attesa, lo produco, lo metto nella lista di ordini pronti
-                        // nuovo_ordine = ordine;
-                        // produci_ordine(magazzino, nuovo_ordine->bucket_ricetta, nuovo_ordine->qta, array);
-
-                        // // sfilo dalla lista degli ordini in attesa e aggiorno testa e coda
-                        // if (prec_ordine == NULL)
-                        // {
-                        //     // e' il primo della lista di attesa ->aggiorno la testa della coda
-                        //     if (ordine->successore == NULL)
-                        //     {
-                        //         // e il primo e anche ultimo aggiorno anche la coda
-                        //         ordini_attesa->testa = NULL;
-                        //         ordini_attesa->coda = NULL;
-                        //     }
-                        //     else
-                        //     {
-                        //         // e il primo ma non ultimo aggiorno solo la testa
-                        //         ordini_attesa->testa = ordine->successore;
-                        //     }
-                        //     // setto ordine precedente per operazioni successive
-                        //     prec_ordine = NULL;
-                        //     ordine = ordine->successore;
-                        // }
-                        // else if (ordine->successore == NULL)
-                        // {
-                        //     // e l'ultimo aggiorno la coda
-                        //     ordini_attesa->coda = prec_ordine;
-
-                        //     // ordine precedente rimane lo stesso
-                        //     //avanzo al successivo
-                        //     ordine = ordine->successore;
-                        // }
-                        // else
-                        // {
-                        //     // sono dentro la coda posso avanzare senza dover modificare testa o coda
-                        //     prec_ordine->successore = ordine->successore;
-
-                        //     // ordine precedente rimane lo stesso
-                        //     //avanzo al successivo
-                        //     ordine = ordine->successore;
-                        // }
-
-                        // // inserisco in lista di ordini pronti
-                        // ordini_pronti = inserisci_inordine_ordini(ordini_pronti, nuovo_ordine);
                     }
                     else
                     {
@@ -685,11 +631,11 @@ void inizializza_ht_ingredienti(Ht_Ingredienti *ht_ingredienti)
 }
 
 // crea Bucket
-BucketMagazzino *crea_bucket_magazzino(char *string, Lotto *lista)
+BucketMagazzino *crea_bucket_magazzino(char *nome_ingrediente, Lotto *lista)
 {
     BucketMagazzino *nuovo_bucket = (BucketMagazzino *)malloc(sizeof(BucketMagazzino));
     nuovo_bucket->successore = NULL;
-    strcpy(nuovo_bucket->string, string);
+    strcpy(nuovo_bucket->nome_ingrediente, nome_ingrediente);
     nuovo_bucket->lista = lista;
     return nuovo_bucket;
 }
@@ -738,7 +684,7 @@ BucketMagazzino *cerca_magazzino(Magazzino *ht, char *string)
 
         while (temp != NULL)
         {
-            if (strcmp(temp->string, string) == 0)
+            if (strcmp(temp->nome_ingrediente, string) == 0)
                 return temp;
             else
                 temp = temp->successore;
@@ -1180,7 +1126,7 @@ void stampa_lista_ordini(Ordine *testa)
     Ordine *temp = testa;
     while (temp != NULL)
     {
-        printf("%s, %d ,%d -> ", temp->nome_ricetta, temp->qta, temp->tempo);
+        printf("%s, %d ,%d -> ", temp->bucket_ricetta->nome_ricetta, temp->qta, temp->tempo);
         temp = temp->successore;
     }
     printf("\n");
@@ -1244,7 +1190,6 @@ Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo)
 Ordine *crea_ordine(char *nome_ricetta, BucketRicettario *bucket_ricetta, int qta, int tempo, int peso)
 {
     Ordine *nuovo_nodo = (Ordine *)malloc(sizeof(Ordine));
-    strcpy(nuovo_nodo->nome_ricetta, nome_ricetta);
     nuovo_nodo->qta = qta;
     nuovo_nodo->bucket_ricetta = bucket_ricetta;
     nuovo_nodo->tempo = tempo;
@@ -1258,7 +1203,7 @@ int cerca_in_lista(Ordine *testa, char *nome_ricetta)
     Ordine *temp = testa;
     while (temp != NULL)
     {
-        if (strcmp(temp->nome_ricetta, nome_ricetta) == 0)
+        if (strcmp(temp->bucket_ricetta->nome_ricetta, nome_ricetta) == 0)
             return 1; // trovata
 
         temp = temp->successore;
