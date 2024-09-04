@@ -8,35 +8,72 @@
 // DESCRIZIONE PROBLEMA
 // Vedi specifica.pdf
 
-//SCELTE IMPLEMENTATIVE
+// SCELTE IMPLEMENTATIVE:
 
+// 1) SCELTA STRUTTURA DATI
+// Dopo vari test e implementazioni con diverse strutture dati quali alberi BST, alberi R-B e liste sono giunto alla conclusione che per il problema dato
+// la struttura dati piu' consona fossero le Hash-Tables. Infatti il problema piu grosso che si e' presentato durante lo svolgimento del progetto e' stato
+// quello di trovare una tecnica di ricerca che fosse veloce ed efficiente, questo perche' ad ogni ricetta da produrre e necessario sapere gli ingredienti
+// di cui e composta (ricerca nel ricettario), della disponibilita' di questi (ricerca nel magazzino e confronto con qta disponibili). Analoghi problemi si
+// sono poi presentati nella produzione degli ordini infatti anche in questo caso dato un ordine sono necessarie tutto un insieme di informazioni solamente
+// per stabilire se puo' essere prodotto e sono poi necessarie ulteriori azioni per produrlo.
+// Per questi motivi le hash-tables si sono rivelate perfette: ottima velocita' di ricerca e di conseguenza di inserimento e rimozione. Inloltre mi hanno
+// permesso di gestire le stringhe (altro punto importante del problema) in modo efficiente in quanto strutture dati come alberi R-B avrebbero avuto bisogno
+// di una regola di ordinamento tra di esse cosa che avrebbe sicuramente aumentato il numero di strcmp necessarie all'inserimento, ricerca e rimozione.
+// Ho inoltre scelto di utilizzare hash-tables con politica di gestione delle collisioni con liste single-linked. La scelta e' stata fatta sulla base di
+// molteplici criteri: - volevo evitare di dover, in caso di numerosi inserimenti, gestire realloc e re-hashing delle strutture. - Mi ha permesso di riutilizzare
+// varie funzioni in altre parti del codice, sapevo infatti che da qualche parte avrei avuto bisogno delle classiche, semplici liste. - la scelta particolare di
+// usare liste single - linked e' dovuta ad una pura scelta di ottimizzazione (duoble linked sarebbero state piu semplici da gestire).
 
+// Ho infine scelto di utilizzare delle semplici code di liste single-linked per la gestione di Ordini e Corriere. Anche in questo caso si tratta di una scelta
+// fatta per semplicita di gestione e implementazione ed in modo particolare perche' implementando le code (liste con puntatore alla coda) ho potuto rendere l'inserimento
+// ordinato molto rapido in quanto la necessita' era di inserire gli ordini nelle liste di attesa e ordini pronti in modo ordinato con criterio di ordine crescente
+// per data (tempo della simulazione) di acquisizione. Grazie alle code questa operazione avviene in O(1).
+// La gestione del corriere fa una piccola eccezione a questo ragionamento inquanto ho deciso per ottimizare utilizzo della memoria di implementare delle semplici liste
+// poiche' in questo caso la metrica d'oridne non permetteva un inserimento ordinato efficiente (ordine decrescente di peso). Per questo ho semplicemente implementato
+// inserimento in testa e un ordinamento tramite merge-sort crescente che viene fatto una sola volta al momento della stampa
 
+// 2)GESTIONE STRUTTURE DATI
+//  Inizialmente avevo scelto di implementare 2 hash tables: il ricettario e il magazzino. Questo mi permetteva di raggiungere tutte le funzionalita' richieste
+//  con un livello di efficienza buono ma non sufficiente. Infatti il problema di memorizzare (e quindi di confrontare ad ogni ricerca) il nome di ingredienti e
+//  il nome delle ricette in ogni nodo del ricettario e del magazzino creava due grossi problemi: -molta memoria utilizzata (ogni stringa puo essere fino a 255 caratt.)
+//  -molto tempo sprecato nel copiare le stringhe ad ogni creazione di nuovi nodi. -molti duplicati memorizzati in entrambi le strutture: ingredienti con lo stesso
+//  nome ma di ricette diverse venivano memorizzati 2 volte.
+//  Ho per questo deciso di introdurre un'altra struttura, una hash-tables per memorizzare (senza duplicati) i nomi degli ingredienti.
+//  questa scelta ha 2 grossi vantaggi:
+//  - Niente duplicati di stringhe memorizzati piu' volte (vengono memorizzati una volta sola e in ricettario e magazzino sono presenti soltanto puntatori alla h.t. degli ingredienti)
+//  - Avendo una struttura specifica per i soli ingredienti ho potuto con un solo puntatore in piu' legare ad ogni ingrediente l'indirizzo nel magazzino dei suoi lotti
+//  questo ha ridotto di molto il numero di ricerce in magazzino avvelocizzando la produzione degli ordini.
 
-
-
-
-
-
-
+// Per quanto riguarda la gestione del corriere e degli ordini come detto sopra ho preferito la semplicita delle liste in particolare ho implementato delle code
+// in modo da poter gestire l'inserimento in ordine (in fondo = in ordine di tempo) in modo semplice e veloce senza dover ri-ordinare le varie liste ad ogni inserimento.
 
 // EFFICIENZA E VALUTAZIONE
-
 // Il problema imponeva le seguenti caratteristiche di efficienza:
 //  TEST (voto)  --  TEMPO (s) -- MEMORIA (MiB)
-//  18           --            --
-//  21           --            --
-//  24           --            --
-//  27           --            --
-//  30           --            --
-//  30L          --            --
+//  18           --   14.00    --    35
+//  21           --   11.50    --    30
+//  24           --    9.00    --    25
+//  27           --    6.50    --    20
+//  30           --    4.00    --    15
+//  30L          --    1.500   --    14
 
-// Risultato ottenuto: Voto=27 , Tempo= 6.229(s), Memoria_utilizzata= 16 (MiB)
+// Risultato ottenuto: Voto=27 , Tempo = 6.229(s), Memoria_utilizzata = 16 (MiB)
+
+// ULTERIORI MIGLIORAMENTI
+// - Funzione per sfilare un elemento da una coda. Questa permetterebbe migliore velocita nel passaggio di un ordine da lista di attesa alla
+// lista di ordini pronti in quanto eliminerebbe la necessita di creare un nuovo ordine (avrebbe la stessa complessita temporale della sola eliminazione)
+
+// - una ulteriore hash-table per la gestione del nome delle ricette potrebbe migliorare utilizzo della memoria dinamica in quanto ordini della stessa ricetta
+// verrebbero creati con il solo puntatore ad un unica cella della hash-table senza duplicazione di stirnghe identiche.
+
+// - Implementazione di una politica di rimozione degli ingredienti dalla hash-table ingredienti se non presenti in nessuna ricetta (migliore utilizzo della memoria)
+// e miglioramenti in termini di tempo (hash-table meno affollata)
 
 //----------------------------------------------------------------------------------------------------------------------
 //------------------------------------------   STRUTTURE DATI ----------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
-// Definisco la struttura di un Lotto
+
 typedef struct Lotto
 {
     int qta;
@@ -44,7 +81,6 @@ typedef struct Lotto
     struct Lotto *successore;
 } Lotto;
 
-// Definisco la struttura della hash table
 typedef struct BucketMagazzino
 {
     char nome_ingrediente[CMD_LEN];
@@ -52,7 +88,6 @@ typedef struct BucketMagazzino
     struct BucketMagazzino *successore;
 } BucketMagazzino;
 
-// Definisco la struttura dei buckets delle hash tables
 typedef struct BucketIngredienti
 {
     char nome_ingrediente[CMD_LEN];
@@ -60,7 +95,6 @@ typedef struct BucketIngredienti
     struct BucketIngredienti *successore;
 } BucketIngredienti;
 
-// Definisco la struttura di un Nodo
 typedef struct Ingrediente
 {
     struct BucketIngredienti *bucket_ingrediente;
@@ -68,7 +102,6 @@ typedef struct Ingrediente
     struct Ingrediente *successore;
 } Ingrediente;
 
-// Definisco la struttura dei buckets delle hash tables
 typedef struct BucketRicettario
 {
     char nome_ricetta[CMD_LEN];
@@ -76,7 +109,6 @@ typedef struct BucketRicettario
     struct BucketRicettario *successore;
 } BucketRicettario;
 
-// Definisco la struttura delle Hash tables
 typedef struct Magazzino
 {
     int dimensione;
@@ -95,7 +127,6 @@ typedef struct Ht_Ingredienti
     BucketIngredienti **buckets;
 } Ht_Ingredienti;
 
-// Definisco la struttura di un Nodo Ordine
 typedef struct Ordine
 {
     int qta;
@@ -115,33 +146,23 @@ typedef struct Coda
 //---------------------------------   FUNZIONI STRUTTURE DATI ----------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------
 
-//Liste  semplici (single linked) X RICETTARIO E MAGAZZINO
+// Liste  semplici (single linked) X RICETTARIO E MAGAZZINO
 
 void stampa_lista_ingredienti(Ingrediente *testa);
 void stampa_lista_lotti(Lotto *testa);
-
-// Nodo *min_scadenza(Nodo *testa); // non usata da eliminare
-
 void *elimina_lista_ingredienti(Ingrediente *testa);
-
 Lotto *elimina_lotto_ptr(Lotto *testa, Lotto *nodo);
-
 Ingrediente *inserisci_ingrediente(Ingrediente *testa, Ingrediente *nodo);
 Lotto *inserisci_lotto(Lotto *testa, Lotto *nodo);
-
 Ingrediente *crea_nodo_ricettario(int qta, BucketIngredienti *bucket_ingredienti);
 Lotto *crea_nodo_magazzino(int qta, int scadenza);
 
 // ---------------------------  ORDINI ---------------------------------------------//
 
 void stampa_lista_ordini(Ordine *testa);
-
 Ordine *elimina_lista_ordini(Ordine *testa);
-
 Ordine *elimina_nodo_ptr_ordini(Ordine *testa, Ordine *nodo);
-
 Ordine *inserisci_nodo_in_testa_ordini(Ordine *testa, Ordine *nodo);
-
 Ordine *crea_ordine(char *nome_ricetta, BucketRicettario *bucket_ricetta, int qta, int tempo, int peso);
 
 // verifica se un ingrediente e presente in quantita sufficiente (non scaduto) per la ricetta desiderata
@@ -155,63 +176,37 @@ int cerca_in_lista(Ordine *testa, char *nome_ricetta);
 
 // CODE x ordini
 void inizializza_coda(Coda **coda);
-
 Coda *elimina_ordine_ptr_coda(Coda *coda, Ordine *nodo);
-
 Coda *sfila_ordine_ptr_coda(Coda *coda, Ordine *nodo);
-
 Coda *inserisci_in_coda(Coda *coda, Ordine *ordine);
-
 Coda *inserisci_inordine_ordini(Coda *coda, Ordine *ordine);
 
 // --------------------------- FUNZIONI DI ORDINAMENTO LISTE ----------------------------//
 
-// liste di ordini
 void sottoliste_ordini(Ordine *testa, Ordine **inizio, Ordine **fine);
-
-Ordine *merge_crescente_ordini(Ordine *a, Ordine *b);
-
 Ordine *merge_decrescente_corriere(Ordine *a, Ordine *b);
-
-void merge_sort_ordini(Ordine **testa_indirizzo);
-
 void merge_sort_corriere(Ordine **testa_indirizzo);
 
 // ---------------------------  HASH TABLE ---------------------------------------------//
 
-// crea HashTable
 void inizializza_ricettario(Ricettario *ricettario);
 void inizializza_magazzino(Magazzino *magazzino);
 void inizializza_ht_ingredienti(Ht_Ingredienti *ht_ingredienti);
 
-// crea Bucket
 BucketMagazzino *crea_bucket_magazzino(char *nome_ingrediente, Lotto *lista);
 BucketRicettario *crea_bucket_ricettario(char *nome_ricetta, Ingrediente *lista);
 BucketIngredienti *crea_bucket_ht_ingredienti(char *nome_ingrediente, BucketMagazzino *bucket_magazzino);
 
 int hash(char *string);
-
-// Restituisce NULL se il Bucket non c'e, altrimenti resituisce il puntatore al Bucket cercato.
 BucketMagazzino *cerca_magazzino(Magazzino *ht, char *string);
 BucketRicettario *cerca_ricettario(Ricettario *ht, char *string);
 BucketIngredienti *cerca_ht_ingredienti(Ht_Ingredienti *ht_ingredienti, char *nome_ingrediente);
 
 void inserisci_bucket_ht_ingredienti(Ht_Ingredienti *ht_ingredienti, BucketIngredienti *nuovo_bucket);
-
-// ---------------------------  RICETTARIO  ---------------------------------------------//
-
 void inserisci_ricetta(Ricettario *ht, BucketRicettario *nuovo_bucket, char *string);
-
 void elimina_ricetta(Ricettario *ht, char *string);
-
 void elimina_lotto(BucketMagazzino **bucket, Lotto *lotto);
-
-// ---------------------------  MAGAZZINO ---------------------------------------------//
 void inserisci_bucket_magazzino(Magazzino *ht, Lotto *lotto, char *nome_ricetta);
-
-
-
-
 
 //----------------------------------------------------------------------------------------------------------------------
 //------------------------------------------   MAIN     ----------------------------------------------------------------
@@ -470,7 +465,7 @@ int main()
                             }
                         }
                         // printf("%s, attesa=%d\n", ingrediente->bucket_ingrediente->nome_ingrediente, attesa);
-                        //          avanzo all'ingrediente successivo
+                        // avanzo all'ingrediente successivo
                         ingrediente = ingrediente->successore;
                         cont++;
                     }
@@ -790,8 +785,6 @@ void inserisci_bucket_ht_ingredienti(Ht_Ingredienti *ht_ingredienti, BucketIngre
     }
     return;
 }
-
-// elimina ingrediente -> chiamo solo quando elimino una ricetta, ingrediente viene eliminato solo se cont = 0 cioe non serve in nesun altra ricetta.
 
 // ------------------------------- RICETTARIO -----------------------------------------//
 
