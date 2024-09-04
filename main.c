@@ -58,7 +58,7 @@
 //  30           --    4.00    --    15
 //  30L          --    1.500   --    14
 
-// Risultato ottenuto: Voto=27 , Tempo = 6.229(s), Memoria_utilizzata = 16 (MiB)
+// Risultato ottenuto: Voto=27 , Tempo = 6.26(s), Memoria_utilizzata = 16.8 (MiB)
 
 // ULTERIORI MIGLIORAMENTI
 // - Funzione per sfilare un elemento da una coda. Questa permetterebbe migliore velocita nel passaggio di un ordine da lista di attesa alla
